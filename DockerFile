@@ -12,6 +12,4 @@ RUN npm install -g typescript
  
 COPY ./ ./
 
-ENV CHOKIDAR_USEPOLLING=true
-
 CMD ["npm","run","dev"] 
