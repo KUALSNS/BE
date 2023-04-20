@@ -1,0 +1,49 @@
+name:  Tarae Nodejs(TypeScript) CI with NPM and CD with Docker & AWS EC2
+
+on:
+  push:
+    branches: [ "feature_CI/CD_Docker" ]
+
+permissions:
+  contents: read
+
+jobs:
+  CI-CD:
+    runs-on: ubuntu-latest
+    steps:
+    # 소스코드 다운로드
+    - name: Checkout code
+      uses: actions/checkout@v3
+    # Nodejs 세팅
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.6.0'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    # ENV SDK 세팅
+    - name: Setting env file
+      run: |
+        touch .env
+        echo "${{ secrets.ENV }}" >> .env
+      shell: bash
+ 
+    - name: Build Docker Image For Node.js
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 .
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
+    # 서버에서 Docker 이미지 실행
+    - name: EC2 Docker Run
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        command_timeout: 7m
+        script: |
+        
+          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
+          docker run -d -p 80:8080 --name Tarae ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
+      
