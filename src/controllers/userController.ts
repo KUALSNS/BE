@@ -56,7 +56,10 @@ export const userLogin = async (req : Request, res : Response, next : NextFuncti
     
     }catch(error){
         console.error(error);
-        res.status(500).json({ "code": 500});
+        res.status(500).json({ 
+            "code": 500,
+            message : "Server Error" 
+        });
     }finally{
         //await redisClient.disconnect();   
     }
@@ -64,7 +67,7 @@ export const userLogin = async (req : Request, res : Response, next : NextFuncti
 
 export const userReissueToken = async (req : Request, res : Response, next : NextFunction) => {
     try{
-        
+      
 
 
 
@@ -73,6 +76,9 @@ export const userReissueToken = async (req : Request, res : Response, next : Nex
 
     }
 };
+
+
+
 
 
 export const userLogout = async (req : Request, res : Response, next : NextFunction) => {
