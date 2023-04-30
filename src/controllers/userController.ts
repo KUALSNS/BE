@@ -11,7 +11,14 @@ const redisClient = redis.createClient({
     legacyMode: true
 });
 
-
+/**
+ * 
+ * @param req 유저 이메일, 유저 비밀번호 받기
+ * @param res 
+ * @param next 
+ * @returns 1. 404, 유저 아이디, 비밀번호 옳지 않음
+ *          2. 200 accessToken, refreshToken 발급
+ */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         await redisClient.connect();
