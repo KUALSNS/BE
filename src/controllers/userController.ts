@@ -9,12 +9,12 @@ const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
     legacyMode: true
 });
-
+redisClient.connect();
 
 
 export const userLogin = async (req : Request, res : Response, next : NextFunction) => {
     try{     
-        await redisClient.connect();
+        
         const { userEmail, userPassword } : userLoginDto = req.body; 
         const userEmailSelect =  await UserService.userEmailSelect(userEmail);
         console.log(userEmailSelect);
