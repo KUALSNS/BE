@@ -59,12 +59,8 @@ const refreshVerify = async (token: string, userId: number) => {
     const data: string = await redisClient.v4.get(String(userId));
     if (typeof data === 'string') {
       if (token === data.split('Bearer ')[1]) {
-        try {
           jwt.verify(data.split('Bearer ')[1], secret);
           return { state: true };
-        } catch (error) {
-          return { state: false };
-        }
       } else {
         return { state: false };
       }

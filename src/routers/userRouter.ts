@@ -5,6 +5,6 @@ const router = express.Router()
 
 router.post('/login', UserController.userLogin);
 router.get('/login/reissue-token',UserController.userReissueToken);
-router.post('/logout',UserController.userLogout);
+router.patch('/logout',UserController.userLogout);
 
 export = router

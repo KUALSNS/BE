@@ -105,6 +105,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                 if (authResult.state === false) {
                     if (typeof refreshResult != 'undefined') {
                         if (refreshResult.state === false) {
+                            await redisClient.v4.del(String(decoded.id));
                             return res.status(419).json({
                                 code: 419,
                                 message: 'login again!',
@@ -155,17 +156,46 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
 };
 
 
-
-
-
+/**
+ * 
+ * @param req  header로 accessToken을 받아옴
+ * @param res 
+ * @param next 
+ * @returns  
+ *  1. 로그아웃 완료
+ *  2. accessToken 오류
+ */
 export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
-
-
-
-
+        await redisClient.connect();
+        if (typeof req.headers.access == "string") {
+            const accessToken = req.headers.access.split('Bearer ')[1];
+            const decode: { id: number } = jwt.decode(accessToken);
+            if (decode === null) {
+                res.status(404).send({
+                    code: 404,
+                    message: 'No content.',
+                });
+            }
+            console.log(decode.id);
+            await redisClient.v4.del(String(decode.id));
+            return res.status(200).send({
+                code: 200,
+                message: "Logout success"
+            });
+        }
+        else {
+            return res.status(403).json({
+                "code": 403,
+                "message": "strange state"
+            });
+        }
     } catch (error) {
-
+        return res.status(500).json({
+            code: 500,
+            message: "Server Error"
+        });
+    }finally{
+        await redisClient.disconnect();
     }
 };
