@@ -80,11 +80,8 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
  * @param res  
  * @param next 
  * @returns 
- * 1. accessToken, refreshToken 둘 다 넘어왔을 경우
  *      => accessToken, refreshToken 둘 다 만료 시 재로그인 응답
  *      => accessToken만 만료 시 새로운 accessToken과 기존 refrshToken 응답
- * 2. accessToken만 넘어왔을 경우(자동 로그인) 
- *      => accessToken을 확인 후 만료가 안됐다면 자동로그인 가능 응답
  */
 export const userReissueToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -94,7 +91,6 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             const decoded = jwt.decode(accessToken);
             if (req.headers.access && req.headers.refresh) {
                 const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
-                console.log(refreshToken);
                 if (decoded === null) {
                     return res.status(404).json({
                         code: 404,
@@ -131,18 +127,6 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                         message: 'access token is not expired!',
                     });
                 }
-            }
-            else if (req.headers.access) {
-                if (authResult.state === false) {
-                    return res.status(419).json({
-                        code: 419,
-                        message: 'accesToken expired',
-                    });
-                }
-                return res.status(203).json({
-                    code: 203,
-                    message: 'u can do automatic login.',
-                });
             }
     } catch (error) {
         console.error(error);
