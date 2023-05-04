@@ -5,7 +5,6 @@ import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 
-
 const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
     legacyMode: true
@@ -62,7 +61,6 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 role: 0
             });
         }
-
     } catch (error) {
         console.error(error);
         res.status(500).json({

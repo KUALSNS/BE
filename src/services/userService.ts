@@ -38,7 +38,7 @@ import mysql from 'mysql2/promise';
     const connection = await mysql.createConnection(DATA_SOURCES.development);
     try {
       await connection.connect();
-      const  userSelect : string = `select id, role, password from user where email = '${String(userEmail)}'; `;
+      const  userSelect : string = `select user_id, role, password from users where email = '${String(userEmail)}'; `;
       const userSelectResult : any  = await connection.query(userSelect);
       return userSelectResult[0][0];
     } catch (error) {
