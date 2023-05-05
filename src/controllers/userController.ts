@@ -28,25 +28,25 @@ const redisClient = redis.createClient({
 export const userSignup = async (req: Request, res: Response, next: NextFunction) => {
 
     let { userId, userEmail, userPassword,userNickname }: userSignupDto = req.body;
-    // const userEmailSelect = await UserService.userEmailSelect(userEmail);
-    // console.log(userEmailSelect);
-    // if (userEmailSelect) {
-    //     return res.status(401).json({
-    //         code: 401,
-    //         message: "Id already exists"
-    //     });
-    // }
+    const userEmailSelect = await UserService.userEmailSelect(userEmail);
+    console.log(userEmailSelect);
+    if (userEmailSelect) {
+        return res.status(401).json({
+            code: 401,
+            message: "Id already exists"
+        });
+    }
     // 비밀번호 암호화
     const saltRounds = env.SALTROUNDS;
 
-    // const bcryptPassword = await bcrypt.hash(userPassword, parseInt(saltRounds));
-    // bcrypt.hash(userPassword, 10, (err, hash) => {
-    //     if (err) {
-    //         return next(err);
-    //     }
-    //     userPassword = hash;
-    //     return next();
-    // });
+    const bcryptPassword = await bcrypt.hash(userPassword, parseInt(saltRounds));
+    bcrypt.hash(userPassword, 10, (err, hash) => {
+        if (err) {
+            return next(err);
+        }
+        userPassword = hash;
+        return next();
+    });
     await UserService.signUpUser(userId, userEmail ,userNickname,userPassword);
     return res.status(200).json({
         code: 200,

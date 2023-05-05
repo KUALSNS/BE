@@ -40,5 +40,7 @@ const signUpUser = async (
 };
 
 
-export  { userEmailSelect,signUpUser }
+export  { userEmailSelect,
+  signUpUser 
+}
 
