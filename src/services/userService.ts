@@ -58,9 +58,10 @@ const signUpService = async (
 
     // * Encrypt user password
     let encryptedPassword = await bcrypt.hash(password, 10);
-    const token = jwt.sign({ email }, TOKEN_KEY, {
-      expiresIn: "20h",
-    });
+    // console.log(email)
+    // const token = jwt.sign({ email }, TOKEN_KEY, {
+    //   expiresIn: "20h",
+    // });
 
     await prisma.user.create({
       data: {
