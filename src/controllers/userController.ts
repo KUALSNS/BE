@@ -28,14 +28,14 @@ const redisClient = redis.createClient({
 export const userSignup = async (req: Request, res: Response, next: NextFunction) => {
 
     let { userId, userEmail, userPassword,userNickname }: userSignupDto = req.body;
-    const userEmailSelect = await UserService.userEmailSelect(userEmail);
-    console.log(userEmailSelect);
-    if (userEmailSelect) {
-        return res.status(409).json({
-            code: 409,
-            message: "Id already exists"
-        });
-    }
+    // const userEmailSelect = await UserService.userEmailSelect(userEmail);
+    // console.log(userEmailSelect);
+    // if (userEmailSelect) {
+    //     return res.status(409).json({
+    //         code: 409,
+    //         message: "Id already exists"
+    //     });
+    // }
     // 비밀번호 암호화
     const saltRounds = env.SALTROUNDS;
     const salt = await bcrypt.genSalt(saltRounds);
