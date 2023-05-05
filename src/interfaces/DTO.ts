@@ -5,8 +5,8 @@ export interface userLoginDto {
   }
 
 export interface userSignupDto {
-    userId : string;
-    userEmail : string;
-    userPassword : string;
-    userNickname : string;
+  userId : string;
+  userEmail : string;
+  userPassword : string;
+  userNickname : string;
 }
