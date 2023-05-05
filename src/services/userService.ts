@@ -19,18 +19,18 @@ const userEmailSelect =  async (userEmail: string) => {
 
 //registerUser function using prisma
 const signUpUser = async (
-  user_id: string,
-  nickname: string,
+  userId: string,
+  nickName: string,
   email: string,
   password : string
 ) => {
   try {
     const user = await prisma.user.create({
       data: {
-        user_id: user_id,
-        nickname: nickname,
-        email: email,
-        password:password,
+        user_id: "userIdsss",
+        nickname: "nickNasssme",
+        email: "lala@naver.com",
+        password:"ddpos",
       },
     });
     return user;
