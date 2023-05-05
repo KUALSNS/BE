@@ -1,3 +1,5 @@
+import { signUpService } from '../services/userService';
+
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
@@ -5,6 +7,7 @@ import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
+import { serviceReturnForm } from '../modules/service-modules';
 const env = process.env;
 declare var process : {
     env: {
@@ -25,37 +28,37 @@ const redisClient = redis.createClient({
 /**
  * @desc 유저 회원 가입
  */
-export const userSignup = async (req: Request, res: Response, next: NextFunction) => {
+export const userSignup = async (req: Request, res: Response) => {
+    // * Validate user input
+    if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
+        res.status(400).send({ status: 400, message: "Fail SignUp" });
+        return;
+    }
+    const { email, password, nickname, userId } = req.body;
 
-    let { userId, userEmail, userPassword,userNickname }: userSignupDto = req.body;
-    const userEmailSelect = await UserService.userEmailSelect(userEmail);
-    console.log(userEmailSelect);
-    if (userEmailSelect) {
-        return res.status(401).json({
-            code: 401,
-            message: "Id already exists"
+    const returnData: serviceReturnForm = await signUpService(
+      email,
+      password,
+      nickname,
+      userId
+    );
+    if (returnData.status == 200) {
+        // when successed
+        const { status, message, responseData } = returnData;
+        res.status(status).send({
+            status,
+            message,
+            responseData,
+        });
+    } else {
+        // when failed
+        const { status, message } = returnData;
+        res.status(status).send({
+            status,
+            message,
         });
     }
-    // 비밀번호 암호화
-    const saltRounds = env.SALTROUNDS;
-
-    const bcryptPassword = await bcrypt.hash(userPassword, parseInt(saltRounds));
-    bcrypt.hash(userPassword, 10, (err, hash) => {
-        if (err) {
-            return next(err);
-        }
-        userPassword = hash;
-        return next();
-    });
-    await UserService.signUpUser(userId, userEmail ,userNickname,userPassword);
-    return res.status(200).json({
-        code: 200,
-        message: "user register success"
-    });
-
-
-}
-
+};
 
 
 /**
