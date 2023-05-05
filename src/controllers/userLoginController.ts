@@ -1,12 +1,20 @@
+require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
 import *  as UserService from '../services/userLoginService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
-import { signUpUser } from '../services/userLoginService';
-
-
+const env = process.env;
+declare var process : {
+    env: {
+        SALTROUNDS: number
+        REDIS_USERNAME: string
+        REDIS_PASSWORD: string
+        REDIS_HOST: string
+        REDIS_PORT: number
+    }
+}
 
 const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
@@ -19,7 +27,7 @@ const redisClient = redis.createClient({
  */
 export const userSignup = async (req: Request, res: Response, next: NextFunction) => {
 
-    const { userId, userEmail, userPassword,userNickname }: userSignupDto = req.body;
+    let { userId, userEmail, userPassword,userNickname }: userSignupDto = req.body;
     const userEmailSelect = await UserService.userEmailSelect(userEmail);
     console.log(userEmailSelect);
     if (userEmailSelect) {
@@ -28,6 +36,12 @@ export const userSignup = async (req: Request, res: Response, next: NextFunction
             message: "Id already exists"
         });
     }
+    // 비밀번호 암호화
+    const saltRounds = env.SALTROUNDS;
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(userPassword, salt);
+    userPassword = hash;
+
     await UserService.signUpUser(userId, userEmail ,userNickname,userPassword);
     return res.status(200).json({
         code: 200,
