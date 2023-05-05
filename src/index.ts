@@ -10,7 +10,7 @@ index.use(express.json());
 index.use(express.urlencoded({extended: true}));
 index.use(morgan('combined'));
 
-index.use('/user',require('./routers/userRouter'));
+index.use('api/user',require('./routers/userRouter'));
 
 index.get('/', (req, res) => {
     res.send('Hello World!');

@@ -15,7 +15,7 @@ const redisClient = redis.createClient({
  * @param req 유저 이메일, 유저 비밀번호 받기
  * @param res 
  * @param next 
- * @returns 1. 404, 유저 아이디, 비밀번호 옳지 않음
+ * @returns 1. 404 유저 아이디, 비밀번호 옳지 않음
  *          2. 200 accessToken, refreshToken 발급
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
