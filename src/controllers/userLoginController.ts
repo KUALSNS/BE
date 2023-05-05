@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto } from '../interfaces/DTO';
-import *  as UserService from '../services/userService';
+import *  as UserService from '../services/userLoginService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
