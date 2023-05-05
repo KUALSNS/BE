@@ -1,7 +1,7 @@
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
-import *  as UserService from '../services/userLoginService';
+import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
