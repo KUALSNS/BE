@@ -7,8 +7,10 @@ const index = express();
 const port = process.env.PORT || 3000;
 
 index.use(express.json());
+index.use(express.urlencoded({extended: true}));
 index.use(morgan('combined'));
 
+index.use('/api/user',require('./routers/userRouter'));
 
 index.get('/', (req, res) => {
     res.send('Hello World!');
