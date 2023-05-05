@@ -72,8 +72,8 @@ const redisClient = redis.createClient({
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         await redisClient.connect();
-        const { userEmail, userPassword }: userLoginDto = req.body;
-        const userEmailSelect = await UserService.userEmailSelect(userEmail);
+        const { userIdentifier, userPassword }: userLoginDto = req.body;
+        const userEmailSelect = await UserService.userEmailSelect(userIdentifier);
         console.log(userEmailSelect);
         if (userEmailSelect == null || userEmailSelect == undefined) {
             return res.status(404).json({
