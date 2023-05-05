@@ -33,8 +33,11 @@ model Profile {
 
 model User {
   id      Int      @id @default(autoincrement())
+  user_id String   @unique
   email   String   @unique
-  name    String?
+  password String
+  nickname    String?
   posts   Post[]
   profile Profile?
 }
+
