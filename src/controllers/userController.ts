@@ -200,7 +200,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
  */
 export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.v4.connect();
+        await redisClient.connect();
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
             const decode: { id: number } = jwt.decode(accessToken);
