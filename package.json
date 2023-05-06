@@ -12,7 +12,7 @@
     "test": "jest --silent --runInBand --detectOpenHandles --verbose --forceExit"
   },
   "dependencies": {
-    "@prisma/client": "^4.13.0",
+    "@prisma/client": "^3.13.0",
     "@sentry/node": "^7.43.0",
     "@sentry/tracing": "^7.43.0",
     "@types/helmet": "^4.0.0",
@@ -33,7 +33,7 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "mysql2": "^3.2.4",
-    "prisma": "^4.8.0",
+    "prisma": "^3.8.0",
     "redis": "^4.6.6",
     "supertest": "^6.3.3",
     "winston": "^3.8.2",

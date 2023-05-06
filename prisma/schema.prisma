@@ -3,8 +3,10 @@
 // prisma migration command
 // npx prisma migrate dev --name init
 
+
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -12,32 +14,113 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+model users {
+  user_id         Int               @id @default(autoincrement())
+  role            String            @db.VarChar(20)
+  identifier      String            @unique(map: "identifierUnique") @db.VarChar(40)
+  password        String            @db.VarChar(255)
+  email           String            @db.VarChar(40)
+  nickname        String            @db.VarChar(40)
+  level           Int?
+  mar_email       Boolean?
+  phone           String            @db.VarChar(30)
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  update_at       DateTime          @default(now()) @db.Timestamp(0)
+  user_challenges user_challenges[]
+  user_templates  user_templates[]
 }
 
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+model category {
+  cate_id    Int          @id @default(autoincrement())
+  type       String       @db.VarChar(20)
+  name       String       @db.VarChar(40)
+  count      Int
+  challenges challenges[]
+  templates  templates[]
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  user_id String   @unique
-  email   String   @unique
-  password String
-  nickname    String?
-  posts   Post[]
-  profile Profile?
+model challenges {
+  chal_id         Int               @default(autoincrement())
+  cate_id         Int
+  title           String            @db.VarChar(40)
+  content         String            @db.VarChar(50)
+  emogi           String            @db.VarChar(255)
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  update_at       DateTime          @default(now()) @db.Timestamp(0)
+  category        category          @relation(fields: [cate_id], references: [cate_id], onDelete: Cascade, map: "cate_idForeignKey")
+  user_challenges user_challenges[]
+
+  @@id([chal_id, cate_id])
+  @@index([cate_id], map: "cate_idForeignKey")
 }
+
+model templates {
+  tem_id                   Int                        @default(autoincrement())
+  cate_id                  Int
+  title                    String                     @db.VarChar(40)
+  content                  String                     @db.VarChar(50)
+  writing                  String                     @db.LongText
+  created_at               DateTime                   @default(now()) @db.Timestamp(0)
+  update_at                DateTime                   @default(now()) @db.Timestamp(0)
+  category                 category                   @relation(fields: [cate_id], references: [cate_id], onDelete: Cascade, map: "cate_idForeignKey2")
+  user_challenge_templetes user_challenge_templetes[]
+  user_templates           user_templates[]
+
+  @@id([tem_id, cate_id])
+  @@index([cate_id], map: "cate_idForeignKey2")
+}
+
+model user_templates {
+  utem_id    Int       @default(autoincrement())
+  user_id    Int
+  tem_id     Int
+  title      String    @db.VarChar(40)
+  writing    String    @db.LongText
+  created_at DateTime  @default(now()) @db.Timestamp(0)
+  update_at  DateTime  @default(now()) @db.Timestamp(0)
+  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey")
+  templates  templates @relation(fields: [tem_id], references: [tem_id], onDelete: Cascade, map: "tem_idForeignKey4")
+  @@id([utem_id, user_id, tem_id])
+  @@index([tem_id], map: "tem_idForeignKey4")
+  @@index([user_id], map: "user_idForeignKey")
+}
+
+model user_challenges {
+  uchal_id                 Int                        @default(autoincrement())
+  user_id                  Int
+  chal_id                  Int
+  complete                 Boolean?
+  start_at                 DateTime                   @default(now()) @db.Timestamp(0)
+  finish_at                DateTime?                  @db.Timestamp(0)
+  user_challenge_templetes user_challenge_templetes[]
+  challenges               challenges                 @relation(fields: [chal_id], references: [chal_id], onDelete: Cascade, map: "chal_idForeignKey2")
+  users                    users                      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey2")
+
+  @@id([uchal_id, user_id, chal_id])
+  @@index([chal_id], map: "chal_idForeignKey2")
+  @@index([user_id], map: "user_idForeignKey2")
+}
+
+model user_challenge_templetes {
+  uctem_id        Int             @default(autoincrement())
+  uchal_id        Int
+  tem_id          Int
+  title           String?         @db.VarChar(30)
+  writing         String          @db.LongText
+  complete        Boolean?
+  created_at      DateTime        @default(now()) @db.Timestamp(0)
+  update_at       DateTime        @default(now()) @db.Timestamp(0)
+  templates       templates       @relation(fields: [tem_id], references: [tem_id], onDelete: Cascade, map: "tem_idForeignKey2")
+  user_challenges user_challenges @relation(fields: [uchal_id], references: [uchal_id], onDelete: Cascade, map: "uchal_idForeignKey2")
+
+  @@id([uctem_id, uchal_id, tem_id])
+  @@index([tem_id], map: "tem_idForeignKey2")
+  @@index([uchal_id], map: "uchal_idForeignKey2")
+}
+
+
+
+
+
+
 

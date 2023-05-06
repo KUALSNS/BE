@@ -4,13 +4,13 @@ import mysql from 'mysql2/promise';
 import { serviceReturnForm } from '../modules/service-modules';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-//const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
-const userEmailSelect =  async (userEmail: string) => {
+const userEmailSelect =  async ( userIdentifier: string) => {
   const connection = await mysql.createConnection(DATA_SOURCES.development);
   try {
     await connection.connect();
-    const  userSelect : string = `select user_id, role, password from users where identifier = '${String(userEmail)}'; `;
+    const  userSelect : string = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
     const userSelectResult : any  = await connection.query(userSelect);
     return userSelectResult[0][0];
   } catch (error) {
@@ -22,12 +22,12 @@ const userEmailSelect =  async (userEmail: string) => {
 
 //registerUser function using prisma
 
-//registerUser function using prisma
+
 // const signUpService = async (
 //   email: string,
 //   password: string,
 //   nickname: string,
-//   userId : string
+//   userId : string,
 // ) => {
 //   const returnForm: serviceReturnForm = {
 //     status: 500,
@@ -37,7 +37,7 @@ const userEmailSelect =  async (userEmail: string) => {
 
 //   // * Validate if email already exists
 //   let isEmailExist = false;
-//   await prisma.user.findFirst({ where: { email: email } })
+//   await prisma.users.findFirst({ where: { email: email } })
 //     .then((data) => {
 //       if (data) {
 //         isEmailExist = true;
@@ -63,9 +63,9 @@ const userEmailSelect =  async (userEmail: string) => {
 //     //   expiresIn: "20h",
 //     // });
 
-//     await prisma.user.create({
+//     await prisma.users.create({
 //       data: {
-//         user_id: userId,
+//         identifier: userId,
 //         nickname: nickname,
 //         email: email,
 //         password:password,
@@ -86,6 +86,6 @@ const userEmailSelect =  async (userEmail: string) => {
 
 
 export  { userEmailSelect,
- // signUpService 
+//  signUpService 
 }
 
