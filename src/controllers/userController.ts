@@ -9,15 +9,15 @@ import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/service-modules';
 const env = process.env;
-// declare var process : {
-//     env: {
-//         SALTROUNDS: string
-//         REDIS_USERNAME: string
-//         REDIS_PASSWORD: string
-//         REDIS_HOST: string
-//         REDIS_PORT: number
-//     }
-// }
+declare var process : {
+    env: {
+        SALTROUNDS: string
+        REDIS_USERNAME: string
+        REDIS_PASSWORD: string
+        REDIS_HOST: string
+        REDIS_PORT: number
+    }
+}
 
 const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
@@ -72,7 +72,6 @@ const redisClient = redis.createClient({
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         await redisClient.connect();
-        console.log(1);
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userEmailSelect = await UserService.userEmailSelect(userIdentifier);
         console.log(userEmailSelect);
@@ -121,7 +120,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             message: "Server Error"
         });
     } finally {
-         redisClient.disconnect();   
+         await redisClient.disconnect();   
     }
 };
 
@@ -140,6 +139,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             const accessToken = (req.headers.access as string).split('Bearer ')[1];
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
+        
             if (req.headers.access && req.headers.refresh) {
                 const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
                 if (decoded === null) {
@@ -186,7 +186,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             message: "Server Error"
         });
     }finally{
-        redisClient.disconnect();
+        await redisClient.disconnect();
     }
 };
 
@@ -231,6 +231,6 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
             message: "Server Error"
         });
     }finally{
-       redisClient.disconnect();
+       await redisClient.disconnect();
     }
 };

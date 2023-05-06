@@ -20,7 +20,7 @@ const userEmailSelect =  async ( userIdentifier: string) => {
   } catch (error) {
     console.log(error);
   } finally {
-     connection.end();
+     await connection.end();
   }
 }
 
