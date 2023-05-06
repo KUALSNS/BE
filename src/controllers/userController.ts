@@ -1,5 +1,7 @@
 //import { signUpService } from '../services/userService';
 
+import { signUpService } from '../services/userService';
+
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
@@ -28,37 +30,38 @@ const redisClient = redis.createClient({
 /**
  * @desc 유저 회원 가입
  */
-// export const userSignup = async (req: Request, res: Response) => {
-//     // * Validate user input
-//     if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
-//         res.status(400).send({ status: 400, message: "Fail SignUp" });
-//         return;
-//     }
-//     const { email, password, nickname, userId } = req.body;
+export const userSignup = async (req: Request, res: Response) => {
+    // * Validate user input
+    if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
+        res.status(400).send({ status: 400, message: "Fail SignUp" });
+        return;
+    }
+    const { email, password, nickname, userId, phoneNumber } = req.body;
 
-//     const returnData: serviceReturnForm = await signUpService(
-//       email,
-//       password,
-//       nickname,
-//       userId
-//     );
-//     if (returnData.status == 200) {
-//         // when successed
-//         const { status, message, responseData } = returnData;
-//         res.status(status).send({
-//             status,
-//             message,
-//             responseData,
-//         });
-//     } else {
-//         // when failed
-//         const { status, message } = returnData;
-//         res.status(status).send({
-//             status,
-//             message,
-//         });
-//     }
-// };
+    const returnData: serviceReturnForm = await signUpService(
+      email,
+      password,
+      nickname,
+      userId,
+      phoneNumber
+    );
+    if (returnData.status == 200) {
+        // when successed
+        const { status, message, responseData } = returnData;
+        res.status(status).send({
+            status,
+            message,
+            responseData,
+        });
+    } else {
+        // when failed
+        const { status, message } = returnData;
+        res.status(status).send({
+            status,
+            message,
+        });
+    }
+};
 
 
 /**
