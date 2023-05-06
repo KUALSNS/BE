@@ -6,10 +6,10 @@ export const beforeMain = async (req: Request, res: Response, next: NextFunction
     try {
         const data = await ChallengeController.beforeMainData();
         return res.status(200).json({
-            "code" : 200,
-            "message" : "Ok",
-             data
-      
+            "code": 200,
+            "message": "Ok",
+            data
+
         });
     } catch (error) {
         console.error(error);
@@ -24,11 +24,11 @@ export const wholeCategory = async (req: Request, res: Response, next: NextFunct
     try {
         const challenges = await ChallengeController.wholeCategoryData();
         return res.status(200).json({
-            "code" : 200,
-            "message" : "Ok",
-             data :{
+            "code": 200,
+            "message": "Ok",
+            data: {
                 challenges
-             }   
+            }
         });
     } catch (error) {
         console.error(error);

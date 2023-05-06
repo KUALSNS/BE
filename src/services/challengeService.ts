@@ -7,25 +7,27 @@ const prisma = new PrismaClient();
 const beforeMainData = async () => {
   try {
     const challengesArray = [];
-    const categoryDB = await prisma.category.findMany({
-      where: {
-        type: "챌린지"
-      },
-      select: {
-        name: true,
-      }
-    });
-    const challengesDB = await prisma.challenges.findMany({
-      select: {
-        title: true,
-        content: true,
-        category: {
-          select: {
-            name: true,
+    const [categoryDB, challengesDB] = await Promise.all([
+      prisma.category.findMany({
+        where: {
+          type: "챌린지"
+        },
+        select: {
+          name: true,
+        }
+      }),
+      prisma.challenges.findMany({
+        select: {
+          title: true,
+          content: true,
+          category: {
+            select: {
+              name: true,
+            }
           }
         }
-      }
-    });
+      })
+    ]);
     const category = categoryDB.map((e) => {
       return e.name
     });
@@ -33,7 +35,6 @@ const beforeMainData = async () => {
       return [{ "title": e.title, "content": e.content, "category": e.category.name }]
 
     });
-
     for (var i = 0; i < challenges.length; i++) {
       challengesArray.push(challenges[i][0]);
     }
@@ -50,7 +51,6 @@ const beforeMainData = async () => {
 const wholeCategoryData = async () => {
   try {
     const challengesArray = [];
- 
     const challengesDB = await prisma.challenges.findMany({
       select: {
         title: true,
@@ -70,7 +70,6 @@ const wholeCategoryData = async () => {
     }
     prisma.$disconnect();
     return challengesArray
-
   } catch (error) {
     console.log(error);
   }
