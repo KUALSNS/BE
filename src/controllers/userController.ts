@@ -6,7 +6,7 @@ import { userLoginDto, userSignupDto } from '../interfaces/DTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
-import redis from 'redis';
+import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/service-modules';
 const env = process.env;
 // declare var process : {
