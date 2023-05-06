@@ -73,26 +73,26 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
     try {
         await redisClient.connect();
         const { userIdentifier, userPassword }: userLoginDto = req.body;
-        const userEmailSelect = await UserService.userEmailSelect(userIdentifier);
-        console.log(userEmailSelect);
-        if (userEmailSelect == null || userEmailSelect == undefined) {
+        const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
+        console.log(userIdentifierSelect);
+        if (userIdentifierSelect == null || userIdentifierSelect == undefined) {
             return res.status(404).json({
                 code: 404,
                 message: "Id can't find"
             });
         }
         console.log(1);
-        const comparePassword = await bcrypt.compare(userPassword, userEmailSelect.password);
+        const comparePassword = await bcrypt.compare(userPassword, userIdentifierSelect.password);
         if (!comparePassword) {
             return res.status(419).json({
                 code: 419,
                 message: "Password can't find"
             });
         }
-        const accessToken = "Bearer " + jwt.sign(userEmailSelect.id, userEmailSelect.role);
+        const accessToken = "Bearer " + jwt.sign(userIdentifierSelect.id, userIdentifierSelect.role);
         const refreshToken = "Bearer " + jwt.refresh();
-        await redisClient.v4.set(String(userEmailSelect.id), refreshToken);
-        if (userEmailSelect === 1) {
+        await redisClient.v4.set(String(userIdentifierSelect.id), refreshToken);
+        if (userIdentifierSelect === 1) {
             return res.status(200).json({
                 code: 200,
                 message: "Ok",
@@ -115,7 +115,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             "code": 500,
             message: "Server Error"
         });

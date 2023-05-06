@@ -4,14 +4,48 @@ import mysql from 'mysql2/promise';
 const prisma = new PrismaClient();
 
 
-const allChallenge =  async ( userIdentifier: string) => {
-    
-    try {
-      
-     
-    } catch (error) {
-      console.log(error);
-    } finally {
-       
+const beforeMainData = async () => {
+  try {
+    const challengesArray = [];
+    const categoryDB = await prisma.category.findMany({
+      where: {
+        type: "챌린지"
+      },
+      select: {
+        name: true,
+      }
+    });
+    const challengesDB = await prisma.challenges.findMany({
+      select: {
+        title: true,
+        content: true,
+        category: {
+          select: {
+            name: true,
+          }
+        }
+      }
+    });
+    const category = categoryDB.map((e) => {
+      return e.name
+    });
+    const challenges = challengesDB.map((e) => {
+      return [{ "title": e.title, "content": e.content, "category": e.category.name }]
+
+    });
+
+    for (var i = 0; i < challenges.length; i++) {
+      challengesArray.push(challenges[i][0]);
     }
+    prisma.$disconnect();
+    return {
+      category,
+      challengesArray
+    };
+  } catch (error) {
+    console.log(error);
   }
+}
+
+
+export { beforeMainData }

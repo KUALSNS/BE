@@ -7,10 +7,9 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 
 
-const userEmailSelect =  async ( userIdentifier: string) => {
-  console.log(2);
+const userIdentifierSelect =  async ( userIdentifier: string) => {
+
   const connection = await mysql.createConnection(DATA_SOURCES.development);
-  console.log(3);
   await connection.connect();
   try {
     
@@ -89,7 +88,7 @@ const userEmailSelect =  async ( userIdentifier: string) => {
 // };
 
 
-export  { userEmailSelect,
+export  { userIdentifierSelect,
 //  signUpService 
 }
 
