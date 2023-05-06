@@ -71,7 +71,7 @@ const redisClient = redis.createClient({
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.connect();
+        await redisClient.v4.connect();
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userEmailSelect = await UserService.userEmailSelect(userIdentifier);
         console.log(userEmailSelect);
@@ -119,7 +119,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             message: "Server Error"
         });
     } finally {
-        await redisClient.disconnect();   
+        await redisClient.v4.disconnect();   
     }
 };
 
@@ -134,7 +134,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
  */
 export const userReissueToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-            await redisClient.connect();
+            await redisClient.v4.connect();
             const accessToken = (req.headers.access as string).split('Bearer ')[1];
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
@@ -184,7 +184,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             message: "Server Error"
         });
     }finally{
-        await redisClient.disconnect();
+        await redisClient.v4.disconnect();
     }
 };
 
@@ -200,7 +200,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
  */
 export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.connect();
+        await redisClient.v4.connect();
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
             const decode: { id: number } = jwt.decode(accessToken);
@@ -229,6 +229,6 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
             message: "Server Error"
         });
     }finally{
-        await redisClient.disconnect();
+        await redisClient.v4.disconnect();
     }
 };
