@@ -71,7 +71,7 @@ const redisClient = redis.createClient({
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.v4.connect();
+        await redisClient.connect();
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userEmailSelect = await UserService.userEmailSelect(userIdentifier);
         console.log(userEmailSelect);
@@ -134,7 +134,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
  */
 export const userReissueToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-            await redisClient.v4.connect();
+            await redisClient.connect();
             const accessToken = (req.headers.access as string).split('Bearer ')[1];
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);

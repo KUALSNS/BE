@@ -55,7 +55,7 @@ const verify = (token: string) => {
 
 const refreshVerify = async (token: string, userId: number) => {
   try {
-    await redisClient.v4.connect();
+    await redisClient.connect();
     const data: string = await redisClient.v4.get(String(userId));
     if (typeof data === 'string') {
       if (token === data.split('Bearer ')[1]) {
