@@ -119,7 +119,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             message: "Server Error"
         });
     } finally {
-        await redisClient.v4.disconnect();   
+     //   await redisClient.v4.disconnect();   
     }
 };
 
@@ -184,7 +184,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             message: "Server Error"
         });
     }finally{
-        await redisClient.v4.disconnect();
+       // await redisClient.v4.disconnect();
     }
 };
 
@@ -229,6 +229,6 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
             message: "Server Error"
         });
     }finally{
-        await redisClient.v4.disconnect();
+      //  await redisClient.v4.disconnect();
     }
 };
