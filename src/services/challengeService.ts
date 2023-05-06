@@ -47,5 +47,34 @@ const beforeMainData = async () => {
   }
 }
 
+const wholeCategoryData = async () => {
+  try {
+    const challengesArray = [];
+ 
+    const challengesDB = await prisma.challenges.findMany({
+      select: {
+        title: true,
+        content: true,
+        category: {
+          select: {
+            name: true,
+          }
+        }
+      }
+    });
+    const challenges = challengesDB.map((e) => {
+      return [{ "title": e.title, "content": e.content, "category": e.category.name }]
+    });
+    for (var i = 0; i < challenges.length; i++) {
+      challengesArray.push(challenges[i][0]);
+    }
+    prisma.$disconnect();
+    return challengesArray
 
-export { beforeMainData }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+export { beforeMainData, wholeCategoryData }

@@ -7,8 +7,8 @@ router.use(cors({
     credentials : true
 }));
 
-router.get('/',ChallengeController.beforeMain);
-// router.get('/login/reissue-token',UserController.userReissueToken);
+router.get('/', ChallengeController.beforeMain);
+router.get('/whole-category', ChallengeController.wholeCategory);
 // router.patch('/logout',UserController.userLogout);
 
 export = router
