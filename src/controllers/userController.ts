@@ -1,5 +1,4 @@
 import { signUpService } from '../services/userService';
-
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
@@ -28,9 +27,6 @@ const redisClient = redis.createClient({
 
 
 export function verifyEmail() {
-    //redisClient.connect();
-
-    //redisClient.set(email, verificationCode, 'EX', 300); // Set the key-value pair with a 5-minute expiry time
 }
 
 //회원 가입용 이메일 코드 요청
