@@ -149,25 +149,17 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                     });
                 }
                 const refreshResult = await jwt.refreshVerify(refreshToken, decoded.id);
-                console.log(1);
                 await redisClient.connect();
                 if (authResult.state === false) {
-                    console.log(4);
                     if (typeof refreshResult != 'undefined') {
                         if (refreshResult.state === false) {
-                           
-                           
-                            console.log(5);
                             await redisClient.v4.del(String(decoded.id));
-                       
                             return res.status(419).json({
                                 code: 419,
                                 message: 'login again!',
                             });              
-                        }   
-                                   
+                        }                 
                         else {
-                            console.log(2);   
                             const newAccessToken = jwt.sign(decoded.id, decoded.role);
                             const userRefreshToken = await redisClient.v4.get(String(decoded.id));
                             return res.status(200).json({
