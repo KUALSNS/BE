@@ -19,11 +19,10 @@ export const smtpSender = async function( email:string) {
   const verificationCode = generateRandom(100000, 999999);
   await redisClient.connect();
 
-  //redis set email code
+  //redis set email code - 3 minutes expire
   await redisClient.v4.set(email, verificationCode, 'EX', 60 * 3);
   //redis get email code
-  const data: string = await redisClient.v4.get(email);
-  console.log(data);
+  await redisClient.disconnect();
 
 
   const mailOptions = {

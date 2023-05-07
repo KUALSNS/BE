@@ -26,7 +26,16 @@ const redisClient = redis.createClient({
 
 
 
-export function verifyEmail() {
+export const verifyEmail = async (req: Request, res: Response) => {
+    const { email, code } = req.body;
+    await redisClient.connect();
+    const redisCode = await redisClient.v4.get(email);
+    await redisClient.disconnect();
+    if (redisCode == code) {
+        res.status(200).send({ status: 200, message: "Success Verify Email" });
+    } else {
+        res.status(400).send({ status: 400, message: "Fail Verify Email" });
+    }
 }
 
 //회원 가입용 이메일 코드 요청
