@@ -8,17 +8,21 @@ const prisma = new PrismaClient();
 //import { v4 as uuidv4 } from 'uuid';
 
 
+
 const userEmailSelect =  async ( userIdentifier: string) => {
+  console.log(2);
   const connection = await mysql.createConnection(DATA_SOURCES.development);
+  console.log(3);
+  await connection.connect();
   try {
-    await connection.connect();
+    
     const  userSelect : string = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
     const userSelectResult : any  = await connection.query(userSelect);
     return userSelectResult[0][0];
   } catch (error) {
     console.log(error);
   } finally {
-    await connection.end();
+     await connection.end();
   }
 }
 

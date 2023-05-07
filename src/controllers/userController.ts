@@ -122,6 +122,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 message: "Id can't find"
             });
         }
+        console.log(1);
         const comparePassword = await bcrypt.compare(userPassword, userEmailSelect.password);
         if (!comparePassword) {
             return res.status(419).json({
@@ -160,7 +161,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             message: "Server Error"
         });
     } finally {
-        await redisClient.disconnect();   
+         await redisClient.disconnect();   
     }
 };
 
@@ -179,6 +180,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             const accessToken = (req.headers.access as string).split('Bearer ')[1];
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
+        
             if (req.headers.access && req.headers.refresh) {
                 const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
                 if (decoded === null) {
@@ -270,6 +272,6 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
             message: "Server Error"
         });
     }finally{
-        await redisClient.disconnect();
+       await redisClient.disconnect();
     }
 };
