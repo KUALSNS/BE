@@ -9,10 +9,9 @@ const prisma = new PrismaClient();
 
 
 
-const userEmailSelect =  async ( userIdentifier: string) => {
-  console.log(2);
+const userIdentifierSelect =  async ( userIdentifier: string) => {
+
   const connection = await mysql.createConnection(DATA_SOURCES.development);
-  console.log(3);
   await connection.connect();
   try {
     
@@ -94,7 +93,6 @@ const signUpService = async (
 };
 
 
-export  { userEmailSelect,
-  signUpService
-}
+
+export  { userIdentifierSelect,  signUpService }
 

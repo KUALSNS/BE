@@ -11,6 +11,7 @@ index.use(express.urlencoded({extended: true}));
 index.use(morgan('combined'));
 
 index.use('/api/user',require('./routers/userRouter'));
+index.use('/api/challenge',require('./routers/challengeRouter'));
 
 index.get('/', (req, res) => {
     res.send('Hello World!');
