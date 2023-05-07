@@ -85,11 +85,17 @@ const wholeCategoryData = async () => {
 
 const oneCategoryData = async (oneCategory: string) => {
   try {
+    const challengesArray: {
+      title: string;
+      content: string;
+      category: string;
+    }[] = []
     const challengesDB = await prisma.category.findMany({
       where: {
         name: oneCategory
       },
       select: {
+        name: true,
         challenges: {
           select: {
             title: true,
@@ -98,7 +104,12 @@ const oneCategoryData = async (oneCategory: string) => {
         }
       }
     });
-    const challengesArray = challengesDB[0].challenges
+    for (var i = 0; i < challengesDB[0].challenges.length; i++) {
+      const category = challengesDB.map((e) => {
+        return [{ "title": e.challenges[i].title, "content": e.challenges[i].content, "category": e.name }]
+      });
+      challengesArray.push(category[0][0]);
+    }
     prisma.$disconnect();
     return challengesArray
   } catch (error) {
@@ -108,13 +119,18 @@ const oneCategoryData = async (oneCategory: string) => {
 
 const manyCategoryData = async (manyCategory: string[] | string) => {
   try {
-    const challengesArray = []
+    const challengesArray: {
+      title: string;
+      content: string;
+      category: string;
+    }[] = []
     if (typeof manyCategory == 'string') {
       const challengesDB = await prisma.category.findMany({
         where: {
           name: manyCategory
         },
         select: {
+          name: true,
           challenges: {
             select: {
               title: true,
@@ -123,8 +139,16 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
           }
         }
       });
+      for (var i = 0; i < challengesDB[0].challenges.length; i++) {
+        const category = challengesDB.map((e) => {
+          return [{ "title": e.challenges[i].title, "content": e.challenges[i].content, "category": e.name }]
+        });
+        challengesArray.push(category[0][0]);
+      }
+      console.log(challengesArray);
+
       prisma.$disconnect();
-      return challengesDB[0].challenges
+      return challengesArray;
     }
     else {
       for (var i = 0; i < manyCategory.length; i++) {
@@ -133,6 +157,7 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
             name: manyCategory[i]
           },
           select: {
+            name: true,
             challenges: {
               select: {
                 title: true,
@@ -142,7 +167,10 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
           }
         });
         for (var j = 0; j < challengesDB[0].challenges.length; j++) {
-          challengesArray.push(challengesDB[0].challenges[j]);
+          const category = challengesDB.map((e) => {
+            return [{ "title": e.challenges[j].title, "content": e.challenges[j].content, "category": e.name }]
+          });
+          challengesArray.push(category[0][0]);
         }
       }
       prisma.$disconnect();
