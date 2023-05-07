@@ -90,7 +90,7 @@ const oneCategoryData = async (oneCategory: string) => {
       content: string;
       category: string;
     }[] = []
-    const challengesDB = await prisma.category.findMany({
+    const categoryDB = await prisma.category.findMany({
       where: {
         name: oneCategory
       },
@@ -104,8 +104,8 @@ const oneCategoryData = async (oneCategory: string) => {
         }
       }
     });
-    for (var i = 0; i < challengesDB[0].challenges.length; i++) {
-      const category = challengesDB.map((e) => {
+    for (var i = 0; i < categoryDB[0].challenges.length; i++) {
+      const category = categoryDB.map((e) => {
         return [{ "title": e.challenges[i].title, "content": e.challenges[i].content, "category": e.name }]
       });
       challengesArray.push(category[0][0]);
@@ -123,9 +123,9 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
       title: string;
       content: string;
       category: string;
-    }[] = []
+    }[] = [];
     if (typeof manyCategory == 'string') {
-      const challengesDB = await prisma.category.findMany({
+      const categoryDB = await prisma.category.findMany({
         where: {
           name: manyCategory
         },
@@ -139,8 +139,8 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
           }
         }
       });
-      for (var i = 0; i < challengesDB[0].challenges.length; i++) {
-        const category = challengesDB.map((e) => {
+      for (var i = 0; i < categoryDB[0].challenges.length; i++) {
+        const category = categoryDB.map((e) => {
           return [{ "title": e.challenges[i].title, "content": e.challenges[i].content, "category": e.name }]
         });
         challengesArray.push(category[0][0]);
@@ -152,7 +152,7 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
     }
     else {
       for (var i = 0; i < manyCategory.length; i++) {
-        const challengesDB = await prisma.category.findMany({
+        const categoryDB = await prisma.category.findMany({
           where: {
             name: manyCategory[i]
           },
@@ -166,8 +166,8 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
             }
           }
         });
-        for (var j = 0; j < challengesDB[0].challenges.length; j++) {
-          const category = challengesDB.map((e) => {
+        for (var j = 0; j < categoryDB[0].challenges.length; j++) {
+          const category = categoryDB.map((e) => {
             return [{ "title": e.challenges[j].title, "content": e.challenges[j].content, "category": e.name }]
           });
           challengesArray.push(category[0][0]);
@@ -181,5 +181,44 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
   }
 };
 
+const challengeSearchData = async (challengeSearch: string) => {
+  try {
+    const challengesArray: {
+      title: string;
+      content: string;
+      category: string;
+    }[] = [];
+    const challengeSearchData = challengeSearch.replace(/ /g, "");
+    const challengesDB = await prisma.challenges.findMany({
+      where: {
+        title: {
+          contains: challengeSearchData
+        }
+      },
+      select: {
+        title: true,
+        content: true,
+        category: {
+          select: {
+            name: true,
+          }
+        }
+      }
+    });
+    const challenges = challengesDB.map((e) => {
+      return [{ "title": e.title, "content": e.content, "category": e.category.name }]
+    });
+    for (var j = 0; j < challengesDB.length; j++) {
 
-export { beforeMainData, wholeCategoryData, oneCategoryData, manyCategoryData }
+      challengesArray.push(challenges[j][0]);
+    }
+    console.log(challengesArray);
+    prisma.$disconnect();
+    return challengesArray
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+export { beforeMainData, wholeCategoryData, oneCategoryData, manyCategoryData, challengeSearchData }

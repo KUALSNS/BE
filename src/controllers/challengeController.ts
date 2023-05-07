@@ -91,3 +91,23 @@ export const manyCategory = async (req: Request, res: Response, next: NextFuncti
         });
     }
 };
+
+export const challengeSearch = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const categorySearch : string = req.body.categorySearch;
+        const challenges = await ChallengeController.challengeSearchData(categorySearch);
+        return res.status(200).json({
+            "code": 200,
+            "message": "Ok",
+            data: {
+                challenges
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            message: "Server Error"
+        });
+    }
+};
