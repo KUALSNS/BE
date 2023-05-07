@@ -209,7 +209,6 @@ const challengeSearchData = async (challengeSearch: string) => {
       return [{ "title": e.title, "content": e.content, "category": e.category.name }]
     });
     for (var j = 0; j < challengesDB.length; j++) {
-
       challengesArray.push(challenges[j][0]);
     }
     console.log(challengesArray);
