@@ -1,5 +1,4 @@
-//import { signUpService } from '../services/userService';
-
+import { signUpService } from '../services/userService';
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
@@ -7,7 +6,8 @@ import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
-import { serviceReturnForm } from '../modules/service-modules';
+import { serviceReturnForm } from '../modules/responseHandler';
+import { smtpSender } from '../modules/mailHandler';
 const env = process.env;
 declare var process : {
     env: {
@@ -25,40 +25,81 @@ const redisClient = redis.createClient({
 });
 
 
+
+export const verifyEmail = async (req: Request, res: Response) => {
+    const { email, code } = req.body;
+    await redisClient.connect();
+    const redisCode = await redisClient.v4.get(email);
+    await redisClient.disconnect();
+    if (redisCode == code) {
+        res.status(200).send({ status: 200, message: "Success Verify Email" });
+    } else {
+        res.status(400).send({ status: 400, message: "Fail Verify Email" });
+    }
+}
+
+//회원 가입용 이메일 코드 요청
+export async function sendEmail(req: Request, res: Response) {
+    const emailToSend = req.body.email;
+    console.log(emailToSend);
+
+    const returnData: serviceReturnForm = await smtpSender(
+      emailToSend
+    );
+    if (returnData.status == 200) {
+        // when successed
+        const { status, message, responseData } = returnData;
+        res.status(status).send({
+            status,
+            message,
+            responseData,
+        });
+    } else {
+        // when failed
+        const { status, message } = returnData;
+        res.status(status).send({
+            status,
+            message,
+        });
+    }
+
+}
+
 /**
  * @desc 유저 회원 가입
  */
-// export const userSignup = async (req: Request, res: Response) => {
-//     // * Validate user input
-//     if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
-//         res.status(400).send({ status: 400, message: "Fail SignUp" });
-//         return;
-//     }
-//     const { email, password, nickname, userId } = req.body;
+export const userSignup = async (req: Request, res: Response) => {
+    // * Validate user input
+    if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
+        res.status(400).send({ status: 400, message: "Fail SignUp" });
+        return;
+    }
+    const { email, password, nickname, userId, phoneNumber } = req.body;
 
-//     const returnData: serviceReturnForm = await signUpService(
-//       email,
-//       password,
-//       nickname,
-//       userId
-//     );
-//     if (returnData.status == 200) {
-//         // when successed
-//         const { status, message, responseData } = returnData;
-//         res.status(status).send({
-//             status,
-//             message,
-//             responseData,
-//         });
-//     } else {
-//         // when failed
-//         const { status, message } = returnData;
-//         res.status(status).send({
-//             status,
-//             message,
-//         });
-//     }
-// };
+    const returnData: serviceReturnForm = await signUpService(
+      email,
+      password,
+      nickname,
+      userId,
+      phoneNumber
+    );
+    if (returnData.status == 200) {
+        // when successed
+        const { status, message, responseData } = returnData;
+        res.status(status).send({
+            status,
+            message,
+            responseData,
+        });
+    } else {
+        // when failed
+        const { status, message } = returnData;
+        res.status(status).send({
+            status,
+            message,
+        });
+    }
+};
 
 
 /**

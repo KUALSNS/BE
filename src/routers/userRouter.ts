@@ -10,6 +10,7 @@ router.use(cors({
 router.post('/login', UserController.userLogin);
 router.get('/login/reissue-token',UserController.userReissueToken);
 router.patch('/logout',UserController.userLogout);
-//router.post('/signup',UserController.userSignup);
-
+router.post('/signup/verify-email',UserController.verifyEmail);
+router.get('/signup/verify-email-code',UserController.sendEmail);
+router.post('/signup',UserController.userSignup);
 export = router
