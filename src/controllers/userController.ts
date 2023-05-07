@@ -133,6 +133,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         const accessToken = "Bearer " + jwt.sign(userIdentifierSelect.id, userIdentifierSelect.role);
         const refreshToken = "Bearer " + jwt.refresh();
         await redisClient.v4.set(String(userIdentifierSelect.id), refreshToken);
+        await redisClient.disconnect();  
         if (userIdentifierSelect === 1) {
             return res.status(200).json({
                 code: 200,
@@ -161,7 +162,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             message: "Server Error"
         });
     } finally {
-         await redisClient.disconnect();   
+        
     }
 };
 
