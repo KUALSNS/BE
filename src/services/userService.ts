@@ -3,7 +3,7 @@ import { DATA_SOURCES } from '../config/auth';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { serviceReturnForm } from '../modules/service-modules';
+import { serviceReturnForm } from '../modules/responseHandler';
 const prisma = new PrismaClient();
 //import { v4 as uuidv4 } from 'uuid';
 
@@ -52,11 +52,6 @@ const signUpService = async (
       returnForm.message = "Server Error on email check process";
       return;
     });
-  if (typeof password !== 'string') { // check if password is a string
-    returnForm.status = 400;
-    returnForm.message = "Invalid password";
-    return returnForm;
-  }
 
   // * Create User only when email not exists
   if (!isEmailExist) {

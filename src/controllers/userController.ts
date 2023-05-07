@@ -1,5 +1,3 @@
-//import { signUpService } from '../services/userService';
-
 import { signUpService } from '../services/userService';
 
 require('dotenv').config();
@@ -9,7 +7,8 @@ import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
-import { serviceReturnForm } from '../modules/service-modules';
+import { serviceReturnForm } from '../modules/responseHandler';
+import { smtpSender } from '../modules/mailHandler';
 const env = process.env;
 declare var process : {
     env: {
@@ -26,6 +25,40 @@ const redisClient = redis.createClient({
     legacyMode: true
 });
 
+
+
+export function verifyEmail() {
+    //redisClient.connect();
+
+    //redisClient.set(email, verificationCode, 'EX', 300); // Set the key-value pair with a 5-minute expiry time
+}
+
+//회원 가입용 이메일 코드 요청
+export async function sendEmail(req: Request, res: Response) {
+    const emailToSend = req.body.email;
+    console.log(emailToSend);
+
+    const returnData: serviceReturnForm = await smtpSender(
+      emailToSend
+    );
+    if (returnData.status == 200) {
+        // when successed
+        const { status, message, responseData } = returnData;
+        res.status(status).send({
+            status,
+            message,
+            responseData,
+        });
+    } else {
+        // when failed
+        const { status, message } = returnData;
+        res.status(status).send({
+            status,
+            message,
+        });
+    }
+
+}
 
 /**
  * @desc 유저 회원 가입
