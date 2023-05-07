@@ -54,7 +54,11 @@ const beforeMainData = async () => {
 
 const wholeCategoryData = async () => {
   try {
-    const challengesArray = [];
+    const challengesArray: {
+      title: string;
+      content: string;
+      category: string;
+    }[] = [];
     const challengesDB = await prisma.challenges.findMany({
       select: {
         title: true,
@@ -77,20 +81,19 @@ const wholeCategoryData = async () => {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-
-const oneCategoryData = async ( oneCategory : string ) => {
-  try {  
+const oneCategoryData = async (oneCategory: string) => {
+  try {
     const challengesDB = await prisma.category.findMany({
-      where : {
-        name : oneCategory
-      },    
-      select: {    
-        challenges : {           
-          select : {
-            title : true,
-            content : true
+      where: {
+        name: oneCategory
+      },
+      select: {
+        challenges: {
+          select: {
+            title: true,
+            content: true
           }
         }
       }
@@ -101,7 +104,54 @@ const oneCategoryData = async ( oneCategory : string ) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+const manyCategoryData = async (manyCategory: string[] | string) => {
+  try {
+    const challengesArray = []
+    if (typeof manyCategory == 'string') {
+      const challengesDB = await prisma.category.findMany({
+        where: {
+          name: manyCategory
+        },
+        select: {
+          challenges: {
+            select: {
+              title: true,
+              content: true
+            }
+          }
+        }
+      });
+      prisma.$disconnect();
+      return challengesDB[0].challenges
+    }
+    else {
+      for (var i = 0; i < manyCategory.length; i++) {
+        const challengesDB = await prisma.category.findMany({
+          where: {
+            name: manyCategory[i]
+          },
+          select: {
+            challenges: {
+              select: {
+                title: true,
+                content: true
+              }
+            }
+          }
+        });
+        for (var j = 0; j < challengesDB[0].challenges.length; j++) {
+          challengesArray.push(challengesDB[0].challenges[j]);
+        }
+      }
+      prisma.$disconnect();
+      return challengesArray
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
-export { beforeMainData, wholeCategoryData, oneCategoryData }
+export { beforeMainData, wholeCategoryData, oneCategoryData, manyCategoryData }

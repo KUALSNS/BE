@@ -9,7 +9,6 @@ export const beforeMain = async (req: Request, res: Response, next: NextFunction
             "code": 200,
             "message": "Ok",
             data
-
         });
     } catch (error) {
         console.error(error);
@@ -43,7 +42,7 @@ export const oneCategory = async (req: Request, res: Response, next: NextFunctio
     try {
         const oneCategory = req.params.category;
         const challenges = await ChallengeController.oneCategoryData(oneCategory);
-        if(challenges){
+        if (challenges) {
             return res.status(200).json({
                 "code": 200,
                 "message": "Ok",
@@ -51,12 +50,39 @@ export const oneCategory = async (req: Request, res: Response, next: NextFunctio
                     challenges
                 }
             });
-        }else{
+        } else {
             return res.status(404).json({
                 "code": 404,
-                "message": "not found"              
+                "message": "not found"
             });
-        }    
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            message: "Server Error"
+        });
+    }
+};
+
+export const manyCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const manyCategory: string[] | string = req.query.category as string[] | string;
+        const challenges = await ChallengeController.manyCategoryData(manyCategory);
+        if (challenges!) {
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                data: {
+                    challenges
+                }
+            });
+        } else {
+            return res.status(404).json({
+                "code": 404,
+                "message": "not found"
+            });
+        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({

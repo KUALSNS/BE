@@ -9,6 +9,9 @@ router.use(cors({
 
 router.get('/', ChallengeController.beforeMain);
 router.get('/whole-category', ChallengeController.wholeCategory);
+router.get('/select', ChallengeController.manyCategory);
 router.get('/:category', ChallengeController.oneCategory);
+
+
 
 export = router
