@@ -66,10 +66,11 @@ const refreshVerify = async (token: string, userId: number) => {
         return { state: false };
       }
     }
+    await redisClient.disconnect();
   } catch (err) {
     return { state: false };
   } finally {
-    await redisClient.disconnect();
+   
   }
 }
 
