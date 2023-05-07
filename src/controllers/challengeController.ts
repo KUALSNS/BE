@@ -38,3 +38,30 @@ export const wholeCategory = async (req: Request, res: Response, next: NextFunct
         });
     }
 };
+
+export const oneCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const oneCategory = req.params.category;
+        const challenges = await ChallengeController.oneCategoryData(oneCategory);
+        if(challenges){
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                data: {
+                    challenges
+                }
+            });
+        }else{
+            return res.status(404).json({
+                "code": 404,
+                "message": "not found"              
+            });
+        }    
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            message: "Server Error"
+        });
+    }
+};

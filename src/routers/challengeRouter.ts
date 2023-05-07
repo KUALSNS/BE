@@ -9,6 +9,6 @@ router.use(cors({
 
 router.get('/', ChallengeController.beforeMain);
 router.get('/whole-category', ChallengeController.wholeCategory);
-// router.patch('/logout',UserController.userLogout);
+router.get('/:category', ChallengeController.oneCategory);
 
 export = router

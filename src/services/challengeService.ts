@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 
 const beforeMainData = async () => {
   try {
-    const challengesArray = [];
+    const challengesArray: {
+      title: string;
+      content: string;
+      category: string;
+    }[] = [];
     const [categoryDB, challengesDB] = await Promise.all([
       prisma.category.findMany({
         where: {
@@ -76,4 +80,28 @@ const wholeCategoryData = async () => {
 }
 
 
-export { beforeMainData, wholeCategoryData }
+const oneCategoryData = async ( oneCategory : string ) => {
+  try {  
+    const challengesDB = await prisma.category.findMany({
+      where : {
+        name : oneCategory
+      },    
+      select: {    
+        challenges : {           
+          select : {
+            title : true,
+            content : true
+          }
+        }
+      }
+    });
+    const challengesArray = challengesDB[0].challenges
+    prisma.$disconnect();
+    return challengesArray
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+export { beforeMainData, wholeCategoryData, oneCategoryData }
