@@ -203,6 +203,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                         else {
                             const newAccessToken = jwt.sign(decoded.id, decoded.role);
                             const userRefreshToken = await redisClient.v4.get(String(decoded.id));
+                            await redisClient.disconnect();
                             return res.status(200).json({
                                 code: 200,
                                 message: "Ok",
@@ -228,7 +229,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
             message: "Server Error"
         });
     }finally{
-        await redisClient.disconnect();
+    
     }
 };
 
