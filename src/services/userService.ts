@@ -9,17 +9,17 @@ const prisma = new PrismaClient();
 
 
 
-const userIdentifierSelect =  async ( userIdentifier: string) => {
+const userIdentifierSelect = async (userIdentifier: string) => {
   const connection = await mysql.createConnection(DATA_SOURCES.development);
   await connection.connect();
   try {
-    const  userSelect : string = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
-    const userSelectResult : any  = await connection.query(userSelect);
+    const userSelect: string = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
+    const userSelectResult: any = await connection.query(userSelect);
     return userSelectResult[0][0];
   } catch (error) {
     console.log(error);
   } finally {
-     await connection.end();
+    await connection.end();
   }
 }
 
@@ -28,7 +28,7 @@ const signUpService = async (
   email: string,
   password: string,
   nickname: string,
-  userId : string,
+  userId: string,
   phoneNumber: string
 ) => {
   const returnForm: serviceReturnForm = {
@@ -59,7 +59,7 @@ const signUpService = async (
     const TOKEN_KEY = process.env.TOKEN_KEY || "";
 
     // * Encrypt user password
-    let encryptedPassword = await bcrypt.hash(password, parseInt( "10"));
+    let encryptedPassword = await bcrypt.hash(password, parseInt("10"));
     // console.log(email)
     // const token = jwt.sign({ email }, TOKEN_KEY, {
     //   expiresIn: "20h",
@@ -70,7 +70,7 @@ const signUpService = async (
         //user_id: userId,
         nickname: nickname,
         email: email,
-        password:encryptedPassword,
+        password: encryptedPassword,
         phone: phoneNumber,
         role: "USER",
         identifier: userId,
@@ -92,5 +92,5 @@ const signUpService = async (
 
 
 
-export  { userIdentifierSelect,  signUpService }
+export { userIdentifierSelect, signUpService }
 
