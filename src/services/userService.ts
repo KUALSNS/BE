@@ -25,6 +25,8 @@ const userIdentifierSelect =  async ( userIdentifier: string) => {
   }
 }
 
+
+
 //registerUser function using prisma
 const signUpService = async (
   email: string,
@@ -38,7 +40,6 @@ const signUpService = async (
     message: "server error",
     responseData: {},
   };
-
   // * Validate if email already exists
   let isEmailExist = false;
   await prisma.users.findFirst({ where: { email: email } })
@@ -93,6 +94,5 @@ const signUpService = async (
 };
 
 
-
-export  { userIdentifierSelect,  signUpService }
+export  { userIdentifierSelect,  signUpService}
 

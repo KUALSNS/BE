@@ -8,6 +8,7 @@ import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender } from '../modules/mailHandler';
+import { prisma } from '@prisma/client';
 const env = process.env;
 declare var process : {
     env: {
