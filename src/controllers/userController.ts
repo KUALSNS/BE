@@ -8,7 +8,6 @@ import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender } from '../modules/mailHandler';
-import { prisma } from '@prisma/client';
 const env = process.env;
 declare var process : {
     env: {
@@ -125,7 +124,7 @@ export const userSignup = async (req: Request, res: Response) => {
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.connect();
+        //await redisClient.connect();
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
         console.log(userIdentifierSelect);

@@ -1,7 +1,7 @@
 import { serviceReturnForm } from '../modules/responseHandler';
-import { profileService } from '../services/profileService';
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
+import *  as profileService from '../services/profileService';
 
 /**
  * @route Method /Route
@@ -10,6 +10,13 @@ import { NextFunction, Request, Response } from 'express';
  */
 export const userProfile = async (req: Request, res: Response) => {
   const { userId } = req.body;
-  const returnData: serviceReturnForm = await profileService.profileService(userId);
+  const returnData: serviceReturnForm = await profileService.getProfile(userId);
+  res.status(returnData.status).send(returnData);
+}
+
+//profile update
+export const profileUpdate = async (req: Request, res: Response) => {
+  const {  nickname, phoneNumber } = req.body;
+  const returnData: serviceReturnForm = await profileService.updateProfile(nickname, phoneNumber);
   res.status(returnData.status).send(returnData);
 }

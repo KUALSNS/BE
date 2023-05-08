@@ -10,7 +10,6 @@ const prisma = new PrismaClient();
 
 
 const userIdentifierSelect =  async ( userIdentifier: string) => {
-
   const connection = await mysql.createConnection(DATA_SOURCES.development);
   await connection.connect();
   try {
@@ -33,7 +32,7 @@ const signUpService = async (
   password: string,
   nickname: string,
   userId : string,
-  phoneNumber: number
+  phoneNumber: string
 ) => {
   const returnForm: serviceReturnForm = {
     status: 500,
