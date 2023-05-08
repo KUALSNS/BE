@@ -122,7 +122,6 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 message: "Id can't find"
             });
         }
-        console.log(1);
         const comparePassword = await bcrypt.compare(userPassword, userIdentifierSelect.password);
         if (!comparePassword) {
             return res.status(419).json({
@@ -132,8 +131,8 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         }
         const accessToken = "Bearer " + jwt.sign(userIdentifierSelect.id, userIdentifierSelect.role);
         const refreshToken = "Bearer " + jwt.refresh();
-        await redisClient.v4.set(String(userIdentifierSelect.id), refreshToken);
-        await redisClient.disconnect();  
+        await redisClient.v4.set(String(userIdentifierSelect.user_id), refreshToken); 
+        await redisClient.disconnect();
         if (userIdentifierSelect === 1) {
             return res.status(200).json({
                 code: 200,
@@ -161,11 +160,8 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             "code": 500,
             message: "Server Error"
         });
-    } finally {
-        
     }
 };
-
 /**
  * 
  * @param req  header로부터 accessToken, refreshToken 모두 받거나 accessToken 하나만 받는다.
@@ -218,6 +214,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                     }
                 }
                 else {
+                    await redisClient.disconnect();
                     return res.status(400).json({
                         code: 400,
                         message: 'access token is not expired!',
@@ -225,13 +222,12 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                 }
             }
     } catch (error) {
+        await redisClient.disconnect();
         console.error(error);
         return res.status(500).json({
             code: 500,
             message: "Server Error"
         });
-    }finally{
-    
     }
 };
 
@@ -247,7 +243,6 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
  */
 export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.connect();
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
             const decode: { id: number } = jwt.decode(accessToken);
@@ -275,7 +270,5 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
             code: 500,
             message: "Server Error"
         });
-    }finally{
-       await redisClient.disconnect();
     }
 };
