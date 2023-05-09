@@ -145,18 +145,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 },
                 role: userIdentifierSelect.role
             });
-        } else {
-            await redisClient.disconnect();
-            return res.status(200).json({
-                code: 200,
-                message: "Ok",
-                data: {
-                    accessToken,
-                    refreshToken
-                },
-                role: 0
-            });
-        }
+        } 
     } catch (error) {
         console.error(error);
         await redisClient.disconnect();
@@ -186,13 +175,6 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         console.log(decoded)
         if (req.headers.access && req.headers.refresh) {
             const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
-            if (decoded === null) {
-                await redisClient.disconnect();
-                return res.status(404).json({
-                    code: 404,
-                    message: 'No content.',
-                });
-            }
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
             await redisClient.connect();
             if (authResult.state === false) {
