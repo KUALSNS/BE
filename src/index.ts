@@ -16,17 +16,17 @@ app.use('/api/challenge',require('./routers/challengeRouter'));
 //app.use(errorHandler);
 
 
-const allowedOrigins = [
-    'http://localhost:3030',
-    'http://192.168.0.134:3030',
-    'http://192.168.0.123:3030',
-    'http://192.168.0.126:3030',
-    'http://192.168.0.128:3030',
-    'https://www.tarae.store',
-    'https://tarae.store',
-    'https://api.tarae.store',
-    process.env.EC2URL,
-];
+// const allowedOrigins = [
+//     'http://localhost:3030',
+//     'http://192.168.0.134:3030',
+//     'http://192.168.0.123:3030',
+//     'http://192.168.0.126:3030',
+//     'http://192.168.0.128:3030',
+//     'https://www.tarae.store',
+//     'https://tarae.store',
+//     'https://api.tarae.store',
+//     process.env.EC2URL,
+// ];
 const corsOptions = {
     origin: "*",
     credentials: true,
@@ -36,18 +36,18 @@ const corsOptions = {
 
 // @ts-ignore
 app.use(cors(corsOptions));
-app.use((req, res, next) => {
-    const origin: string = req.headers.origin!;
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
-    res.header(
-      'Access-Control-Allow-Headers',
-      'X-Requested-With, content-type, x-access-token',
-    );
-    next();
-});
+// app.use((req, res, next) => {
+//     const origin: string = req.headers.origin!;
+//     if (allowedOrigins.includes(origin)) {
+//         res.setHeader('Access-Control-Allow-Origin', origin);
+//     }
+//     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+//     res.header(
+//       'Access-Control-Allow-Headers',
+//       'X-Requested-With, content-type, x-access-token',
+//     );
+//     next();
+// });
 
 app
   .listen(port, () => {
