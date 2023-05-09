@@ -13,10 +13,15 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(morgan('combined'));
 
+app.all('/*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
+
 app.use('/api/user',require('./routers/userRouter'));
 app.use('/api/challenge',require('./routers/challengeRouter'));
 //app.use(errorHandler);
-
 
 
 // const allowedOrigins = [
@@ -39,7 +44,6 @@ const corsOptions = {
 
 
 // @ts-ignore
-
 // app.use((req, res, next) => {
 //     const origin: string = req.headers.origin!;
 //     if (allowedOrigins.includes(origin)) {
