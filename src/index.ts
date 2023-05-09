@@ -33,6 +33,7 @@ const corsOptions = {
 };
 
 
+
 // @ts-ignore
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
