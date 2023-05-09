@@ -28,7 +28,7 @@ const allowedOrigins = [
     process.env.EC2URL,
 ];
 const corsOptions = {
-    origin: allowedOrigins,
+    origin: "*",
     credentials: true,
 };
 
