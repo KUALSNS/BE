@@ -16,6 +16,7 @@ app.use('/api/challenge',require('./routers/challengeRouter'));
 //app.use(errorHandler);
 
 
+
 const allowedOrigins = [
     'http://localhost:3030',
     'http://192.168.0.134:3030',
