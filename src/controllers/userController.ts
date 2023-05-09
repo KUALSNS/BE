@@ -112,7 +112,7 @@ export const userSignup = async (req: Request, res: Response) => {
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await redisClient.connect();
+        
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
         if (userIdentifierSelect == null || userIdentifierSelect == undefined) {
@@ -130,8 +130,10 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         }
         const accessToken = "Bearer " + jwt.sign(userIdentifierSelect.user_id, userIdentifierSelect.role);
         const refreshToken = "Bearer " + jwt.refresh();
+        await redisClient.connect();
         await redisClient.v4.set(String(userIdentifierSelect.user_id), refreshToken);
         if (userIdentifierSelect) {
+            await redisClient.disconnect();
             return res.status(200).json({
                 code: 200,
                 message: "Ok",
@@ -142,6 +144,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 role: userIdentifierSelect.role
             });
         } else {
+            await redisClient.disconnect();
             return res.status(200).json({
                 code: 200,
                 message: "Ok",
@@ -154,12 +157,13 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         }
     } catch (error) {
         console.error(error);
+        await redisClient.disconnect();
         return res.status(500).json({
             "code": 500,
             message: "Server Error"
         });
     } finally {
-        await redisClient.disconnect();
+   
     }
 };
 /**
@@ -192,6 +196,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                 if (typeof refreshResult != 'undefined') {
                     if (refreshResult.state === false) {
                         await redisClient.v4.del(String(decoded!.id));
+                        await redisClient.disconnect();
                         return res.status(419).json({
                             code: 419,
                             message: 'login again!',
@@ -200,6 +205,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                     else {
                         const newAccessToken = jwt.sign(decoded!.id, decoded!.role);
                         const userRefreshToken = await redisClient.v4.get(String(decoded!.id));
+                        await redisClient.disconnect();
                         return res.status(200).json({
                             code: 200,
                             message: "Ok",
@@ -212,6 +218,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                 }
             }
             else {
+                await redisClient.disconnect();
                 return res.status(400).json({
                     code: 400,
                     message: 'access token is not expired!',
@@ -220,12 +227,13 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         }
     } catch (error) {
         console.error(error);
+        await redisClient.disconnect();
         return res.status(500).json({
             code: 500,
             message: "Server Error"
         });
     } finally {
-        await redisClient.disconnect();
+     
     }
 };
 
