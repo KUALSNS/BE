@@ -112,7 +112,7 @@ export const userSignup = async (req: Request, res: Response) => {
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        
+
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
         if (userIdentifierSelect == null || userIdentifierSelect == undefined) {
@@ -132,18 +132,17 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         const refreshToken = "Bearer " + jwt.refresh();
         await redisClient.connect();
         await redisClient.v4.set(String(userIdentifierSelect.user_id), refreshToken);
-        if (userIdentifierSelect) {
-            await redisClient.disconnect();
-            return res.status(200).json({
-                code: 200,
-                message: "Ok",
-                data: {
-                    accessToken,
-                    refreshToken
-                },
-                role: userIdentifierSelect.role
-            });
-        } 
+        await redisClient.disconnect();
+        return res.status(200).json({
+            code: 200,
+            message: "Ok",
+            data: {
+                accessToken,
+                refreshToken
+            },
+            role: userIdentifierSelect.role
+        });
+
     } catch (error) {
         console.error(error);
         await redisClient.disconnect();
@@ -151,7 +150,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             "code": 500,
             message: "Server Error"
         });
-    } 
+    }
 };
 /**
  * 
