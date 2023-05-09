@@ -13,5 +13,5 @@ RUN npm install -g typescript
 RUN npm install pm2 -g
  
 COPY ./ ./
-CMD ["pm2-runtime", "npm", "run", "dev"]
-#CMD ["npm","run","dev"]
+#CMD ["pm2-runtime", "npm", "run", "dev"]
+CMD ["npm","run","dev"]
