@@ -1,5 +1,6 @@
 import { serviceReturnForm } from '../modules/responseHandler';
-import { prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 const getProfile = async (userId: string) => {
   const returnForm: serviceReturnForm = {
@@ -8,7 +9,7 @@ const getProfile = async (userId: string) => {
     responseData: {},
   };
   await prisma.users.findUnique({ where: { identifier: userId } })
-    .then((data: Object) => {
+    .then((data) => {
       if (data) {
         returnForm.status = 200;
         returnForm.message = "Success";
@@ -28,14 +29,16 @@ const getProfile = async (userId: string) => {
 }
 
 // profile update
-const updateProfile = async (nickname: string, phoneNumber: number) => {
+const updateProfile = async (nickname: string, phoneNumber: string, identifier: string) => {
   const returnForm: serviceReturnForm = {
     status: 500,
     message: "server error",
     responseData: {},
   };
+
+
   await prisma.users.update({
-    where: { identifier: userId },
+    where: { identifier: identifier },
     data: {
       nickname: nickname,
       phone: phoneNumber
