@@ -176,6 +176,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                 if (typeof refreshResult != 'undefined') {
                     if (refreshResult.state === false) {
                         await redisClient.v4.del(String(decoded!.id));
+                        console.log(decoded!.id);
                         await redisClient.disconnect();
                         return res.status(419).json({
                             code: 419,
