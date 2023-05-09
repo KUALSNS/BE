@@ -37,7 +37,9 @@ const corsOptions = {
 
 
 // @ts-ignore
-app.use(cors());
+app.use(cors({
+    credentials : true
+}));
 // app.use((req, res, next) => {
 //     const origin: string = req.headers.origin!;
 //     if (allowedOrigins.includes(origin)) {
