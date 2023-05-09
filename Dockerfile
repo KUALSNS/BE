@@ -10,6 +10,7 @@ COPY .env ./
 RUN npm install
 
 RUN npm install -g typescript
+RUN npm install pm2 -g
  
 COPY ./ ./
 CMD ["npm","run","dev"] 
