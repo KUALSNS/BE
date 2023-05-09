@@ -9,7 +9,7 @@ import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender } from '../modules/mailHandler';
 const env = process.env;
-declare var process : {
+declare var process: {
     env: {
         SALTROUNDS: string
         REDIS_USERNAME: string
@@ -54,7 +54,7 @@ export async function sendEmail(req: Request, res: Response) {
     console.log(emailToSend);
 
     const returnData: serviceReturnForm = await smtpSender(
-      emailToSend
+        emailToSend
     );
     if (returnData.status == 200) {
         // when successed
@@ -89,11 +89,11 @@ export const userSignup = async (req: Request, res: Response) => {
     const { email, password, nickname, userId, phoneNumber } = req.body;
 
     const returnData: serviceReturnForm = await signUpService(
-      email,
-      password,
-      nickname,
-      userId,
-      phoneNumber
+        email,
+        password,
+        nickname,
+        userId,
+        phoneNumber
     );
     if (returnData.status == 200) {
         // when successed
@@ -127,14 +127,12 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         //await redisClient.connect();
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
-        console.log(userIdentifierSelect);
         if (userIdentifierSelect == null || userIdentifierSelect == undefined) {
             return res.status(404).json({
                 code: 404,
                 message: "Id can't find"
             });
         }
-        console.log(1);
         const comparePassword = await bcrypt.compare(userPassword, userIdentifierSelect.password);
         if (!comparePassword) {
             return res.status(419).json({
@@ -142,11 +140,10 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 message: "Password can't find"
             });
         }
-        const accessToken = "Bearer " + jwt.sign(userIdentifierSelect.id, userIdentifierSelect.role);
+        const accessToken = "Bearer " + jwt.sign(userIdentifierSelect.user_id, userIdentifierSelect.role);
         const refreshToken = "Bearer " + jwt.refresh();
-        await redisClient.v4.set(String(userIdentifierSelect.id), refreshToken);
-        await redisClient.disconnect();  
-        if (userIdentifierSelect === 1) {
+        await redisClient.v4.set(String(userIdentifierSelect.user_id), refreshToken);
+        if (userIdentifierSelect) {
             return res.status(200).json({
                 code: 200,
                 message: "Ok",
@@ -154,7 +151,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                     accessToken,
                     refreshToken
                 },
-                role: 1
+                role: userIdentifierSelect.role
             });
         } else {
             return res.status(200).json({
@@ -174,10 +171,9 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             message: "Server Error"
         });
     } finally {
-        
+        await redisClient.disconnect();
     }
 };
-
 /**
  * 
  * @param req  header로부터 accessToken, refreshToken 모두 받거나 accessToken 하나만 받는다.
@@ -189,61 +185,59 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
  */
 export const userReissueToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-            
-            const accessToken = (req.headers.access as string).split('Bearer ')[1];
-            const authResult = jwt.verify(accessToken);
-            const decoded = jwt.decode(accessToken);
-        
-            if (req.headers.access && req.headers.refresh) {
-                const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
-                if (decoded === null) {
-                    return res.status(404).json({
-                        code: 404,
-                        message: 'No content.',
-                    });
-                }
-                const refreshResult = await jwt.refreshVerify(refreshToken, decoded.id);
-                await redisClient.connect();
-                if (authResult.state === false) {
-                    if (typeof refreshResult != 'undefined') {
-                        if (refreshResult.state === false) {
-                            await redisClient.v4.del(String(decoded.id));
-                            await redisClient.disconnect();
-                            return res.status(419).json({
-                                code: 419,
-                                message: 'login again!',
-                            });              
-                        }                 
-                        else {
-                            const newAccessToken = jwt.sign(decoded.id, decoded.role);
-                            const userRefreshToken = await redisClient.v4.get(String(decoded.id));
-                            await redisClient.disconnect();
-                            return res.status(200).json({
-                                code: 200,
-                                message: "Ok",
-                                data: {
-                                    accessToken: "Bearer " + newAccessToken,
-                                    refreshToken: userRefreshToken
-                                },
-                            });
-                        }
+
+        const accessToken = (req.headers.access as string).split('Bearer ')[1];
+        const authResult = jwt.verify(accessToken);
+        const decoded = jwt.decode(accessToken);
+        console.log(decoded)
+        if (req.headers.access && req.headers.refresh) {
+            const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
+            if (decoded === null) {
+                return res.status(404).json({
+                    code: 404,
+                    message: 'No content.',
+                });
+            }
+            const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
+            await redisClient.connect();
+            if (authResult.state === false) {
+                if (typeof refreshResult != 'undefined') {
+                    if (refreshResult.state === false) {
+                        await redisClient.v4.del(String(decoded!.id));
+                        return res.status(419).json({
+                            code: 419,
+                            message: 'login again!',
+                        });
+                    }
+                    else {
+                        const newAccessToken = jwt.sign(decoded!.id, decoded!.role);
+                        const userRefreshToken = await redisClient.v4.get(String(decoded!.id));
+                        return res.status(200).json({
+                            code: 200,
+                            message: "Ok",
+                            data: {
+                                accessToken: "Bearer " + newAccessToken,
+                                refreshToken: userRefreshToken
+                            },
+                        });
                     }
                 }
-                else {
-                    return res.status(400).json({
-                        code: 400,
-                        message: 'access token is not expired!',
-                    });
-                }
             }
+            else {
+                return res.status(400).json({
+                    code: 400,
+                    message: 'access token is not expired!',
+                });
+            }
+        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({
             code: 500,
             message: "Server Error"
         });
-    }finally{
-    
+    } finally {
+        await redisClient.disconnect();
     }
 };
 
@@ -262,15 +256,14 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
         await redisClient.connect();
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
-            const decode: { id: number } = jwt.decode(accessToken);
+            const decode = jwt.decode(accessToken);
             if (decode === null) {
                 res.status(404).send({
                     code: 404,
                     message: 'No content.',
                 });
             }
-            console.log(decode.id);
-            await redisClient.v4.del(String(decode.id));
+            await redisClient.v4.del(String(decode!.id));
             return res.status(200).send({
                 code: 200,
                 message: "Logout success"
@@ -287,7 +280,7 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
             code: 500,
             message: "Server Error"
         });
-    }finally{
-       await redisClient.disconnect();
+    } finally {
+        await redisClient.disconnect();
     }
 };
