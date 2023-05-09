@@ -43,6 +43,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         command_timeout: 7m
         script: |
+        
           docker stop Tarae
           docker rm Tarae
           docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
