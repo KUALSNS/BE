@@ -18,14 +18,15 @@ app.use('/api/challenge',require('./routers/challengeRouter'));
 
 
 const allowedOrigins = [
-    'http://localhost:3030',
-    'http://192.168.0.134:3030',
-    'http://192.168.0.123:3030',
-    'http://192.168.0.126:3030',
-    'http://192.168.0.128:3030',
+    'http://localhost:3000',
+    'http://192.168.0.134:3000',
+    'http://192.168.0.123:3000',
+    'http://192.168.0.126:3000',
+    'http://192.168.0.128:3000',
     'https://www.tarae.store',
     'https://tarae.store',
     'https://api.tarae.store',
+    'http://localhost:5173',
     process.env.EC2URL,
 ];
 const corsOptions = {
