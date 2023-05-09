@@ -76,8 +76,6 @@ const refreshVerify = async (token: string, userId: number) => {
   } catch (err) {
     await redisClient.disconnect();
     return { state: false };
-  } finally {
-
   }
 };
 
