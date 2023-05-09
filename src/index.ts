@@ -12,6 +12,8 @@ index.use(morgan('combined'));
 
 index.use('/api/user',require('./routers/userRouter'));
 index.use('/api/challenge',require('./routers/challengeRouter'));
+index.use('/api/profile',require('./routers/profileRouter'));
+
 
 index.get('/', (req, res) => {
     res.send('Hello World!');

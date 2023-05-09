@@ -8,8 +8,8 @@ router.use(cors({
   credentials : true
 }));
 
-router.get('/profile', ProfileController.userProfile);
-router.patch('/profile/nickname', ProfileController.profileUpdate);
-router.patch('/profile/phone', ProfileController.profileUpdate);
-router.patch('/profile/email', ProfileController.profileUpdate);
+router.get('/', ProfileController.userProfile);
+router.patch('/nickname', ProfileController.profileUpdate);
+router.patch('/phone', ProfileController.profileUpdate);
+router.patch('/email', ProfileController.profileUpdate);
 export = router
