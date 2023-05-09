@@ -8,7 +8,7 @@ const getProfile = async (userId: string) => {
     responseData: {},
   };
   await prisma.users.findUnique({ where: { identifier: userId } })
-    .then((data) => {
+    .then((data: Object) => {
       if (data) {
         returnForm.status = 200;
         returnForm.message = "Success";
@@ -19,7 +19,7 @@ const getProfile = async (userId: string) => {
         returnForm.message = "User Not Found";
       }
     })
-    .catch((e) => {
+    .catch((e: any) => {
       console.log(e);
       returnForm.status = 500;
       returnForm.message = "Server Error on get profile process";
@@ -41,7 +41,7 @@ const updateProfile = async (nickname: string, phoneNumber: number) => {
       phone: phoneNumber
     }
   })
-    .then((data) => {
+    .then((data: Object) => {
       if (data) {
         returnForm.status = 200;
         returnForm.message = "Success";
@@ -52,7 +52,7 @@ const updateProfile = async (nickname: string, phoneNumber: number) => {
         returnForm.message = "User Not Found";
       }
     })
-    .catch((e) => {
+    .catch((e: any) => {
       console.log(e);
       returnForm.status = 500;
       returnForm.message = "Server Error on get profile process";
