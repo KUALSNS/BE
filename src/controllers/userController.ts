@@ -116,7 +116,6 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
         if (userIdentifierSelect == null || userIdentifierSelect == undefined) {
-            await redisClient.disconnect();
             return res.status(404).json({
                 code: 404,
                 message: "Id can't find"
@@ -124,7 +123,6 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
         }
         const comparePassword = await bcrypt.compare(userPassword, userIdentifierSelect.password);
         if (!comparePassword) {
-            await redisClient.disconnect();
             return res.status(419).json({
                 code: 419,
                 message: "Password can't find"
@@ -153,9 +151,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             "code": 500,
             message: "Server Error"
         });
-    } finally {
-   
-    }
+    } 
 };
 /**
  * 
