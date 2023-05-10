@@ -2,13 +2,13 @@ import { serviceReturnForm } from '../modules/responseHandler';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const getProfile = async (userId: string) => {
+const getProfile = async (userId: number) => {
   const returnForm: serviceReturnForm = {
     status: 500,
     message: "server error",
     responseData: {},
   };
-  await prisma.users.findUnique({ where: { identifier: userId } })
+  await prisma.users.findUnique({ where: { user_id: userId } })
     .then((data) => {
       if (data) {
         returnForm.status = 200;
@@ -31,14 +31,14 @@ const getProfile = async (userId: string) => {
 }
 
 // profile update
-const updateProfile = async (nickname: string, phoneNumber: string, identifier: string) => {
+const updateProfile = async (nickname: string, phoneNumber: string, user_id: number) => {
   const returnForm: serviceReturnForm = {
     status: 500,
     message: "server error",
     responseData: {},
   };
   await prisma.users.update({
-    where: { identifier: identifier },
+    where: { user_id: user_id },
     data: {
       nickname: nickname,
       phone: phoneNumber

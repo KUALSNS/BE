@@ -23,8 +23,6 @@ export const smtpSender = async function( email:string) {
     //redis set email code - 3 minutes expire
     await redisClient.v4.set(email, verificationCode, 'EX', 60 * 3);
     //redis get email code
-
-
     const mailOptions = {
       from: process.env.NODEMAILER_USER + "@naver.com",
       to: email,
@@ -35,7 +33,6 @@ export const smtpSender = async function( email:string) {
       if (error) {
         console.log(error);
       } else {
-
         console.log('Email sent: ' + responses);
       }
       smtpTransport.close();
