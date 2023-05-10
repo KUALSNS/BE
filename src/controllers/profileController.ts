@@ -16,7 +16,7 @@ export const userProfile = async (req: Request, res: Response) => {
   const decoded = jwt.decode(accessToken);
   console.log(decoded);
   if (authResult.state) {
-      const returnData: serviceReturnForm = await profileService.getProfile(decoded!.id);
+      const returnData: serviceReturnForm = await profileService.getProfile(decoded!.message);
       res.status(returnData.status).send(returnData);
     }
 }

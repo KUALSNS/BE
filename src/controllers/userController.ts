@@ -31,15 +31,22 @@ const redisClient = redis.createClient({
  * @access Public
  */
 export const verifyEmail = async (req: Request, res: Response) => {
-    const { email, code } = req.body;
-    await redisClient.connect();
-    const redisCode = await redisClient.v4.get(email);
-    await redisClient.disconnect();
-    if (redisCode == code) {
-        res.status(200).send({ status: 200, message: "Success Verify Email" });
-    } else {
-        res.status(400).send({ status: 400, message: "Fail Verify Email" });
+    try {
+        const { email, code } = req.body;
+        await redisClient.connect();
+        const redisCode = await redisClient.v4.get(email);
+        if (redisCode == code) {
+            await redisClient.disconnect();
+            return res.status(200).send({ status: 200, message: "Success Verify Email" });
+        } else {
+            await redisClient.disconnect();
+            return res.status(400).send({ status: 400, message: "Fail Verify Email" });
+        }
+    } catch (error) {
+        await redisClient.disconnect();
+        return res.status(500).send({ status: 500, message: "Fail Verify Email" });
     }
+
 }
 
 
@@ -50,28 +57,34 @@ export const verifyEmail = async (req: Request, res: Response) => {
  */
 //회원 가입용 이메일 코드 요청
 export async function sendEmail(req: Request, res: Response) {
-    const emailToSend = req.body.email;
-    console.log(emailToSend);
+    try {
+        const emailToSend = req.body.email;
+        console.log(emailToSend);
 
-    const returnData: serviceReturnForm = await smtpSender(
-        emailToSend
-    );
-    if (returnData.status == 200) {
-        // when successed
-        const { status, message, responseData } = returnData;
-        res.status(status).send({
-            status,
-            message,
-            responseData,
-        });
-    } else {
-        // when failed
-        const { status, message } = returnData;
-        res.status(status).send({
-            status,
-            message,
-        });
+        const returnData: serviceReturnForm = await smtpSender(
+            emailToSend
+        );
+        if (returnData.status == 200) {
+            // when successed
+            const { status, message, responseData } = returnData;
+            res.status(status).send({
+                status,
+                message,
+                responseData,
+            });
+        } else {
+            // when failed
+            const { status, message } = returnData;
+            res.status(status).send({
+                status,
+                message,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ status: 500, message: "Fail Send Email" });
     }
+
 
 }
 
