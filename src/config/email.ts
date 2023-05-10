@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+import nodemailer = require('nodemailer');
 const env = process.env;
 const smtpTransport = nodemailer.createTransport({
   service: "naver",
