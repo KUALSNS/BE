@@ -19,9 +19,9 @@ app.all('/*', function(req, res, next) {
     next();
 });
 
-app.use('/api/user',require('./routers/userRouter'));
-app.use('/api/challenge',require('./routers/challengeRouter'));
-//app.use(errorHandler);
+index.use('/api/user',require('./routers/userRouter'));
+index.use('/api/challenge',require('./routers/challengeRouter'));
+index.use('/api/profile',require('./routers/profileRouter'));
 
 
 // const allowedOrigins = [
@@ -40,6 +40,7 @@ const corsOptions = {
     origin: '*',
     credentials: true,
 };
+
 
 
 

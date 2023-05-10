@@ -25,7 +25,11 @@ const redisClient = redis.createClient({
 });
 
 
-
+/**
+ * @route Method /Route
+ * @desc Function Description
+ * @access Public
+ */
 export const verifyEmail = async (req: Request, res: Response) => {
     const { email, code } = req.body;
     await redisClient.connect();
@@ -38,6 +42,12 @@ export const verifyEmail = async (req: Request, res: Response) => {
     }
 }
 
+
+/**
+ * @route Method /Route
+ * @desc Function Description
+ * @access Public
+ */
 //회원 가입용 이메일 코드 요청
 export async function sendEmail(req: Request, res: Response) {
     const emailToSend = req.body.email;
@@ -66,7 +76,9 @@ export async function sendEmail(req: Request, res: Response) {
 }
 
 /**
- * @desc 유저 회원 가입
+ * @route Method /Route
+ * @desc Function Description
+ * @access Public
  */
 export const userSignup = async (req: Request, res: Response) => {
     // * Validate user input
@@ -112,7 +124,6 @@ export const userSignup = async (req: Request, res: Response) => {
  */
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
         const { userIdentifier, userPassword }: userLoginDto = req.body;
         const userIdentifierSelect = await UserService.userIdentifierSelect(userIdentifier);
         if (userIdentifierSelect == null || userIdentifierSelect == undefined) {
