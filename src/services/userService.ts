@@ -51,7 +51,7 @@ const signUpService = async (
       console.log(e);
       returnForm.status = 500;
       returnForm.message = "Server Error on email check process";
-      return;
+      return returnForm; // Add return statement here
     });
   // check if identifier already exists
   let isIdentifierExist = false;
@@ -68,7 +68,7 @@ const signUpService = async (
       console.log(e);
       returnForm.status = 500;
       returnForm.message = "Server Error on identifier check process";
-      return;
+      return returnForm; // Add return statement here
     }
     );
 
@@ -77,7 +77,7 @@ const signUpService = async (
     const TOKEN_KEY = process.env.TOKEN_KEY || "";
 
     // * Encrypt user password
-    let encryptedPassword = await bcrypt.hash(password, parseInt(process.env.SALTROUNDS || "10"));
+    let encryptedPassword = await bcrypt.hash(password, parseInt("10"));
     // console.log(email)
     // const token = jwt.sign({ email }, TOKEN_KEY, {
     //   expiresIn: "20h",
