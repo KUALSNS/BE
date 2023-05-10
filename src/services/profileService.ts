@@ -13,7 +13,8 @@ const getProfile = async (userId: string) => {
       if (data) {
         returnForm.status = 200;
         returnForm.message = "Success";
-        //delete password from data
+        // delete password from data
+        delete data.password
         console.log(data)
         returnForm.responseData = data
       } else {
