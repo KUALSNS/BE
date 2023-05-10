@@ -14,6 +14,7 @@ const getProfile = async (userId: string) => {
         returnForm.status = 200;
         returnForm.message = "Success";
         //delete password from data
+        console.log(data)
         returnForm.responseData = data
       } else {
         returnForm.status = 400;
@@ -35,8 +36,6 @@ const updateProfile = async (nickname: string, phoneNumber: string, identifier: 
     message: "server error",
     responseData: {},
   };
-
-
   await prisma.users.update({
     where: { identifier: identifier },
     data: {
@@ -58,7 +57,7 @@ const updateProfile = async (nickname: string, phoneNumber: string, identifier: 
     .catch((e: any) => {
       console.log(e);
       returnForm.status = 500;
-      returnForm.message = "Server Error on get profile process";
+      returnForm.message = "Server Error on update profile process";
     });
   return returnForm;
 }
