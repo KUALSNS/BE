@@ -94,7 +94,7 @@ export const manyCategory = async (req: Request, res: Response, next: NextFuncti
 
 export const challengeSearch = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const categorySearch : string = req.body.categorySearch;
+        const categorySearch : string = req.query.categorySearch as string;
         const challenges = await ChallengeController.challengeSearchData(categorySearch);
         return res.status(200).json({
             "code": 200,

@@ -8,7 +8,6 @@ const beforeMainData = async () => {
   try {
     const challengesArray: {
       title: string;
-      content: string;
       category: string;
     }[] = [];
     const [categoryDB, challengesDB] = await Promise.all([
@@ -23,7 +22,6 @@ const beforeMainData = async () => {
       prisma.challenges.findMany({
         select: {
           title: true,
-          content: true,
           category: {
             select: {
               name: true,
@@ -36,7 +34,7 @@ const beforeMainData = async () => {
       return e.name
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "content": e.content, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name }]
 
     });
     for (var i = 0; i < challenges.length; i++) {
@@ -56,13 +54,11 @@ const wholeCategoryData = async () => {
   try {
     const challengesArray: {
       title: string;
-      content: string;
       category: string;
     }[] = [];
     const challengesDB = await prisma.challenges.findMany({
       select: {
         title: true,
-        content: true,
         category: {
           select: {
             name: true,
@@ -71,7 +67,7 @@ const wholeCategoryData = async () => {
       }
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "content": e.content, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name }]
     });
     for (var i = 0; i < challenges.length; i++) {
       challengesArray.push(challenges[i][0]);
@@ -87,7 +83,6 @@ const oneCategoryData = async (oneCategory: string) => {
   try {
     const challengesArray: {
       title: string;
-      content: string;
       category: string;
     }[] = []
     const categoryDB = await prisma.category.findMany({
@@ -99,14 +94,13 @@ const oneCategoryData = async (oneCategory: string) => {
         challenges: {
           select: {
             title: true,
-            content: true
           }
         }
       }
     });
     for (var i = 0; i < categoryDB[0].challenges.length; i++) {
       const category = categoryDB.map((e) => {
-        return [{ "title": e.challenges[i].title, "content": e.challenges[i].content, "category": e.name }]
+        return [{ "title": e.challenges[i].title, "category": e.name }]
       });
       challengesArray.push(category[0][0]);
     }
@@ -121,7 +115,6 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
   try {
     const challengesArray: {
       title: string;
-      content: string;
       category: string;
     }[] = [];
     if (typeof manyCategory == 'string') {
@@ -134,14 +127,13 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
           challenges: {
             select: {
               title: true,
-              content: true
             }
           }
         }
       });
       for (var i = 0; i < categoryDB[0].challenges.length; i++) {
         const category = categoryDB.map((e) => {
-          return [{ "title": e.challenges[i].title, "content": e.challenges[i].content, "category": e.name }]
+          return [{ "title": e.challenges[i].title, "category": e.name }]
         });
         challengesArray.push(category[0][0]);
       }
@@ -161,14 +153,13 @@ const manyCategoryData = async (manyCategory: string[] | string) => {
             challenges: {
               select: {
                 title: true,
-                content: true
               }
             }
           }
         });
         for (var j = 0; j < categoryDB[0].challenges.length; j++) {
           const category = categoryDB.map((e) => {
-            return [{ "title": e.challenges[j].title, "content": e.challenges[j].content, "category": e.name }]
+            return [{ "title": e.challenges[j].title, "category": e.name }]
           });
           challengesArray.push(category[0][0]);
         }
@@ -185,7 +176,6 @@ const challengeSearchData = async (challengeSearch: string) => {
   try {
     const challengesArray: {
       title: string;
-      content: string;
       category: string;
     }[] = [];
     const challengeSearchData = challengeSearch.replace(/ /g, "");
@@ -197,7 +187,6 @@ const challengeSearchData = async (challengeSearch: string) => {
       },
       select: {
         title: true,
-        content: true,
         category: {
           select: {
             name: true,
@@ -206,7 +195,7 @@ const challengeSearchData = async (challengeSearch: string) => {
       }
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "content": e.content, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name }]
     });
     for (var j = 0; j < challengesDB.length; j++) {
       challengesArray.push(challenges[j][0]);
