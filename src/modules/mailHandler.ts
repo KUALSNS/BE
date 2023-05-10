@@ -18,13 +18,14 @@ const generateRandom = function (min: number, max: number) {
 export const smtpSender = async function( email:string) {
   try {
     const verificationCode = generateRandom(100000, 999999);
+
     await redisClient.connect();
 
     //redis set email code - 3 minutes expire
     await redisClient.v4.set(email, verificationCode, 'EX', 60 * 3);
     //redis get email code
     const mailOptions = {
-      from: process.env.NODEMAILER_USER + "@naver.com",
+      from: "jftj" + "@naver.com",
       to: email,
       subject: 'Tarae 서비스 이메일 인증 코드입니다.',
       text: `인증 코드 : ${verificationCode}`
