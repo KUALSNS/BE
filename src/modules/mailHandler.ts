@@ -31,6 +31,7 @@ export const smtpSender = async function (email: string) {
       text: `인증 코드 : ${verificationCode}`
     };
     const auth = await smtpTransport.sendMail(mailOptions);
+    smtpTransport.close();
     console.log(auth);
     await redisClient.disconnect();
     return {
