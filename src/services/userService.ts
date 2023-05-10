@@ -22,12 +22,14 @@ const userIdentifierSelect = async (userIdentifier: string) => {
   }
 }
 
+
+
 //registerUser function using prisma
 const signUpService = async (
   email: string,
   password: string,
   nickname: string,
-  userId: string,
+  userId : string,
   phoneNumber: string
 ) => {
   const returnForm: serviceReturnForm = {
@@ -35,7 +37,6 @@ const signUpService = async (
     message: "server error",
     responseData: {},
   };
-
   // * Validate if email already exists
   let isEmailExist = false;
   await prisma.users.findFirst({ where: { email: email } })
@@ -52,13 +53,31 @@ const signUpService = async (
       returnForm.message = "Server Error on email check process";
       return;
     });
+  // check if identifier already exists
+  let isIdentifierExist = false;
+  await prisma.users.findFirst({ where: { identifier: userId } })
+    .then((data) => {
+      if (data) {
+        isIdentifierExist = true;
+        returnForm.status = 400;
+        returnForm.message = "Identifier already exist";
+      }
+    }
+    )
+    .catch((e) => {
+      console.log(e);
+      returnForm.status = 500;
+      returnForm.message = "Server Error on identifier check process";
+      return;
+    }
+    );
 
   // * Create User only when email not exists
-  if (!isEmailExist) {
+  if (!isEmailExist && !isIdentifierExist) {
     const TOKEN_KEY = process.env.TOKEN_KEY || "";
 
     // * Encrypt user password
-    let encryptedPassword = await bcrypt.hash(password, parseInt("10"));
+    let encryptedPassword = await bcrypt.hash(password, parseInt(process.env.SALTROUNDS || "10"));
     // console.log(email)
     // const token = jwt.sign({ email }, TOKEN_KEY, {
     //   expiresIn: "20h",
@@ -90,6 +109,5 @@ const signUpService = async (
 };
 
 
-
-export { userIdentifierSelect, signUpService }
+export  { userIdentifierSelect,  signUpService}
 

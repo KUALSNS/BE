@@ -1,6 +1,9 @@
 import express from 'express';
 import  * as ChallengeController  from '../controllers/challengeController'
+
 import  {verifyToken} from '../middleware/auth';
+
+
 
 const router = express.Router()
 
