@@ -19,9 +19,9 @@ app.all('/*', function(req, res, next) {
     next();
 });
 
-index.use('/api/user',require('./routers/userRouter'));
-index.use('/api/challenge',require('./routers/challengeRouter'));
-index.use('/api/profile',require('./routers/profileRouter'));
+app.use('/api/user',require('./routers/userRouter'));
+app.use('/api/challenge',require('./routers/challengeRouter'));
+app.use('/api/profile',require('./routers/profileRouter'));
 
 
 // const allowedOrigins = [
