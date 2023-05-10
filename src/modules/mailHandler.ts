@@ -1,8 +1,8 @@
 import * as redis from 'redis';
 
-const express = require('express');
-const router = express.Router();
-const { smtpTransport } = require("../config/email");
+//const { smtpTransport } = require("../config/email");
+
+import { smtpTransport } from "../config/email";
 require('dotenv').config();
 const env = process.env;
 
@@ -15,7 +15,7 @@ const generateRandom = function (min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-export const smtpSender = async function( email:string) {
+export const smtpSender = async function (email: string) {
   try {
     const verificationCode = generateRandom(100000, 999999);
 
@@ -30,16 +30,9 @@ export const smtpSender = async function( email:string) {
       subject: 'Tarae 서비스 이메일 인증 코드입니다.',
       text: `인증 코드 : ${verificationCode}`
     };
-    smtpTransport.sendMail(mailOptions, (error: any, responses: string) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + responses);
-      }
-      smtpTransport.close();
-    });
+    const auth = await smtpTransport.sendMail(mailOptions);
+    console.log(auth);
     await redisClient.disconnect();
-
     return {
       status: 200,
       message: '이메일이 성공적으로 전송되었습니다.',
@@ -47,14 +40,15 @@ export const smtpSender = async function( email:string) {
         verificationCode: verificationCode
       }
     };
+
   } catch (error) {
     await redisClient.disconnect();
     return {
-        status: 500,
-        message: '이메일 전송에 실패하였습니다.',
-        responseData: {
-            error: error
-        }
+      status: 500,
+      message: '이메일 전송에 실패하였습니다.',
+      responseData: {
+        error: error
+      }
     }
   }
 
