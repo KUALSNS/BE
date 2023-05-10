@@ -208,5 +208,95 @@ const challengeSearchData = async (challengeSearch: string) => {
   }
 };
 
+const afterMainData = async (user_id: number) => {
+  try {
+    const challengesArray: {
+      title: string;
+      category: string;
+    }[] = [];
 
-export { beforeMainData, wholeCategoryData, oneCategoryData, manyCategoryData, challengeSearchData }
+    const userTemplateCountArray: {
+      challenges: string;
+      achievement: number;
+    }[] = [];
+    const [categoryDB, challengesDB, userDB, userTemplateCountDB] = await Promise.all([
+      prisma.category.findMany({
+        where: {
+          type: "챌린지"
+        },
+        select: {
+          name: true,
+        }
+      }),
+      prisma.challenges.findMany({
+        select: {
+          title: true,
+          category: {
+            select: {
+              name: true,
+            }
+          }
+        }
+      }),
+      prisma.users.findMany({
+        where: {
+          user_id: user_id
+        },
+        select: {
+          nickname: true,
+        }
+      }),
+      prisma.user_challenges.findMany({
+        where: {
+          user_id: user_id
+        },
+        select: {
+          challenges: {
+            select: {
+              title: true
+            }
+          },
+          user_challenge_templetes: {
+            select: {
+              title: true
+            }
+          }
+        }
+      })
+    ]);
+    const nicknameArray = userDB.map((e) => {
+      return e.nickname
+    });
+    const nickname = nicknameArray[0];
+
+    const userTemplateCount = userTemplateCountDB.map((e) => {
+      return [{ "challenges": e.challenges.title, "achievement": Math.round(e.user_challenge_templetes.length * 3.3) }]
+    });
+    for (var i = 0; i < userTemplateCount.length; i++) {
+      userTemplateCountArray.push(userTemplateCount[i][0]);
+    }
+    console.log(userTemplateCount.length);
+    console.log(userTemplateCountArray);
+
+    const category = categoryDB.map((e) => {
+      return e.name
+    });
+    const challenges = challengesDB.map((e) => {
+      return [{ "title": e.title, "category": e.category.name }]
+    });
+    for (var i = 0; i < challenges.length; i++) {
+      challengesArray.push(challenges[i][0]);
+    }
+    prisma.$disconnect();
+    return {
+      nickname,
+      userTemplateCountArray,
+      category,
+      challengesArray
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export { beforeMainData, wholeCategoryData, oneCategoryData, manyCategoryData, challengeSearchData, afterMainData }

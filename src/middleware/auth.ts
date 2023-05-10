@@ -2,12 +2,13 @@
 import jwt from 'jsonwebtoken';
 import type { JwtPayload } from "jsonwebtoken"
 import * as redis from 'redis';
+import { NextFunction, Request, Response } from 'express'
 const secret = process.env.JSONSECRET!;
 const redisClient = redis.createClient({
   url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
   legacyMode: true
 });
-
+;
 
 
 const sign = (userId: string, userRole: number) => {
@@ -80,8 +81,28 @@ const refreshVerify = async (token: string, userId: number) => {
   }
 };
 
+const verifyToken = (req : any, res : Response, next : NextFunction) => {
+  try {
+    const token : string = req.header("access") as string;
+    const organized_token = token.substr(7);
+    req.decoded = jwt.verify(organized_token,secret);
+    return next();
+  } catch (error : any) {
+    if (error.name === 'TokenExpiredError') { // 유효기간 초과
+      return res.status(419).json({
+        code: 417,
+        message: '토큰이 만료되었습니다',
+      });
+    }
+    return res.status(401).json({
+      code: 401,
+      message: '유효하지 않은 토큰입니다',
+    });
+  }
+}
 
 
 
 
-export { sign, refresh, decode, refreshVerify, verify }
+
+export { sign, refresh, decode, refreshVerify, verify, verifyToken }

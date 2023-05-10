@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { serviceReturnForm } from '../modules/responseHandler';
 const prisma = new PrismaClient();
 //import { v4 as uuidv4 } from 'uuid';
