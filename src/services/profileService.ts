@@ -30,6 +30,40 @@ const getProfile = async (userId: number) => {
   return returnForm;
 }
 
+// password update with hashing using try catch
+const updatePassword = async (password: string, user_id: number) => {
+    const returnForm: serviceReturnForm = {
+        status: 500,
+        message: "server error",
+        responseData: {},
+    };
+    await prisma.users.update({
+        where: { user_id: user_id },
+        data: {
+        password: password
+        }
+    })
+        .then((data: Object) => {
+        if (data) {
+            returnForm.status = 200;
+            returnForm.message = "Success";
+            //delete password from data
+            returnForm.responseData = data
+        } else {
+            returnForm.status = 400;
+            returnForm.message = "User Not Found";
+        }
+        })
+        .catch((e: any) => {
+        console.log(e);
+        returnForm.status = 500;
+        returnForm.message = "Server Error on update password process";
+        });
+    return returnForm;
+}
+
+
+
 // profile update
 const updateProfile = async (nickname: string, phoneNumber: string, user_id: number) => {
   const returnForm: serviceReturnForm = {
@@ -63,4 +97,4 @@ const updateProfile = async (nickname: string, phoneNumber: string, user_id: num
   return returnForm;
 }
 
-export  { getProfile, updateProfile}
+export  { getProfile, updateProfile,updatePassword}
