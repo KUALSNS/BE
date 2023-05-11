@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-// prisma migration command
-// npx prisma migrate dev --name init
-
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl", "debian-openssl-1.1.x"]
 }
 
@@ -24,10 +18,10 @@ model users {
   level           Int?
   mar_email       Boolean?
   phone           String            @db.VarChar(30)
+  coopon          Int?              @db.TinyInt
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   user_challenges user_challenges[]
-  user_templates  user_templates[]
 }
 
 model category {
@@ -36,18 +30,17 @@ model category {
   name       String       @db.VarChar(40)
   count      Int
   challenges challenges[]
-  templates  templates[]
 }
 
 model challenges {
   chal_id         Int               @default(autoincrement())
   cate_id         Int
   title           String            @db.VarChar(40)
-  content         String            @db.VarChar(50)
   emogi           String            @db.VarChar(255)
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   category        category          @relation(fields: [cate_id], references: [cate_id], onDelete: Cascade, map: "cate_idForeignKey")
+  templates       templates[]
   user_challenges user_challenges[]
 
   @@id([chal_id, cate_id])
@@ -56,33 +49,17 @@ model challenges {
 
 model templates {
   tem_id                   Int                        @default(autoincrement())
-  cate_id                  Int
+  chal_id                  Int
   title                    String                     @db.VarChar(40)
-  content                  String                     @db.VarChar(50)
-  writing                  String                     @db.LongText
+  content                  String                     @db.LongText
   created_at               DateTime                   @default(now()) @db.Timestamp(0)
   update_at                DateTime                   @default(now()) @db.Timestamp(0)
-  category                 category                   @relation(fields: [cate_id], references: [cate_id], onDelete: Cascade, map: "cate_idForeignKey2")
+  templatescol             String?                    @db.VarChar(45)
+  challenges               challenges                 @relation(fields: [chal_id], references: [chal_id], onDelete: NoAction, onUpdate: NoAction, map: "chal_idForeignKey4")
   user_challenge_templetes user_challenge_templetes[]
-  user_templates           user_templates[]
 
-  @@id([tem_id, cate_id])
-  @@index([cate_id], map: "cate_idForeignKey2")
-}
-
-model user_templates {
-  utem_id    Int       @default(autoincrement())
-  user_id    Int
-  tem_id     Int
-  title      String    @db.VarChar(40)
-  writing    String    @db.LongText
-  created_at DateTime  @default(now()) @db.Timestamp(0)
-  update_at  DateTime  @default(now()) @db.Timestamp(0)
-  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey")
-  templates  templates @relation(fields: [tem_id], references: [tem_id], onDelete: Cascade, map: "tem_idForeignKey4")
-  @@id([utem_id, user_id, tem_id])
-  @@index([tem_id], map: "tem_idForeignKey4")
-  @@index([user_id], map: "user_idForeignKey")
+  @@id([tem_id, chal_id])
+  @@index([chal_id], map: "chal_idForeignKey3_idx")
 }
 
 model user_challenges {
@@ -92,9 +69,9 @@ model user_challenges {
   complete                 Boolean?
   start_at                 DateTime                   @default(now()) @db.Timestamp(0)
   finish_at                DateTime?                  @db.Timestamp(0)
-  user_challenge_templetes user_challenge_templetes[]
   challenges               challenges                 @relation(fields: [chal_id], references: [chal_id], onDelete: Cascade, map: "chal_idForeignKey2")
   users                    users                      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey2")
+  user_challenge_templetes user_challenge_templetes[]
 
   @@id([uchal_id, user_id, chal_id])
   @@index([chal_id], map: "chal_idForeignKey2")
@@ -117,10 +94,3 @@ model user_challenge_templetes {
   @@index([tem_id], map: "tem_idForeignKey2")
   @@index([uchal_id], map: "uchal_idForeignKey2")
 }
-
-
-
-
-
-
-
