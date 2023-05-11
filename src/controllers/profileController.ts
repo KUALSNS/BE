@@ -27,21 +27,33 @@ export const userProfile = async (req: Request, res: Response) => {
 
 }
 
-// update email function with verification
+// update email function with verification using typescript
 export const emailUpdate = async (req: Request, res: Response) => {
-
+    try {
+        const accessToken = (req.headers.access as string).split('Bearer ')[1];
+        const authResult = jwt.verify(accessToken);
+        const decoded = jwt.decode(accessToken);
+        console.log(decoded);
+        const { email } = req.body;
+        const returnData: serviceReturnForm = await profileService.updateEmail(email, decoded!.id);
+        return res.status(returnData.status).send(returnData);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ status: 500, message: "Fail Update Email" });
+    }
 }
 
 
-// password update
+
+// password update function with verification using typescript body input oldPassword, newPassword
 export const passwordUpdate = async (req: Request, res: Response) => {
     try {
         const accessToken = (req.headers.access as string).split('Bearer ')[1];
         const authResult = jwt.verify(accessToken);
         const decoded = jwt.decode(accessToken);
         console.log(decoded);
-        const { password } = req.body;
-        const returnData: serviceReturnForm = await profileService.updatePassword(password, decoded!.id);
+        const { oldPassword, newPassword } = req.body;
+        const returnData: serviceReturnForm = await profileService.updatePassword(oldPassword, newPassword, decoded!.id);
         res.status(returnData.status).send(returnData);
     } catch (error) {
         console.log(error);
