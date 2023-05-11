@@ -74,7 +74,7 @@ const userSignup = async (
 
   // * Create User only when email not exists
   if (!isEmailExist && !isIdentifierExist) {
-    const TOKEN_KEY = process.env.TOKEN_KEY || "";
+    //const TOKEN_KEY = process.env.TOKEN_KEY || "";
 
     // * Encrypt user password
     let encryptedPassword = await bcrypt.hash(password, 10);
