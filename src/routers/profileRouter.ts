@@ -9,8 +9,9 @@ router.use(cors({
 }));
 
 router.get('/', ProfileController.userProfile);
+router.patch('/', ProfileController.profileUpdate);
+router.get('/history', ProfileController.userHistory);
 router.patch('/password', ProfileController.passwordUpdate);
-router.patch('/nickname', ProfileController.profileUpdate);
 router.patch('/phone', ProfileController.profileUpdate);
 router.patch('/email', ProfileController.emailUpdate);
 

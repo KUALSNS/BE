@@ -6,9 +6,10 @@ export interface userLoginDto {
 
 export interface userSignupDto {
   userId: string;
-  userEmail: string;
-  userPassword: string;
-  userNickname: string;
+  email: string;
+  password: string;
+  nickname: string;
+  phoneNumber: string;
 }
 
 

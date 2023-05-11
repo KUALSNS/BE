@@ -1,4 +1,3 @@
-import { signUpService } from '../services/userService';
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
@@ -8,7 +7,6 @@ import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender } from '../modules/mailHandler';
-const env = process.env;
 declare var process: {
     env: {
         SALTROUNDS: string
@@ -93,7 +91,9 @@ export async function sendEmail(req: Request, res: Response) {
  * @desc Function Description
  * @access Public
  */
+
 export const userSignup = async (req: Request, res: Response) => {
+
     // * Validate user input
     if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
         res.status(400).send({ status: 400, message: "Fail SignUp" });
@@ -101,7 +101,7 @@ export const userSignup = async (req: Request, res: Response) => {
     }
     const { email, password, nickname, userId, phoneNumber } = req.body;
 
-    const returnData: serviceReturnForm = await signUpService(
+    const returnData: serviceReturnForm = await UserService.userSignup(
         email,
         password,
         nickname,

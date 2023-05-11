@@ -25,7 +25,7 @@ const userIdentifierSelect = async (userIdentifier: string) => {
 
 
 //registerUser function using prisma
-const signUpService = async (
+const userSignup = async (
   email: string,
   password: string,
   nickname: string,
@@ -77,7 +77,7 @@ const signUpService = async (
     const TOKEN_KEY = process.env.TOKEN_KEY || "";
 
     // * Encrypt user password
-    let encryptedPassword = await bcrypt.hash(password, parseInt("10"));
+    let encryptedPassword = await bcrypt.hash(password, 10);
     // console.log(email)
     // const token = jwt.sign({ email }, TOKEN_KEY, {
     //   expiresIn: "20h",
@@ -109,5 +109,5 @@ const signUpService = async (
 };
 
 
-export  { userIdentifierSelect,  signUpService}
+export  { userIdentifierSelect,  userSignup}
 

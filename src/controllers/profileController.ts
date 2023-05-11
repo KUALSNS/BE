@@ -11,23 +11,37 @@ import * as jwt from '../middleware/auth';
  */
 export const userProfile = async (req: Request, res: Response) => {
   try {
-    //get data from JWT token
+      console.log("here")
+
+      //get data from JWT token
     const accessToken = (req.headers.access as string).split('Bearer ')[1];
-    const authResult = jwt.verify(accessToken);
+    const authResult = await jwt.verify(accessToken);
     const decoded = jwt.decode(accessToken);
     console.log(decoded);
     if (authResult.state) {
+        console.log("here")
       const returnData: serviceReturnForm = await profileService.getProfile(decoded!.id);
-      res.status(returnData.status).send(returnData);
+        console.log("here")
+
+        return res.status(returnData.status).send(returnData);
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({ status: 500, message: "Fail Get Profile" });
+      return res.status(500).send({ status: 500, message: "Fail Get Profile" });
   }
 
 }
 
-// update email function with verification using typescript
+
+
+
+
+export const userHistory = async (req: Request, res: Response) => {
+
+}
+
+
+
 export const emailUpdate = async (req: Request, res: Response) => {
     try {
         const accessToken = (req.headers.access as string).split('Bearer ')[1];
@@ -45,7 +59,6 @@ export const emailUpdate = async (req: Request, res: Response) => {
 
 
 
-// password update function with verification using typescript body input oldPassword, newPassword
 export const passwordUpdate = async (req: Request, res: Response) => {
     try {
         const accessToken = (req.headers.access as string).split('Bearer ')[1];
@@ -61,7 +74,6 @@ export const passwordUpdate = async (req: Request, res: Response) => {
     }
 }
 
-//profile update
 export const profileUpdate = async (req: Request, res: Response) => {
   try {
     const accessToken = (req.headers.access as string).split('Bearer ')[1];
