@@ -83,27 +83,37 @@ const userSignup = async (
     //   expiresIn: "20h",
     // });
 
-    await prisma.users.create({
-      data: {
-        //user_id: userId,
-        nickname: nickname,
-        email: email,
-        password: encryptedPassword,
-        phone: phoneNumber,
-        role: "USER",
-        identifier: userId,
-      },
-    })
-      .then((data) => {
-        returnForm.status = 200;
-        returnForm.message = "SignUp Success";
-        returnForm.responseData = data.identifier;
-      })
-      .catch((e) => {
-        console.log(e);
-        returnForm.status = 500;
-        returnForm.message = "Server Error on SignUp process";
-      });
+    // * Create User typescript error catching
+    await prisma.users
+        .create({
+            data: {
+                email: email,
+                password: encryptedPassword,
+                nickname: nickname,
+                identifier: userId,
+                phone: phoneNumber,
+                role: "user",
+            },
+        })
+        .then((data) => {
+            if (data) {
+                returnForm.status = 200;
+                returnForm.message = "Success";
+                data.password = ""
+                returnForm.responseData = data;
+            } else {
+                returnForm.status = 400;
+                returnForm.message = "User Not Found";
+
+            }
+        })
+        .catch((e) => {
+            console.log(e);
+            returnForm.status = 500;
+            returnForm.message = "Server Error on create user process";
+            return returnForm; // Add return statement here
+        }
+        );
   }
   return returnForm;
 };
