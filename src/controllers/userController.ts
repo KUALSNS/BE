@@ -30,10 +30,10 @@ const redisClient = redis.createClient({
  */
 export const verifyEmail = async (req: Request, res: Response) => {
     try {
-        const { email, code } = req.body;
+        const { email, code } = req.query;
         await redisClient.connect();
         const redisCode = await redisClient.v4.get(email);
-        if (redisCode == code) {
+        if (redisCode == parseInt(<string>code)) {
             await redisClient.disconnect();
             return res.status(200).send({ status: 200, message: "Success Verify Email" });
         } else {

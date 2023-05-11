@@ -32,7 +32,8 @@ export const smtpSender = async function (email: string) {
     };
     const auth = await smtpTransport.sendMail(mailOptions);
     smtpTransport.close();
-    console.log(auth);
+    console.log("here is email and auth")
+    console.log(email + "       " + auth);
     await redisClient.disconnect();
     return {
       status: 200,
@@ -41,7 +42,6 @@ export const smtpSender = async function (email: string) {
         verificationCode: verificationCode
       }
     };
-
   } catch (error) {
     await redisClient.disconnect();
     return {
