@@ -45,11 +45,11 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
                     }
                 }
             })
-        ])
-
+        ]);
         const coopon = userCooponDB?.coopon;
         const challengesCount = challengesCountDB._count.uchal_id;
-        const challengesOverlap = challengesOverlapDB[0].user_challenges[0];
+        const challengesOverlap = challengesOverlapDB[0].user_challenges;
+        console.log(challengesOverlap);
         prisma.$disconnect();
         return {
             coopon,

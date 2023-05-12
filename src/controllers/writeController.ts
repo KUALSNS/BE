@@ -10,7 +10,15 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
         const challengesCount: number = data?.challengesCount as number;
         const challengesOverlap: any = data?.challengesOverlap as any;
         if (data?.coopon) {       //트루
-            if (challengesOverlap == undefined) {    // 중복되지 않음
+            console.log(!challengesOverlap)
+            if (!challengesOverlap) {    // 중복되지 않음
+                return res.status(415).json({
+                    "code": 415,
+                    "message": "현재 진행 중인 챌린지와 중복됩니다.",
+                });
+               
+            }
+            else {         
                 const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
                 if (startChallenge) {
                     const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
@@ -19,16 +27,13 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                         "message": "OK",
                         "data": {
                             "challengeName": data.valueFilter,
-                            "selectChallengeTemplate": data.challengTemplateArray
+                             templateData: {
+                                challengeName: startChallenge.newChallenge,
+                                template : data.challengTemplateArray
+                            }
                         }
                     });
                 }
-            }
-            else {
-                return res.status(415).json({
-                    "code": 415,
-                    "message": "현재 진행 중인 챌린지와 중복됩니다.",
-                });
             }
         } else {
             if (2 < challengesCount) {        // 챌린지 갯수 초과
@@ -47,7 +52,10 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                             "message": "OK",
                             "data": {
                                 "challengeName": data.valueFilter,
-                                "selectChallengeTemplate": data.challengTemplateArray
+                                templateData: {
+                                    challengeName: startChallenge.newChallenge,
+                                    template : data.challengTemplateArray
+                                }
                             }
                         });
                     }
