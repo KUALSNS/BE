@@ -27,7 +27,7 @@ export const smtpSender = async function (email: string) {
     const mailOptions = {
       from: "jftj" + "@naver.com",
       to: email,
-      subject: 'Tarae 서비스 이메일 인증 코드입니다.',
+      subject: 'Writon 서비스 이메일 인증 코드입니다.',
       text: `인증 코드 : ${verificationCode}`
     };
     const auth = await smtpTransport.sendMail(mailOptions);

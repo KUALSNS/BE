@@ -31,6 +31,56 @@ const getProfile = async (userId: number) => {
 }
 
 
+// user challenge statistics function which returns the number of challenges solved by the user in a month or week
+const getChallengeStatistics = async (year: string, month: string, week: string, period:string, userId: number) => {
+    const returnForm: serviceReturnForm = {
+        status: 500,
+        message: "server error",
+        responseData: {},
+    };
+    try {
+        let data: any;
+        if (period == "week") {
+            // user_challenges templates in a week related to the user
+            data = await prisma.user_challenge_templetes.findMany({
+                where: {
+                    AND: [
+                        { user_id: { some: { user_id: userId } } },
+                        { created_at: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+                    ],
+                }
+            }
+            );
+        } else              if (period == "month") {
+            data = await prisma.user_challenge_templetes.findMany({
+                where: {
+                    AND: [
+                        { user_id: { some: { user_id: userId } } },
+                        { created_at: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+                    ],
+                },
+            });
+        } else {
+            returnForm.status = 400;
+            returnForm.message = "Invalid period";
+            return returnForm;
+        }
+        if (data) {
+            returnForm.status = 200;
+            returnForm.message = "Success";
+            returnForm.responseData = data;
+        } else {
+            returnForm.status = 400;
+            returnForm.message = "User Not Found";
+        }
+    } catch (e: any) {
+        console.log(e);
+        returnForm.status = 500;
+        returnForm.message = "Server Error on get challenge statistics process";
+    }
+    return returnForm;
+}
+
 
 // update email with validation using try catch
 const updateEmail = async (email: string, user_id: number) => {
@@ -148,4 +198,4 @@ const updateProfile = async (nickname: string, phoneNumber: string, user_id: num
   return returnForm;
 }
 
-export  { getProfile, updateProfile,updatePassword, updateEmail}
+export  { getProfile, updateProfile,updatePassword, updateEmail, getChallengeStatistics}
