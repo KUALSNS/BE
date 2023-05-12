@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/', ChallengeController.beforeMain);
 router.post('/start/:name', verifyToken, WriteController.newChallenge);
 router.get('/main', verifyToken ,ChallengeController.afterMain);
+router.get('/write', verifyToken, WriteController.writeChallenge);
 router.get('/whole-category', ChallengeController.wholeCategory);
 router.get('/select', ChallengeController.manyCategory);
 router.get('/search', ChallengeController.challengeSearch);

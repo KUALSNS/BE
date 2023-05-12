@@ -139,8 +139,6 @@ export const afterMain = async (req: any, res: Response, next: NextFunction) => 
             }
         });
     } catch (error) {
-
-
         console.error(error);
         return res.status(500).json({
             "code": 500,
