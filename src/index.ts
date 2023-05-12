@@ -2,10 +2,17 @@ import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
-
+import moment from 'moment';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
+
+const date = new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' });
+const isoDate = new Date(date).toISOString().slice(0, 10) + "T00:00:00.000Z";
+const realDate = new Date(isoDate);
+console.log(realDate);
+
+
 app.use(cors({
     credentials : true
 }));

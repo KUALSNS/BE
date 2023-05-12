@@ -18,7 +18,7 @@ model users {
   level           Int?
   mar_email       Boolean?
   phone           String            @db.VarChar(30)
-  coopon          Int?              @db.TinyInt
+  coopon          Int               @default(0) @db.TinyInt
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   user_challenges user_challenges[]
@@ -67,8 +67,8 @@ model user_challenges {
   user_id                  Int
   chal_id                  Int
   complete                 Boolean?
-  start_at                 DateTime                   @default(now()) @db.Timestamp(0)
-  finish_at                DateTime?                  @db.Timestamp(0)
+  start_at                 DateTime                   @default(dbgenerated("(curdate())")) @db.Date
+  finish_at                DateTime?                  @db.Date
   challenges               challenges                 @relation(fields: [chal_id], references: [chal_id], onDelete: Cascade, map: "chal_idForeignKey2")
   users                    users                      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey2")
   user_challenge_templetes user_challenge_templetes[]
@@ -85,8 +85,8 @@ model user_challenge_templetes {
   title           String?         @db.VarChar(30)
   writing         String          @db.LongText
   complete        Boolean?
-  created_at      DateTime        @default(now()) @db.Timestamp(0)
-  update_at       DateTime        @default(now()) @db.Timestamp(0)
+  created_at      DateTime        @default(dbgenerated("(curdate())")) @db.Date
+  update_at       DateTime        @default(dbgenerated("(curdate())")) @db.Date
   templates       templates       @relation(fields: [tem_id], references: [tem_id], onDelete: Cascade, map: "tem_idForeignKey2")
   user_challenges user_challenges @relation(fields: [uchal_id], references: [uchal_id], onDelete: Cascade, map: "uchal_idForeignKey2")
 
