@@ -18,14 +18,14 @@ const sign = (userId: string, userRole: number) => {
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '1m',
+    expiresIn: '10m',
   });
 }
 
 const refresh = () => {
   return jwt.sign({}, secret, {
     algorithm: 'HS256',
-    expiresIn: '2m',
+    expiresIn: '15m',
   });
 }
 const decode = (token: string) => {
@@ -90,7 +90,7 @@ const verifyToken = (req : any, res : Response, next : NextFunction) => {
   } catch (error : any) {
     if (error.name === 'TokenExpiredError') { // 유효기간 초과
       return res.status(419).json({
-        code: 417,
+        code: 419,
         message: '토큰이 만료되었습니다',
       });
     }
