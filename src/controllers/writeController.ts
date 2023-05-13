@@ -16,9 +16,9 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                     "code": 415,
                     "message": "현재 진행 중인 챌린지와 중복됩니다.",
                 });
-               
+
             }
-            else {         
+            else {
                 const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
                 if (startChallenge) {
                     const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
@@ -27,9 +27,9 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                         "message": "OK",
                         "data": {
                             "challengeName": data.valueFilter,
-                             templateData: {
+                            templateData: {
                                 challengeName: startChallenge.newChallenge,
-                                template : data.challengTemplateArray
+                                template: data.challengTemplateArray
                             }
                         }
                     });
@@ -54,7 +54,7 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                                 "challengeName": data.valueFilter,
                                 templateData: {
                                     challengeName: startChallenge.newChallenge,
-                                    template : data.challengTemplateArray
+                                    template: data.challengTemplateArray
                                 }
                             }
                         });
@@ -114,6 +114,61 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         });
     }
 };
+
+export const insertTemporaryChallenge = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
+
+        const data =
+            await ChallengeController.insertTemporaryChallengeDB(req.decoded.id,
+                challengeName,
+                templateName,
+                challengeTitle,
+                challengeContent
+            );
+        if (data) {
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok"
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            "message": "Server Error"
+        });
+    }
+};
+
+export const insertChallengeComplete = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
+
+        const data =
+            await ChallengeController.insertChallengeCompleteDB(
+                req.decoded.id,
+                challengeName,
+                templateName,
+                challengeTitle,
+                challengeContent
+            );
+        if (data) {
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok"
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            "message": "Server Error"
+        });
+    }
+};
+
+
 
 
 
