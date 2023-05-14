@@ -13,7 +13,7 @@ const realDate = new Date(isoDate);
 console.log(realDate);
 
 
-app.use(morgan('combined', { stream: stream }));
+//app.use(morgan('combined', { stream: stream }));
 app.use(cors({
     credentials: true
 }));
