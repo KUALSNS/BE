@@ -5,9 +5,10 @@ import  {verifyToken} from '../middleware/auth';
 
 
 
+
 const router = express.Router();
 
-router.get('/', ChallengeController.beforeMain);
+router.get('/' ,ChallengeController.beforeMain);
 router.post('/start/:name', verifyToken, WriteController.newChallenge);
 router.get('/main', verifyToken ,ChallengeController.afterMain);
 router.get('/whole-category', ChallengeController.wholeCategory);
