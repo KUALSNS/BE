@@ -17,7 +17,7 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
         });
         console.log(challengTemplateDB[0].created_at)
         const [userCooponDB, challengesCountDB, challengesOverlapDB] = await Promise.all([
-            await prisma.users.findUnique({
+            prisma.users.findUnique({
                 where: {
                     user_id: user_id
                 },
@@ -25,7 +25,7 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
                     coopon: true
                 }
             }),
-            await prisma.user_challenges.aggregate({
+            prisma.user_challenges.aggregate({
                 where: {
                     user_id: user_id
                 },
@@ -33,7 +33,7 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
                     uchal_id: true
                 }
             }),
-            await prisma.challenges.findMany({
+            prisma.challenges.findMany({
                 where: {
                     title: newChallenge
                 },
@@ -237,7 +237,169 @@ const writeTemplateData = async (chal_id: number) => {
     }
 };
 
+const insertTemporaryChallengeDB = async (
+    user_id: number,
+    challengeName: string,
+    templateName: string,
+    challengeTitle: string,
+    challengeContent: string
+) => {
+    try {
+        const [challengeIdDB, templateIdDB] = await Promise.all([
+            prisma.challenges.findMany({
+                where: {
+                    title: challengeName
+                },
+                select: {
+                    chal_id: true
+                }
+            }),
+            prisma.templates.findMany({
+                where: {
+                    title: templateName
+                },
+                select: {
+                    tem_id: true
+                }
+            })
+        ]);
+        const userChallengeDB =
+            await prisma.user_challenges.findMany({
+                where: {
+                    user_id: user_id,
+                    chal_id: challengeIdDB[0].chal_id
+                },
+                select: {
+                    uchal_id: true
+                }
+            });
+        console.log( userChallengeDB);
+        const challengeSignDB = await prisma.user_challenge_templetes.findMany({
+            where: {
+                uchal_id: userChallengeDB[0].uchal_id,
+                tem_id: templateIdDB[0].tem_id,
+            },
+            select: {
+                uctem_id: true
+            }
+        });
+        if (!challengeSignDB) {
+            await prisma.user_challenge_templetes.create({
+                data: {
+                    uchal_id: userChallengeDB[0].uchal_id,
+                    tem_id: templateIdDB[0].tem_id,
+                    title: challengeTitle,
+                    writing: challengeContent,
+                    complete: false
+                }
+            });
+        } else {
+            await prisma.user_challenge_templetes.updateMany({
+                where: {
+                    uchal_id: userChallengeDB[0].uchal_id,
+                    tem_id: templateIdDB[0].tem_id   
+                },
+                data: {
+                    title: challengeTitle,
+                    writing: challengeContent
+                }
+            });
+        }
+        prisma.$disconnect();
+        return true;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        return false;
+    }
+};
+
+const insertChallengeCompleteDB = async (
+    user_id: number,
+    challengeName: string,
+    templateName: string,
+    challengeTitle: string,
+    challengeContent: string
+) => {
+    try {
+        const [challengeIdDB, templateIdDB] = await Promise.all([
+            prisma.challenges.findMany({
+                where: {
+                    title: challengeName
+                },
+                select: {
+                    chal_id: true
+                }
+            }),
+            prisma.templates.findMany({
+                where: {
+                    title: templateName
+                },
+                select: {
+                    tem_id: true
+                }
+            })
+        ]);
+        const userChallengeDB =
+            await prisma.user_challenges.findMany({
+                where: {
+                    user_id: user_id,
+                    chal_id: challengeIdDB[0].chal_id
+                },
+                select: {
+                    uchal_id: true
+                }
+            });
+        console.log( userChallengeDB);
+        const challengeSignDB = await prisma.user_challenge_templetes.findMany({
+            where: {
+                uchal_id: userChallengeDB[0].uchal_id,
+                tem_id: templateIdDB[0].tem_id,
+            },
+            select: {
+                uctem_id: true
+            }
+        });
+        if (!challengeSignDB) {
+            await prisma.user_challenge_templetes.create({
+                data: {
+                    uchal_id: userChallengeDB[0].uchal_id,
+                    tem_id: templateIdDB[0].tem_id,
+                    title: challengeTitle,
+                    writing: challengeContent,
+                    complete: true
+                }
+            });
+        } else {
+            await prisma.user_challenge_templetes.updateMany({
+                where: {
+                    uchal_id: userChallengeDB[0].uchal_id,
+                    tem_id: templateIdDB[0].tem_id   
+                },
+                data: {
+                    title: challengeTitle,
+                    writing: challengeContent,
+                    complete: true
+                }
+            });
+        }
+        prisma.$disconnect();
+        return true;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        return false;
+    }
+};
+
+
+
+
+
+
+
 export {
     newChallengeData, startChallengeData, newChallengeResult,
-    writeChallengeData, writeTemplateData
+    writeChallengeData, writeTemplateData, insertTemporaryChallengeDB,
+    insertChallengeCompleteDB
 }
