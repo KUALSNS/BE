@@ -71,7 +71,6 @@ const startChallengeData = async (user_id: number, newChallenge: string) => {
             },
             select: {
                 chal_id: true
-
             }
         });
         const chalIdData = chalId[0].chal_id;
@@ -81,7 +80,6 @@ const startChallengeData = async (user_id: number, newChallenge: string) => {
                 chal_id: chalIdData
             }
         });
-
         prisma.$disconnect();
         return { chalIdData, newChallenge };
 
@@ -139,6 +137,9 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                     user_challenge_templetes: {
                         where: {
                             created_at: realDate,
+                            NOT: {
+                                complete: true
+                            }
                         },
                         select: {
                             uctem_id: true
@@ -166,7 +167,6 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                 relativeChallengeArray.push(relativeChallengeMap[i].title);
             }
         }
-
         const valueFilter = relativeChallengeArray.filter((element) => element !== newChallenge);
         valueFilter.unshift(newChallenge);
         prisma.$disconnect();
@@ -179,7 +179,6 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
 
 
 const writeChallengeData = async (user_id: number) => {
-
     try {
         const date = new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' });
         const isoDate = new Date(date).toISOString().slice(0, 10) + "T00:00:00.000Z";
@@ -199,6 +198,9 @@ const writeChallengeData = async (user_id: number) => {
                     user_challenge_templetes: {
                         where: {
                             created_at: realDate,
+                            NOT: {
+                                complete: true
+                            }
                         },
                         select: {
                             uctem_id: true
@@ -226,9 +228,7 @@ const writeTemplateData = async (chal_id: number) => {
                     content: true
                 }
             });
-
         console.log(challengeTemplateDB);
-
         prisma.$disconnect();
         return challengeTemplateDB;
     } catch (error) {
@@ -273,7 +273,7 @@ const insertTemporaryChallengeDB = async (
                     uchal_id: true
                 }
             });
-        console.log( userChallengeDB);
+        console.log(userChallengeDB);
         const challengeSignDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
@@ -297,7 +297,7 @@ const insertTemporaryChallengeDB = async (
             await prisma.user_challenge_templetes.updateMany({
                 where: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id   
+                    tem_id: templateIdDB[0].tem_id
                 },
                 data: {
                     title: challengeTitle,
@@ -350,7 +350,7 @@ const insertChallengeCompleteDB = async (
                     uchal_id: true
                 }
             });
-        console.log( userChallengeDB);
+        console.log(userChallengeDB);
         const challengeSignDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
@@ -374,7 +374,7 @@ const insertChallengeCompleteDB = async (
             await prisma.user_challenge_templetes.updateMany({
                 where: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id   
+                    tem_id: templateIdDB[0].tem_id
                 },
                 data: {
                     title: challengeTitle,
