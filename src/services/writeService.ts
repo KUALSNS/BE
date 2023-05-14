@@ -392,6 +392,61 @@ const insertChallengeCompleteDB = async (
     }
 };
 
+const selectTemplateDB = async (
+    challengeName: string
+) => {
+    try {
+        const resultArray = [];
+        const challengeIdCategoryDB =
+            await prisma.challenges.findMany({
+                where: {
+                    title: challengeName
+                },
+                select: {
+                    chal_id: true,
+                    category: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
+            });
+        interface TemplateData {
+            title: string,
+            content: string,
+            category?: string;
+        }
+        const templateNameDB : TemplateData[] =
+            await prisma.templates.findMany({
+                where: {
+                    chal_id: challengeIdCategoryDB[0].chal_id
+                },
+                select: {
+                    title: true,
+                    content: true
+                }
+            });
+
+
+
+        for (var i = 0; i < templateNameDB.length; i++) {
+            const category  = challengeIdCategoryDB.map((e) => {
+                return { "category": e.category.name };
+            });
+
+          templateNameDB[i].category = category[0].category;
+        }
+        console.log(templateNameDB)
+
+        prisma.$disconnect();
+        return templateNameDB;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        return false;
+    }
+};
+
 
 
 
@@ -401,5 +456,5 @@ const insertChallengeCompleteDB = async (
 export {
     newChallengeData, startChallengeData, newChallengeResult,
     writeChallengeData, writeTemplateData, insertTemporaryChallengeDB,
-    insertChallengeCompleteDB
+    insertChallengeCompleteDB, selectTemplateDB
 }

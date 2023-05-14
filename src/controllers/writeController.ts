@@ -1,6 +1,7 @@
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
+import { prisma } from '@prisma/client';
 
 
 export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
@@ -159,6 +160,32 @@ export const insertChallengeComplete = async (req: any, res: Response, next: Nex
                 "message": "Ok"
             });
         }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            "message": "Server Error"
+        });
+    }
+};
+
+export const selectTemplate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const challengeName  = req.params.challengeName;
+        const data = await ChallengeController.selectTemplateDB(challengeName);
+        console.log(data)
+        if(data){
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                data
+            });
+        
+        }
+        return res.status(404).json({
+            "code": 404,
+            "message": "not found"
+        });     
     } catch (error) {
         console.error(error);
         return res.status(500).json({
