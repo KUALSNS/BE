@@ -25,7 +25,7 @@ const sign = (userId: string, userRole: number) => {
 const refresh = () => {
   return jwt.sign({}, secret, {
     algorithm: 'HS256',
-    expiresIn: '5m',
+    expiresIn: '15m',
   });
 }
 const decode = (token: string) => {
@@ -63,14 +63,18 @@ const verify = (token: string) => {
 const refreshVerify = async (token: string, userId: number) => {
   try {
     await redisClient.connect();
+    console.log(1);
     const data: string = await redisClient.v4.get(String(userId));
     console.log(data);
     if (typeof data === 'string') {
       if (token === data.split('Bearer ')[1]) {
+        console.log(2);
         jwt.verify(data.split('Bearer ')[1], secret);
+        console.log(3);
         await redisClient.disconnect();
         return { state: true };
       } else {
+        console.log(4);
         await redisClient.disconnect();
         return { state: false };
       }
