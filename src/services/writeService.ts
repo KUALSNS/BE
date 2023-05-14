@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth';
+import { TemplateDTO } from '../interfaces/DTO';
 import mysql from 'mysql2/promise';
 const prisma = new PrismaClient();
 
@@ -411,12 +412,8 @@ const selectTemplateDB = async (
                     }
                 }
             });
-        interface TemplateData {
-            title: string,
-            content: string,
-            category?: string;
-        }
-        const templateNameDB : TemplateData[] =
+     
+        const templateNameDB : TemplateDTO[] =
             await prisma.templates.findMany({
                 where: {
                     chal_id: challengeIdCategoryDB[0].chal_id
