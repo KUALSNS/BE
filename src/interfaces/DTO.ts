@@ -18,5 +18,11 @@ export interface TemplateDTO {
   category?: string;
 }
 
+export interface mainChallengeDTO {
+  title: string;
+  category: string;
+
+}
+
 
 

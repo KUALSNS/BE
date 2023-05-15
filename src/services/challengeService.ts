@@ -1,15 +1,18 @@
 import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth';
 import mysql from 'mysql2/promise';
+import { mainChallengeDTO } from '../interfaces/DTO'
 const prisma = new PrismaClient();
 
 
 const beforeMainData = async () => {
   try {
-    const challengesArray: {
+    const challengesArray: Record<string, mainChallengeDTO[]> = {};
+    const challengesArrayMap: {
       title: string;
       category: string;
     }[] = [];
+
     const [categoryDB, challengesDB] = await Promise.all([
       prisma.category.findMany({
         where: {
@@ -38,12 +41,23 @@ const beforeMainData = async () => {
 
     });
     for (var i = 0; i < challenges.length; i++) {
-      challengesArray.push(challenges[i][0]);
+      challengesArrayMap.push(challenges[i][0]);
     }
+    console.log(challenges)
+    challengesArrayMap.forEach(item => {
+      const category = item.category;
+      if (!challengesArray[category]) {
+        challengesArray[category] = [];
+      }
+      challengesArray[category].push(item);
+    });
+    const challengeArrays = Object.keys(challengesArray).map(key => ({
+      [key]: challengesArray[key]
+    }));
     prisma.$disconnect();
     return {
       category,
-      challengesArray
+      challengeArrays
     };
   } catch (error) {
     console.log(error);
@@ -215,11 +229,11 @@ const challengeSearchData = async (challengeSearch: string) => {
 
 const afterMainData = async (user_id: number) => {
   try {
-    const challengesArray: {
+    const challengesArray: Record<string, mainChallengeDTO[]> = {};
+    const challengesArrayMap: {
       title: string;
       category: string;
     }[] = [];
-
     const userChallengeCountArray: {
       challenges: string;
       achievement: number;
@@ -256,15 +270,15 @@ const afterMainData = async (user_id: number) => {
         where: {
           user_id: user_id
         },
-        select: {         
+        select: {
           challenges: {
             select: {
               title: true
             }
           },
           user_challenge_templetes: {
-            where:{
-              complete:true
+            where: {
+              complete: true
             },
             select: {
               title: true
@@ -283,7 +297,7 @@ const afterMainData = async (user_id: number) => {
 
     const nickname = nicknameArray[0];
     const coopon = cooponArray[0];
-    
+
 
     const userChallengeCount = userChallengeCountDB.map((e) => {
       return [{ "challenges": e.challenges.title, "achievement": Math.round(e.user_challenge_templetes.length * 3.3) }]
@@ -291,27 +305,48 @@ const afterMainData = async (user_id: number) => {
     for (var i = 0; i < userChallengeCount.length; i++) {
       userChallengeCountArray.push(userChallengeCount[i][0]);
     }
-
+    let challengeCertain: boolean;
     const userChallengeSu = userChallengeCountArray.length;
-   
+    if (userChallengeSu == 0) {
+      challengeCertain = false;
+    } else {
+      challengeCertain = true;
+    }
 
     const category = categoryDB.map((e) => {
       return e.name
     });
     const challenges = challengesDB.map((e) => {
       return [{ "title": e.title, "category": e.category.name }]
+
     });
     for (var i = 0; i < challenges.length; i++) {
-      challengesArray.push(challenges[i][0]);
+      challengesArrayMap.push(challenges[i][0]);
     }
+    console.log(challenges)
+    challengesArrayMap.forEach(item => {
+      const category = item.category;
+      if (!challengesArray[category]) {
+        challengesArray[category] = [];
+      }
+      challengesArray[category].push(item);
+    });
+    const challengeArrays = Object.keys(challengesArray).map(key => ({
+      [key]: challengesArray[key]
+    }));
+
+
+
+
     prisma.$disconnect();
     return {
       nickname,
       coopon,
       userChallengeSu,
+      "challengeCertain": challengeCertain,
       userChallengeCountArray,
       category,
-      challengesArray
+      challengeArrays
     };
   } catch (error) {
     console.log(error);
