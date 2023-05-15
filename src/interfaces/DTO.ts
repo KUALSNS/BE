@@ -24,5 +24,15 @@ export interface mainChallengeDTO {
 
 }
 
+export type imagesArrayDTO = {
+  originalname: string;
+  location: string;
+}[];
+
+export type videoArrayDTO = {
+  originalname: string;
+  location: string;
+}[];
+
 
 
