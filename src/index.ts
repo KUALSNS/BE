@@ -12,6 +12,7 @@ const isoDate = new Date(date).toISOString().slice(0, 10) + "T00:00:00.000Z";
 const realDate = new Date(isoDate);
 console.log(realDate);
 
+
 app.use(morgan('combined', { stream: stream }));
 app.use(cors({
     credentials: true
