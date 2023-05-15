@@ -1,6 +1,7 @@
 import { serviceReturnForm } from '../modules/responseHandler';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from "bcrypt";
+
 const prisma = new PrismaClient();
 
 const getProfile = async (userId: number) => {
@@ -40,31 +41,37 @@ const getChallengeStatistics = async (year: string, month: string, week: string,
     };
     try {
         let data: any;
+        const summary = {
+            participants: 0,
+            challengesInProgress: 0,
+            daysNotCompleted: 0,
+        };
         if (period == "week") {
-            // user_challenges templates in a week related to the user
-            data = await prisma.user_challenge_templetes.findMany({
-                where: {
-                    AND: [
-                        { user_id: { some: { user_id: userId } } },
-                        { created_at: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
-                    ],
-                }
-            }
-            );
-        } else              if (period == "month") {
-            data = await prisma.user_challenge_templetes.findMany({
-                where: {
-                    AND: [
-                        { user_id: { some: { user_id: userId } } },
-                        { created_at: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
-                    ],
+
+            // Count the number of distinct participants
+            const distinctParticipants = await prisma.user_challenges.aggregate({
+                _count: {
+                    user_id: true,
                 },
+            });
+            summary.participants = distinctParticipants._count.user_id;
+
+            // Count the number of challenges in progress
+            summary.challengesInProgress = await prisma.user_challenges.count({
+
+            });
+
+            // Count the number of days that have not been completed
+            summary.daysNotCompleted = await prisma.user_challenge_templetes.count({
+                where: { complete: false },
             });
         } else {
             returnForm.status = 400;
             returnForm.message = "Invalid period";
             return returnForm;
         }
+        data = summary;
+        console.log(data);
         if (data) {
             returnForm.status = 200;
             returnForm.message = "Success";
@@ -125,6 +132,7 @@ const updatePassword = async (oldPassword: string, newPassword: string, user_id:
         .then(async (data) => {
         if (data) {
             const compare = await bcrypt.compare(oldPassword, data.password);
+
             if (compare) {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             await prisma.users.update({
