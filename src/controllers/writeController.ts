@@ -256,7 +256,7 @@ export const uploadVideo = async (req: any, res: Response, next: NextFunction) =
         return res.status(200).json({
             "code": 200,
             "message": "Ok",
-            "images": videoArrays
+            "videos": videoArrays
         });
     } catch (error) {
         console.error(error);
