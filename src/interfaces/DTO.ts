@@ -12,6 +12,17 @@ export interface userSignupDto {
   phoneNumber: string;
 }
 
+export interface TemplateDTO {
+  title: string,
+  content: string,
+  category?: string;
+}
+
+export interface mainChallengeDTO {
+  title: string;
+  category: string;
+
+}
 
 
 

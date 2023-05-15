@@ -1,6 +1,7 @@
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
+import { prisma } from '@prisma/client';
 
 
 export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
@@ -89,12 +90,33 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
                 const challengeMap = challengeCategoryDB!.map((e) => {
                     return { "title": e.challenges, "chal_id": e.chal_id };
                 });
-                console.log(challengeMap)
+
                 challengeCategoryArray.push(challengeMap[i].title.title);
                 challengeChalIdyArray.push(challengeMap[i].chal_id);
             }
         }
-        const writeTemplate = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
+
+        const writeTemplate : any = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
+        const template = writeTemplate?.challengeTemplateDB;
+        const category = writeTemplate?.categoryDB;
+      
+
+        for (var i = 0; i < template!.length; i++) {
+            template![i].category = category![0].category.name
+        }
+
+        console.log(template)
+
+
+
+
+
+
+
+        // console.log(challengeCategoryArray);
+        // console.log(challengeChalIdyArray);
+
+
         return res.status(200).json({
             "code": 200,
             "message": "Ok",
@@ -102,7 +124,7 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
                 challengeCategoryArray,
                 templateData: {
                     challengeName: challengeCategoryArray[0],
-                    writeTemplate
+                    template
                 }
             }
         });
@@ -120,7 +142,7 @@ export const insertTemporaryChallenge = async (req: any, res: Response, next: Ne
         const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
 
         const data =
-            await ChallengeController.insertTemporaryChallengeDB(req.decoded.id,
+            await ChallengeController.insertTemporaryChallengeData(req.decoded.id,
                 challengeName,
                 templateName,
                 challengeTitle,
@@ -146,7 +168,7 @@ export const insertChallengeComplete = async (req: any, res: Response, next: Nex
         const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
 
         const data =
-            await ChallengeController.insertChallengeCompleteDB(
+            await ChallengeController.insertChallengeCompleteData(
                 req.decoded.id,
                 challengeName,
                 templateName,
@@ -159,6 +181,32 @@ export const insertChallengeComplete = async (req: any, res: Response, next: Nex
                 "message": "Ok"
             });
         }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            "code": 500,
+            "message": "Server Error"
+        });
+    }
+};
+
+export const selectTemplate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const challengeName = req.params.challengeName;
+        const data = await ChallengeController.selectTemplateData(challengeName);
+        console.log(data)
+        if (data) {
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                data
+            });
+
+        }
+        return res.status(404).json({
+            "code": 404,
+            "message": "not found"
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({

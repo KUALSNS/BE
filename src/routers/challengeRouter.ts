@@ -16,6 +16,7 @@ router.get('/whole-category', ChallengeController.wholeCategory);
 router.get('/select', ChallengeController.manyCategory);
 router.get('/search', ChallengeController.challengeSearch)
 router.get('/:category', ChallengeController.oneCategory);
+router.get('/write/:challengeName', WriteController.selectTemplate);
 router.post('/write/temporary-storage', verifyToken, WriteController.insertTemporaryChallenge);
 router.post('/write/register', verifyToken, WriteController.insertChallengeComplete);
 
