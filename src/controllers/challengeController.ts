@@ -124,7 +124,7 @@ export const afterMain = async (req: any, res: Response, next: NextFunction) => 
         const userChallengeSu = data?.userChallengeSu;
         const userChallengeCountArray = data?.userChallengeCountArray
         const category = data?.category;
-        const challengesArrays = data?.challengeArrays;
+        const challengesArray = data?.challengesArray;
         const challengeCertain = data?.challengeCertain;
 
         return res.status(200).json({
@@ -137,7 +137,7 @@ export const afterMain = async (req: any, res: Response, next: NextFunction) => 
                 userChallengeSu,
                 userChallengeCountArray,
                 category,
-                challengesArrays
+                challengesArray
             }
         });
     } catch (error) {

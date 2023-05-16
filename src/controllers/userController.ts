@@ -196,7 +196,16 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         console.log(decoded)
         if (req.headers.access && req.headers.refresh) {
             const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
-            const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
+            try {
+                var refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
+            } catch (error) {
+                console.error(error);
+                return res.status(500).json({
+                    code: 500,
+                    message: "Server Error"
+                });
+
+            }
             await redisClient.connect();
             if (authResult.state === false) {
                 if (typeof refreshResult != 'undefined') {
