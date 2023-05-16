@@ -197,10 +197,10 @@ export const insertChallengeComplete = async (req: any, res: Response, next: Nex
     }
 };
 
-export const selectTemplate = async (req: Request, res: Response, next: NextFunction) => {
+export const selectTemplate = async (req: any, res: Response, next: NextFunction) => {
     try {
         const challengeName = req.params.challengeName;
-        const data = await ChallengeController.selectTemplateData(challengeName);
+        const data = await ChallengeController.selectTemplateData(challengeName, req.decoded.id);
         console.log(data)
         if (data) {
             return res.status(200).json({
