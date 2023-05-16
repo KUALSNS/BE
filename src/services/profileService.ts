@@ -96,6 +96,7 @@ const updateEmail = async (email: string, user_id: number) => {
         message: "server error",
         responseData: {},
     };
+
     await prisma.users.update({
         where: { user_id: user_id },
         data: {
