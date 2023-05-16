@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
 import { prisma } from '@prisma/client';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
+import { bool } from 'aws-sdk/clients/signer';
 
 export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
@@ -10,16 +11,8 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
         const data = await ChallengeController.newChallengeData(req.decoded.id, newChallenge);
         const challengesCount: number = data?.challengesCount as number;
         const challengesOverlap: any = data?.challengesOverlap as any;
-        if (data?.coopon) {       //트루
-            console.log(!challengesOverlap)
-            if (!challengesOverlap) {    // 중복되지 않음
-                return res.status(415).json({
-                    "code": 415,
-                    "message": "현재 진행 중인 챌린지와 중복됩니다.",
-                });
-
-            }
-            else {
+        if (data?.coopon) {
+            if (challengesOverlap == undefined) {
                 const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
                 if (startChallenge) {
                     const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
@@ -36,8 +29,14 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                     });
                 }
             }
+            else {
+                return res.status(415).json({
+                    "code": 415,
+                    "message": "현재 진행 중인 챌린지와 중복됩니다.",
+                });
+            }
         } else {
-            if (2 < challengesCount) {        // 챌린지 갯수 초과
+            if (2 < challengesCount) {
                 return res.status(418).json({
                     "code": 418,
                     "message": "더 이상 챌린지를 할 수 없습니다.",
@@ -47,7 +46,7 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                     const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
                     if (startChallenge) {
                         const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
-                        console.log(data)
+                        //       console.log(data)
                         return res.status(200).json({
                             "code": 200,
                             "message": "OK",
@@ -86,30 +85,45 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         const challengeChalIdyArray = [];
 
         for (var i = 0; i < challengeCategoryDB!.length; i++) {
-            if (!challengeCategoryDB![i].user_challenge_templetes[0]) {
-                const challengeMap = challengeCategoryDB!.map((e) => {
-                    return { "title": e.challenges, "chal_id": e.chal_id };
-                });
-
-                challengeCategoryArray.push(challengeMap[i].title.title);
-                challengeChalIdyArray.push(challengeMap[i].chal_id);
-            }
+            const challengeMap = challengeCategoryDB!.map((e) => {
+                return { "title": e.challenges, "chal_id": e.chal_id };
+            });
+            challengeCategoryArray.push(challengeMap[i].title.title);
+            challengeChalIdyArray.push(challengeMap[i].chal_id);
         }
+        if (!writeChallenge?.challengeCategoryDB[0].user_challenge_templetes[0]) {  // 값이 없다면
+            var writeTemplate: any = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
+        }
+        else {
+            var writeTemplate: any =
+                await ChallengeController.writeTemplateData(challengeChalIdyArray[0],
+                    writeChallenge?.challengeCategoryDB[0].user_challenge_templetes[0].uctem_id);
 
-        const writeTemplate: any = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
+        }
         const template = writeTemplate?.challengeTemplateDB;
         const category = writeTemplate?.categoryDB;
-
+        const userTemplate = writeTemplate.userTemplates;
+        let templateCertain: boolean;
 
         for (var i = 0; i < template!.length; i++) {
             template![i].category = category![0].category.name
         }
+        if (userTemplate == undefined) {
+            templateCertain = false
+        }
+        else {
+            templateCertain = true
 
-        console.log(template)
+        }
+        console.log(userTemplate)
+
+
         return res.status(200).json({
             "code": 200,
             "message": "Ok",
             "data": {
+                templateCertain,
+                userTemplate,
                 challengeCategoryArray,
                 templateData: {
                     challengeName: challengeCategoryArray[0],

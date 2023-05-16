@@ -3,14 +3,17 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
 import {stream} from './modules/loggerHandler';
+import {getKoreanDateISOString} from './modules/koreanTime';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-const date = new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' });
-const isoDate = new Date(date).toISOString().slice(0, 10) + "T00:00:00.000Z";
-const realDate = new Date(isoDate);
-console.log(realDate);
+
+  const koreanDateISOString = getKoreanDateISOString();
+  const koreanTime = new Date(koreanDateISOString)
+  console.log(koreanTime);
+
+
 
 
 app.use(morgan('combined', { stream: stream }));
