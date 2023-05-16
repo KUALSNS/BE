@@ -7,12 +7,10 @@ const prisma = new PrismaClient();
 
 const beforeMainData = async () => {
   try {
-    const challengesArray: Record<string, mainChallengeDTO[]> = {};
-    const challengesArrayMap: {
+    const challengesArray: {
       title: string;
       category: string;
     }[] = [];
-
     const [categoryDB, challengesDB] = await Promise.all([
       prisma.category.findMany({
         where: {
@@ -41,23 +39,12 @@ const beforeMainData = async () => {
 
     });
     for (var i = 0; i < challenges.length; i++) {
-      challengesArrayMap.push(challenges[i][0]);
+      challengesArray.push(challenges[i][0]);
     }
-    console.log(challenges)
-    challengesArrayMap.forEach(item => {
-      const category = item.category;
-      if (!challengesArray[category]) {
-        challengesArray[category] = [];
-      }
-      challengesArray[category].push(item);
-    });
-    const challengeArrays = Object.keys(challengesArray).map(key => ({
-      [key]: challengesArray[key]
-    }));
     prisma.$disconnect();
     return {
       category,
-      challengeArrays
+      challengesArray
     };
   } catch (error) {
     console.log(error);
@@ -229,8 +216,7 @@ const challengeSearchData = async (challengeSearch: string) => {
 
 const afterMainData = async (user_id: number) => {
   try {
-    const challengesArray: Record<string, mainChallengeDTO[]> = {};
-    const challengesArrayMap: {
+    const challengesArray: {
       title: string;
       category: string;
     }[] = [];
@@ -321,20 +307,8 @@ const afterMainData = async (user_id: number) => {
 
     });
     for (var i = 0; i < challenges.length; i++) {
-      challengesArrayMap.push(challenges[i][0]);
+      challengesArray.push(challenges[i][0]);
     }
-    console.log(challenges)
-    challengesArrayMap.forEach(item => {
-      const category = item.category;
-      if (!challengesArray[category]) {
-        challengesArray[category] = [];
-      }
-      challengesArray[category].push(item);
-    });
-    const challengeArrays = Object.keys(challengesArray).map(key => ({
-      [key]: challengesArray[key]
-    }));
-
 
 
 
@@ -346,7 +320,7 @@ const afterMainData = async (user_id: number) => {
       "challengeCertain": challengeCertain,
       userChallengeCountArray,
       category,
-      challengeArrays
+      challengesArray
     };
   } catch (error) {
     console.log(error);
