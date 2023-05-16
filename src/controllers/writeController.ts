@@ -80,7 +80,11 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
 export const writeChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
         const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
-        const challengeCategoryDB = writeChallenge?.challengeCategoryDB;
+        const challengeCategoryDB = writeChallenge?.challengeArray
+        console.log(challengeCategoryDB);
+
+
+
         const challengeCategoryArray = [];
         const challengeChalIdyArray = [];
 
@@ -91,13 +95,13 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
             challengeCategoryArray.push(challengeMap[i].title.title);
             challengeChalIdyArray.push(challengeMap[i].chal_id);
         }
-        if (!writeChallenge?.challengeCategoryDB[0].user_challenge_templetes[0]) {  // 값이 없다면
+        if (!writeChallenge?.challengeArray[0].user_challenge_templetes[0]) {  // 값이 없다면
             var writeTemplate: any = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
         }
         else {
             var writeTemplate: any =
                 await ChallengeController.writeTemplateData(challengeChalIdyArray[0],
-                    writeChallenge?.challengeCategoryDB[0].user_challenge_templetes[0].uctem_id);
+                    writeChallenge?.challengeArray[0].user_challenge_templetes[0].uctem_id);
 
         }
         const template = writeTemplate?.challengeTemplateDB;

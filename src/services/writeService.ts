@@ -134,8 +134,6 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                             NOT: {
                                 complete: true,
                             }
-
-
                         },
                         select: {
                             uctem_id: true
@@ -164,8 +162,6 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                 }
             }),
         ]);
-        console.log(relativeChallengeDB1);
-        console.log(relativeChallengeDB2);
         for (var i = 0; i < challengTemplateDB[0].templates.length; i++) {
             const challengTemplate = challengTemplateDB.map((e) => {
                 return [{
@@ -174,29 +170,27 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                     "category": e.category.name,
                 }]
             });
-            //     console.log(challengTemplate)
             challengTemplateArray.push(challengTemplate[0][0]);
         }
-
         for (var i = 0; i < relativeChallengeDB1.length; i++) {
-            const relativeChallengeMap = relativeChallengeDB1.map((e) => {
-                return e.challenges;
-            });
-            relativeChallengeArray.push(relativeChallengeMap[i].title);
-
-        }
-        for (var i = 0; i < relativeChallengeDB2.length; i++) {
-            if (!relativeChallengeDB2[i].user_challenge_templetes[0]) {
+            if (!relativeChallengeDB1[i].user_challenge_templetes[0]) {
+            } else {
                 const relativeChallengeMap = relativeChallengeDB1.map((e) => {
                     return e.challenges;
                 });
                 relativeChallengeArray.push(relativeChallengeMap[i].title);
             }
         }
-
-
-        console.log(relativeChallengeArray)
-
+        for (var i = 0; i < relativeChallengeDB2.length; i++) {
+            if (!relativeChallengeDB2[i].user_challenge_templetes[0]) {
+                const relativeChallengeMap = relativeChallengeDB1.map((e) => {
+                    return e.challenges;
+                });
+                if (relativeChallengeArray.indexOf(relativeChallengeMap[i].title) === -1) {
+                    relativeChallengeArray.push(relativeChallengeMap[i].title);
+                }
+            }
+        }
         const valueFilter = relativeChallengeArray.filter((element) => element !== newChallenge);
         valueFilter.unshift(newChallenge);
         prisma.$disconnect();
@@ -210,11 +204,12 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
 
 const writeChallengeData = async (user_id: number) => {
     try {
-        const date = new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' });
-        const isoDate = new Date(date).toISOString().slice(0, 10) + "T00:00:00.000Z";
-        const realDate = new Date(isoDate);
-        const challengeCategoryDB =
-            await prisma.user_challenges.findMany({
+        const koreanDateISOString = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDateISOString);
+        console.log(koreanTime);
+        const challengeArray = [];
+        const [challengeCategoryDB1, challengeCategoryDB2] = await Promise.all([
+            prisma.user_challenges.findMany({
                 where: {
                     user_id: user_id
                 },
@@ -227,11 +222,9 @@ const writeChallengeData = async (user_id: number) => {
                     },
                     user_challenge_templetes: {
                         where: {
-                            OR: {
-                                created_at: realDate,
-                                NOT: {
-                                    complete: true
-                                }
+                            created_at: koreanTime,
+                            NOT: {
+                                complete: true,
                             }
                         },
                         select: {
@@ -239,9 +232,49 @@ const writeChallengeData = async (user_id: number) => {
                         }
                     }
                 }
-            });
+            }),
+            prisma.user_challenges.findMany({
+                where: {
+                    user_id: user_id
+                },
+                select: {
+                    chal_id: true,
+                    challenges: {
+                        select: {
+                            title: true,
+                        }
+                    },
+                    user_challenge_templetes: {
+                        where: {
+                            created_at: koreanTime,
+                        },
+                        select: {
+                            uctem_id: true
+                        }
+                    }
+                }
+            }),
+        ]);
+        // console.log(challengeCategoryDB1)
+        // console.log(challengeCategoryDB2)
+        for (var i = 0; i < challengeCategoryDB1.length; i++) {
+            if (!challengeCategoryDB1[i].user_challenge_templetes[0]) {
+            } else {           
+                challengeArray.push(challengeCategoryDB1[i]);
+            }
+        }
+        for (var i = 0; i < challengeCategoryDB2.length; i++) {
+            if (!challengeCategoryDB2[i].user_challenge_templetes[0]) {
+                if (challengeArray.indexOf(challengeCategoryDB2[i]) === -1) {
+                    challengeArray.push(challengeCategoryDB2[i]);
+                }
+            }
+        }
+
+      //  console.log(challengeArray)
+
         prisma.$disconnect();
-        return { challengeCategoryDB }
+        return { challengeArray }
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
