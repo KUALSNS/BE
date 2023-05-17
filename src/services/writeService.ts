@@ -108,7 +108,8 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                     title: true,
                     category: {
                         select: {
-                            name: true
+                            name: true,
+                            emogi:true
                         },
                     },
                     templates: {
@@ -180,6 +181,7 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                     "template-title": e.templates[i].title,
                     "template-content": e.templates[i].content,
                     "category": e.category.name,
+                    "image":e.category.emogi
                 }]
             });
             challengTemplateArray.push(challengTemplate[0][0]);
@@ -317,6 +319,16 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                     select: {
                         title: true,
                         content: true,
+                        challenges:{
+                            select:{
+                                category:{
+                                    select:{
+                                        name:true,
+                                        emogi:true
+                                    }
+                                }
+                            }
+                        }
                     }
                 }),
                 prisma.challenges.findMany({
@@ -344,6 +356,16 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                     select: {
                         title: true,
                         content: true,
+                        challenges:{
+                            select:{
+                                category:{
+                                    select:{
+                                        name:true,
+                                        emogi:true
+                                    }
+                                }
+                            }
+                        }
                     }
                 }),
                 prisma.challenges.findMany({
@@ -393,9 +415,7 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                 }
 
             })
-            const userTemplates = userTemplate[0]
-            console.log(userTemplates)
-
+            const userTemplates = userTemplate[0];
             prisma.$disconnect();
             return { challengeTemplateDB, categoryDB, userTemplates };
         }

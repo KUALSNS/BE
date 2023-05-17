@@ -79,19 +79,15 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
 export const writeChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
         const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
-        const challengeCategoryDB = writeChallenge?.challengeArray
-    
-
-
-
+        const challengeCategoryDB = writeChallenge?.challengeArray;
         const challengeArray = [];
         const challengeChalIdyArray = [];
 
         for (var i = 0; i < challengeCategoryDB!.length; i++) {
             const challengeMap = challengeCategoryDB!.map((e) => {
-                return { "title": e.challenges, "chal_id": e.chal_id,"category":e.challenges.category.name };
+                return { "title": e.challenges, "chal_id": e.chal_id, "category": e.challenges.category.name };
             });
-            challengeArray.push({"challengeName":challengeMap[i].title.title, "category":challengeMap[i].category});
+            challengeArray.push({ "challengeName": challengeMap[i].title.title, "category": challengeMap[i].category });
             challengeChalIdyArray.push(challengeMap[i].chal_id);
         }
         if (!writeChallenge?.challengeArray[0].user_challenge_templetes[0]) {  // 값이 없다면
@@ -106,11 +102,15 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         const template = writeTemplate?.challengeTemplateDB;
         const category = writeTemplate?.categoryDB;
         const userTemplate = writeTemplate.userTemplates;
+        const templateArray = [];
         let templateCertain: boolean;
 
-        for (var i = 0; i < template!.length; i++) {
-            template![i].category = category![0].category.name
-        }
+        const templates = template.map((e: any) => {
+            return { "title": e.title, "content": e.content, "category": e.challenges.category.name, "image": e.challenges.category.emogi }
+        });
+        templateArray.push(templates);
+
+        console.log(templateArray);
         if (userTemplate == undefined) {
             templateCertain = false
         }
@@ -118,7 +118,6 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
             templateCertain = true
 
         }
-        console.log( challengeArray)
         return res.status(200).json({
             "code": 200,
             "message": "Ok",
@@ -128,7 +127,7 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
                 challengeArray,
                 templateData: {
                     challengeName: challengeArray[0].challengeName,
-                    template
+                    templateArray
                 }
             }
         });
