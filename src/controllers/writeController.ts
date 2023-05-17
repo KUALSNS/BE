@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
 import { prisma } from '@prisma/client';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
-import { bool } from 'aws-sdk/clients/signer';
+
 
 export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {

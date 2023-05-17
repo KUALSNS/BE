@@ -194,7 +194,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         const authResult = jwt.verify(accessToken);
         const decoded = jwt.decode(accessToken);
         console.log(decoded)
-        if (req.headers.access && req.headers.refresh) {
+       
             const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
 
            
@@ -231,7 +231,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                     code: 400,
                     message: 'access token is not expired!',
                 });
-            }
+            
         }
     } catch (error) {
         console.error(error);
