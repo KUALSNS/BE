@@ -589,7 +589,6 @@ const selectTemplateData = async (
         const koreanDateISOString = getKoreanDateISOString();
         const koreanTime = new Date(koreanDateISOString);
         console.log(koreanTime);
-        const resultArray = [];
         const challengeIdCategoryDB =
             await prisma.challenges.findMany({
                 where: {
@@ -599,13 +598,12 @@ const selectTemplateData = async (
                     chal_id: true,
                     category: {
                         select: {
-                            name: true
+                            name: true,
+                            emogi:true
                         }
                     }
                 }
             });
-
-
         const templateNameDB: TemplateDTO[] =
             await prisma.templates.findMany({
                 where: {
@@ -616,8 +614,6 @@ const selectTemplateData = async (
                     content: true
                 }
             });
-
-
         const challengeIdDB =
             await prisma.user_challenges.findMany({
                 where: {
@@ -656,8 +652,6 @@ const selectTemplateData = async (
 
             }
         });
-
-
         let templateCertain: boolean;
         var challenging = challengingDB.map((e) => {
             return {
@@ -673,12 +667,13 @@ const selectTemplateData = async (
         else {
             templateCertain = true
         }
-
+      console.log(challengeIdCategoryDB)
         for (var i = 0; i < templateNameDB.length; i++) {
             const category = challengeIdCategoryDB.map((e) => {
-                return { "category": e.category.name };
+                return { "category": e.category.name, "image":e.category.emogi };
             });
             templateNameDB[i].category = category[0].category;
+            templateNameDB[i].image = category[0].image;
         }
         prisma.$disconnect();
         return { templateCertain, challenging, templateNameDB };
