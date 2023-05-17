@@ -196,6 +196,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         console.log(decoded)
         if (req.headers.access && req.headers.refresh) {
             const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
+
            
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
             await redisClient.connect();
