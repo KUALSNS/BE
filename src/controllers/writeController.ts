@@ -127,7 +127,7 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
                 userTemplate,
                 challengeArray,
                 templateData: {
-                    challengeName: challengeArray[0],
+                    challengeName: challengeArray[0].challengeName,
                     template
                 }
             }
