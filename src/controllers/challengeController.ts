@@ -122,7 +122,7 @@ export const afterMain = async (req: any, res: Response, next: NextFunction) => 
         const nickname = data?.nickname;
         const coopen = data?.coopon;
         const userChallengeSu = data?.userChallengeSu;
-        const userChallengeCountArray = data?.userChallengeCountArray
+        const userChallengeArray = data?.userChallengeArray
         const category = data?.category;
         const challengesArray = data?.challengesArray;
         const challengeCertain = data?.challengeCertain;
@@ -135,7 +135,7 @@ export const afterMain = async (req: any, res: Response, next: NextFunction) => 
                 coopen,
                 challengeCertain,
                 userChallengeSu,
-                userChallengeCountArray,
+                userChallengeArray,
                 category,
                 challengesArray
             }

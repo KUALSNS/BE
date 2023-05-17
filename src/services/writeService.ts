@@ -89,8 +89,9 @@ const startChallengeData = async (user_id: number, newChallenge: string) => {
 const newChallengeResult = async (user_id: number, challenge_id: number, newChallenge: string) => {
     try {
         const koreanDateISOString = getKoreanDateISOString();
-        const koreanTime = new Date(koreanDateISOString);
+        const koreanTime = new Date(koreanDateISOString)
         console.log(koreanTime);
+
         const challengTemplateArray: {
             category: string;
             "template-title": string;
@@ -125,7 +126,12 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                 select: {
                     challenges: {
                         select: {
-                            title: true
+                            title: true,
+                            category: {
+                                select: {
+                                    name: true
+                                }
+                            }
                         }
                     },
                     user_challenge_templetes: {
@@ -148,7 +154,12 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                 select: {
                     challenges: {
                         select: {
-                            title: true
+                            title: true,
+                            category: {
+                                select: {
+                                    name: true
+                                }
+                            }
                         }
                     },
                     user_challenge_templetes: {
@@ -162,6 +173,7 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                 }
             }),
         ]);
+
         for (var i = 0; i < challengTemplateDB[0].templates.length; i++) {
             const challengTemplate = challengTemplateDB.map((e) => {
                 return [{
@@ -176,25 +188,31 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
             if (!relativeChallengeDB1[i].user_challenge_templetes[0]) {
             } else {
                 const relativeChallengeMap = relativeChallengeDB1.map((e) => {
-                    return e.challenges;
+                    return { "challengeName": e.challenges.title, "category": e.challenges.category.name };
                 });
-                relativeChallengeArray.push(relativeChallengeMap[i].title);
+                relativeChallengeArray.push(relativeChallengeMap[i]);
             }
         }
+
         for (var i = 0; i < relativeChallengeDB2.length; i++) {
             if (!relativeChallengeDB2[i].user_challenge_templetes[0]) {
                 const relativeChallengeMap = relativeChallengeDB1.map((e) => {
-                    return e.challenges;
+                    return { "challengeName": e.challenges.title, "category": e.challenges.category.name };
                 });
-                if (relativeChallengeArray.indexOf(relativeChallengeMap[i].title) === -1) {
-                    relativeChallengeArray.push(relativeChallengeMap[i].title);
+                if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
+                    relativeChallengeArray.push(relativeChallengeMap[i]);
                 }
             }
         }
-        const valueFilter = relativeChallengeArray.filter((element) => element !== newChallenge);
-        valueFilter.unshift(newChallenge);
+        const userChallenging = [
+            ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
+            ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
+        ];
         prisma.$disconnect();
-        return { valueFilter, challengTemplateArray };
+        return {
+            userChallenging,
+            challengTemplateArray
+        };
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
@@ -205,8 +223,9 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
 const writeChallengeData = async (user_id: number) => {
     try {
         const koreanDateISOString = getKoreanDateISOString();
-        const koreanTime = new Date(koreanDateISOString);
+        const koreanTime = new Date(koreanDateISOString)
         console.log(koreanTime);
+
         const challengeArray = [];
         const [challengeCategoryDB1, challengeCategoryDB2] = await Promise.all([
             prisma.user_challenges.findMany({
@@ -218,6 +237,11 @@ const writeChallengeData = async (user_id: number) => {
                     challenges: {
                         select: {
                             title: true,
+                            category: {
+                                select: {
+                                    name: true
+                                }
+                            }
                         }
                     },
                     user_challenge_templetes: {
@@ -242,6 +266,11 @@ const writeChallengeData = async (user_id: number) => {
                     challenges: {
                         select: {
                             title: true,
+                            category: {
+                                select: {
+                                    name: true
+                                }
+                            }
                         }
                     },
                     user_challenge_templetes: {
@@ -255,8 +284,6 @@ const writeChallengeData = async (user_id: number) => {
                 }
             }),
         ]);
-        // console.log(challengeCategoryDB1)
-        // console.log(challengeCategoryDB2)
         for (var i = 0; i < challengeCategoryDB1.length; i++) {
             if (!challengeCategoryDB1[i].user_challenge_templetes[0]) {
             } else {
@@ -270,6 +297,7 @@ const writeChallengeData = async (user_id: number) => {
                 }
             }
         }
+        console.log(challengeArray)
         prisma.$disconnect();
         return { challengeArray }
     } catch (error) {
@@ -608,9 +636,9 @@ const selectTemplateData = async (
 
             }
         });
-     
 
-        let  templateCertain : boolean;
+
+        let templateCertain: boolean;
         var challenging = challengingDB.map((e) => {
             return {
                 "title": e.title,

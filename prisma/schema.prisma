@@ -31,6 +31,7 @@ model category {
   type       String       @db.VarChar(20)
   name       String       @db.VarChar(40)
   count      Int
+  emogi      String       @db.VarChar(100)
   challenges challenges[]
 }
 
