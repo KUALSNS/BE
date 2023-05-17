@@ -9,12 +9,11 @@ import { uploadImage, uploadVideo } from '../modules/s3Uploader';
 const router = express.Router();
 
 router.get('/', ChallengeController.beforeMain);
-
-router.get('/write', verifyToken, WriteController.writeChallenge);
+router.post('/write', verifyToken, WriteController.writeChallenge);
 router.post('/write/picture-upload', uploadImage.array('image'), WriteController.uploadImage);
 router.post('/write/video-upload', uploadVideo.array('video'), WriteController.uploadVideo);
-router.post('/start/:name', verifyToken, WriteController.newChallenge);
-router.get('/main', verifyToken, ChallengeController.afterMain);
+router.get('/start/:name', verifyToken, WriteController.newChallenge);
+router.post('/main', verifyToken, ChallengeController.afterMain);
 router.get('/whole-category', ChallengeController.wholeCategory);
 router.get('/select', ChallengeController.manyCategory);
 router.get('/search', ChallengeController.challengeSearch)
