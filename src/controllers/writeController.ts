@@ -20,7 +20,7 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                         "code": 200,
                         "message": "OK",
                         "data": {
-                            "challengeName": data.valueFilter,
+                            "challengeName": data.userChallenging,
                             templateData: {
                                 challengeName: startChallenge.newChallenge,
                                 template: data.challengTemplateArray
@@ -46,12 +46,11 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                     const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
                     if (startChallenge) {
                         const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
-                        //       console.log(data)
                         return res.status(200).json({
                             "code": 200,
                             "message": "OK",
                             "data": {
-                                "challengeName": data.valueFilter,
+                                "challengeName": data.userChallenging,
                                 templateData: {
                                     challengeName: startChallenge.newChallenge,
                                     template: data.challengTemplateArray
@@ -80,19 +79,15 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
 export const writeChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
         const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
-        const challengeCategoryDB = writeChallenge?.challengeArray
-        console.log(challengeCategoryDB);
-
-
-
-        const challengeCategoryArray = [];
+        const challengeCategoryDB = writeChallenge?.challengeArray;
+        const challengeArray = [];
         const challengeChalIdyArray = [];
 
         for (var i = 0; i < challengeCategoryDB!.length; i++) {
             const challengeMap = challengeCategoryDB!.map((e) => {
-                return { "title": e.challenges, "chal_id": e.chal_id };
+                return { "title": e.challenges, "chal_id": e.chal_id, "category": e.challenges.category.name };
             });
-            challengeCategoryArray.push(challengeMap[i].title.title);
+            challengeArray.push({ "challengeName": challengeMap[i].title.title, "category": challengeMap[i].category });
             challengeChalIdyArray.push(challengeMap[i].chal_id);
         }
         if (!writeChallenge?.challengeArray[0].user_challenge_templetes[0]) {  // 값이 없다면
@@ -107,11 +102,15 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         const template = writeTemplate?.challengeTemplateDB;
         const category = writeTemplate?.categoryDB;
         const userTemplate = writeTemplate.userTemplates;
+        const templateArray = [];
         let templateCertain: boolean;
 
-        for (var i = 0; i < template!.length; i++) {
-            template![i].category = category![0].category.name
-        }
+        const templates = template.map((e: any) => {
+            return { "title": e.title, "content": e.content, "category": e.challenges.category.name, "image": e.challenges.category.emogi }
+        });
+        templateArray.push(templates);
+
+        console.log(templateArray);
         if (userTemplate == undefined) {
             templateCertain = false
         }
@@ -119,19 +118,16 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
             templateCertain = true
 
         }
-        console.log(userTemplate)
-
-
         return res.status(200).json({
             "code": 200,
             "message": "Ok",
             "data": {
                 templateCertain,
                 userTemplate,
-                challengeCategoryArray,
+                challengeArray,
                 templateData: {
-                    challengeName: challengeCategoryArray[0],
-                    template
+                    challengeName: challengeArray[0].challengeName,
+                    templateArray
                 }
             }
         });
