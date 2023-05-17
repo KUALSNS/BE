@@ -189,49 +189,49 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
  */
 export const userReissueToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
+        await redisClient.connect();
         const accessToken = (req.headers.access as string).split('Bearer ')[1];
         const authResult = jwt.verify(accessToken);
         const decoded = jwt.decode(accessToken);
         console.log(decoded)
-       
-            const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
 
-           
-            const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
-            await redisClient.connect();
-            if (authResult.state === false) {
-                if (typeof refreshResult != 'undefined') {
-                    if (refreshResult.state === false) {
-                        console.log(decoded!.id);
-                        await redisClient.disconnect();
-                        return res.status(419).json({
-                            code: 419,
-                            message: 'login again!',
-                        });
-                    }
-                    else {
-                        const newAccessToken = jwt.sign(decoded!.id, decoded!.role);
-                        const userRefreshToken = await redisClient.v4.get(String(decoded!.id));
-                        await redisClient.disconnect();
-                        return res.status(200).json({
-                            code: 200,
-                            message: "Ok",
-                            data: {
-                                accessToken: "Bearer " + newAccessToken,
-                                refreshToken: userRefreshToken
-                            },
-                        });
-                    }
+        const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
+
+        await redisClient.disconnect();
+        const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
+        await redisClient.connect();
+        if (authResult.state === false) {
+            if (typeof refreshResult != 'undefined') {
+                if (refreshResult.state === false) {
+                    console.log(decoded!.id);
+                    await redisClient.disconnect();
+                    return res.status(419).json({
+                        code: 419,
+                        message: 'login again!',
+                    });
+                }
+                else {
+                    const newAccessToken = jwt.sign(decoded!.id, decoded!.role);
+                    const userRefreshToken = await redisClient.v4.get(String(decoded!.id));
+                    await redisClient.disconnect();
+                    return res.status(200).json({
+                        code: 200,
+                        message: "Ok",
+                        data: {
+                            accessToken: "Bearer " + newAccessToken,
+                            refreshToken: userRefreshToken
+                        },
+                    });
                 }
             }
-            else {
-                await redisClient.disconnect();
-                return res.status(400).json({
-                    code: 400,
-                    message: 'access token is not expired!',
-                });
-            
+        }
+        else {
+            await redisClient.disconnect();
+            return res.status(400).json({
+                code: 400,
+                message: 'access token is not expired!',
+            });
+
         }
     } catch (error) {
         console.error(error);
