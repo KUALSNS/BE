@@ -21,7 +21,7 @@ export const userProfile = async (req: Request, res: Response) => {
     if (authResult.state) {
         console.log("here")
       const returnData: serviceReturnForm = await profileService.getProfile(decoded!.id);
-        console.log("here")
+        console.log("here get profile after")
 
         return res.status(returnData.status).send(returnData);
     }

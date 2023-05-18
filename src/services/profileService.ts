@@ -11,7 +11,10 @@ const getProfile = async (userId: number) => {
         responseData: {},
     };
     try {
+        console.log("here is find unique before")
+
         const data = await prisma.users.findUnique({ where: { user_id: userId } });
+        console.log(data)
         if (data) {
             returnForm.status = 200;
             returnForm.message = "Success";
