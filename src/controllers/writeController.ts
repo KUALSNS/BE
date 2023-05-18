@@ -222,26 +222,33 @@ export const selectTemplate = async (req: any, res: Response, next: NextFunction
 export const uploadImage = async (req: any, res: Response, next: NextFunction) => {
     try {
         const images: any[] = req.files;
-        const imagesArrays: imagesArrayDTO = images.map((item) => {
-            return {
-                originalname: item.originalname,
-                location: item.location
-            };
+        const {templateName, challengeName} = req.body;
+        const imagesArray = images.map((e) => {
+            return e.location;
         });
-        if (!imagesArrays) {
-            return res.status(404).json({
-                "code": 404,
-                "message": "not found"
+
+        const result = await ChallengeController.insertImageData(challengeName, templateName, req.decoded.id, imagesArray);
+     
+        if (result) {
+            const imagesArrays: imagesArrayDTO = images.map((item) => {
+                return {
+                    originalname: item.originalname,
+                    location: item.location
+                };
             });
+            if (!imagesArrays) {
+                return res.status(404).json({
+                    "code": 404,
+                    "message": "not found"
+                });
 
+            }
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                "images": imagesArrays
+            });
         }
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            "images": imagesArrays
-        });
-
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -253,25 +260,35 @@ export const uploadImage = async (req: any, res: Response, next: NextFunction) =
 
 export const uploadVideo = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const images: any[] = req.files;
-        const videoArrays: videoArrayDTO = images.map((item) => {
-            return {
-                originalname: item.originalname,
-                location: item.location
-            };
+        const videos: any[] = req.files;
+        const {templateName, challengeName} = req.body;
+        const  videosArray =  videos.map((e) => {
+            return e.location;
         });
-        if (!videoArrays) {
-            return res.status(404).json({
-                "code": 404,
-                "message": "not found"
-            });
 
+        const result = await ChallengeController.insertVideoData(challengeName, templateName, req.decoded.id, videosArray);
+     
+        if (result) {
+            const videoArrays: videoArrayDTO = videos.map((item) => {
+                return {
+                    originalname: item.originalname,
+                    location: item.location
+                };
+            });
+            if (!videoArrays) {
+                return res.status(404).json({
+                    "code": 404,
+                    "message": "not found"
+                });
+
+            }
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                "images": videoArrays
+            });
         }
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            "videos": videoArrays
-        });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({

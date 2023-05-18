@@ -264,7 +264,6 @@ const afterMainData = async (user_id: number) => {
           challenges: {
             select: {
               title: true,
-              emogi: true
             }
           },
           user_challenge_templetes: {
@@ -292,7 +291,7 @@ const afterMainData = async (user_id: number) => {
 
 
     const userChallengeCount = userChallengeCountDB.map((e) => {
-      return [{ "challenges": e.challenges.title, "achievement": Math.round(e.user_challenge_templetes.length * 3.3), "image": e.challenges.emogi }]
+      return [{ "challenges": e.challenges.title, "achievement": Math.round(e.user_challenge_templetes.length * 3.3) }]
     });
     for (var i = 0; i < userChallengeCount.length; i++) {
       userChallengeArray.push(userChallengeCount[i][0]);
