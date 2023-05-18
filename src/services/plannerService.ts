@@ -2,22 +2,31 @@ import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 const prisma = new PrismaClient();
 
-export async function getCompletedChallenges(userId: any, startDate: Date, finishDate: Date) {
+export async function getCompletedChallenges(userId: any, startDate: string, finishDate: string) {
     try {
-        // Fetch completed challenges for the given user
-        const completedChallenges = await prisma.user_challenges.findMany({
-        where: {
-            user_id: userId,
-            complete: true,
-            finish_at: {
-            gte: startDate,
-            lte: finishDate,
+        // get user's completed challenges templates within the specified date range
+        const user = await prisma.users.findUnique({
+            where: { user_id: userId },
+            include: {
+                user_challenges: {
+                    where: { complete: true },
+                    include: {
+                        user_challenge_templetes: true,
+                    },
+                },
             },
-        },
-        include: {
-            challenges: true,
-        },
         });
+        const completedDates: Date[] = [];
+
+        user?.user_challenges.forEach((challenge) => {
+            challenge.user_challenge_templetes.forEach((template) => {
+                if (template.complete) {
+                    completedDates.push(template.update_at);
+                }
+            });
+        });
+
+        return completedDates;
 
 
     } catch (error) {
@@ -66,52 +75,42 @@ export async function getPlanner(userId: number, startDate: Date, finishDate: Da
     }
 }
 
-
-// service function which give data to controller, it receives userid and returns all of user's challenges divide by completed and uncompleted with it's recent content
-export async function getUserChallengeContent(userId: number) {
-    try {
-        // Fetch completed challenges for the given user
-        const completedChallenges = await prisma.user_challenges.findMany({
-        where: {
-            user_id: userId,
-            complete: true,
-        },
+export async function getUserChallengeHistory(userId: number) {
+    const user = await prisma.users.findUnique({
+        where: {user_id: userId},
         include: {
-            challenges: true,
+            user_challenges: {
+                include: {
+                    challenges: true,
+                    user_challenge_templetes: {
+                        orderBy: {update_at: 'desc'},
+                        take: 1,
+                    },
+                },
+            },
         },
-        });
+    });
 
-        // Fetch uncompleted challenges for the given user
-        const uncompletedChallenges = await prisma.user_challenges.findMany({
-        where: {
-            user_id: userId,
-            complete: false,
-        },
-        include: {
-            challenges: true,
-        },
-        });
+    const ongoingChallenges = user?.user_challenges.filter(
+        // 시작했고, 끝나지 않은 챌린지
+        (challenge) => !challenge.complete && challenge.finish_at === null
+    );
 
-        // Process completed challenges and extract the completion dates
-        const completedDates = completedChallenges.map((challenge) => {
-        return {
-            chalId: challenge.chal_id,
-            completionDate: challenge.finish_at,
-        };
-        });
+    const finishedChallenges = user?.user_challenges.filter(
+        // 끝난 챌린지
+        (challenge) => challenge.complete
+    );
 
-        // Process uncompleted challenges and extract the completion dates
-        const uncompletedDates = uncompletedChallenges.map((challenge) => {
-        return {
-            chalId: challenge.chal_id,
-            completionDate: challenge.finish_at,
-        };
-        });
+    const temporarilySavedChallenges = user?.user_challenges.filter(
+        //임시저장 챌린지
+        (challenge) => !challenge.complete && challenge.finish_at !== null
+    );
 
-        return {completedDates, uncompletedDates};
-    } catch (error) {
-        console.error('Error fetching completed challenges:', error);
-        return { error: 'Internal server error' };
-    }
+    return {
+        ongoingChallenges,
+        finishedChallenges,
+        temporarilySavedChallenges,
+    };
 }
+
 
