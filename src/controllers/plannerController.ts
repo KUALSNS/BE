@@ -21,14 +21,6 @@ export async function getPlannerData(req: Request, res: Response, next: NextFunc
         const completedChallengesDate = await plannerService.getCompletedChallenges(userId, startDate, finishDate);
         console.log(completedChallengesDate);
 
-        // Process completed challenges and extract the completion dates
-        // const completedDates = completedChallengesDate.map((challenge: { chal_id: number; finish_at: string }) => {
-        //     return {
-        //         chalId: challenge.chal_id,
-        //         completionDate: challenge.finish_at,
-        //     };
-        // }
-
         return res.status(200).json({
             "code": 200,
             "message": "Ok",
@@ -56,6 +48,7 @@ export async function getUserChallengeHistory(req: Request, res: Response, next:
 
         const userChallengeHistory = await plannerService.getUserChallengeHistory(userId);
         console.log(userChallengeHistory);
+        // 사용자 기록이 없다면 가능한 챌린지들 보여주기
 
         return res.status(200).json({
             "code": 200,
