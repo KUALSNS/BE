@@ -26,6 +26,7 @@ const beforeMainData = async () => {
           category: {
             select: {
               name: true,
+              emogi: true
             }
           }
         }
@@ -35,7 +36,7 @@ const beforeMainData = async () => {
       return e.name
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
 
     });
     for (var i = 0; i < challenges.length; i++) {
@@ -64,12 +65,13 @@ const wholeCategoryData = async () => {
         category: {
           select: {
             name: true,
+            emogi: true
           }
         }
       }
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name, "image":e.category.emogi }]
     });
     for (var i = 0; i < challenges.length; i++) {
       challengesArray.push(challenges[i][0]);
