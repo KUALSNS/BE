@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
 import { prisma } from '@prisma/client';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
+import { Console } from 'console';
 
 
 export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
@@ -20,9 +21,10 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                         "code": 200,
                         "message": "OK",
                         "data": {
-                            "challengeName": data.userChallenging,
+                            "challengingArray": data.userChallenging,
                             templateData: {
                                 challengeName: startChallenge.newChallenge,
+                                challengeCategory: data.userChallenging[0].category,
                                 template: data.challengTemplateArray
                             }
                         }
@@ -50,9 +52,10 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                             "code": 200,
                             "message": "OK",
                             "data": {
-                                "challengeName": data.userChallenging,
+                                "challengingArray": data.userChallenging,
                                 templateData: {
                                     challengeName: startChallenge.newChallenge,
+                                    challengeCategory: data.userChallenging[0].category,
                                     template: data.challengTemplateArray
                                 }
                             }
@@ -75,22 +78,28 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
     }
 };
 
-
 export const writeChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
         const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
         const challengeCategoryDB = writeChallenge?.challengeArray;
-        const challengeArray = [];
+        const challengingArray = [];
         const challengeChalIdyArray = [];
 
+        if (writeChallenge?.challengeArray[0] == undefined) {
+            return res.status(404).json({
+                "code": 404,
+                "message": "오늘은 더 이상 진행할 챌린지가 없습니다",
+            });
+        }
         for (var i = 0; i < challengeCategoryDB!.length; i++) {
             const challengeMap = challengeCategoryDB!.map((e) => {
                 return { "title": e.challenges, "chal_id": e.chal_id, "category": e.challenges.category.name };
             });
-            challengeArray.push({ "challengeName": challengeMap[i].title.title, "category": challengeMap[i].category });
+            challengingArray.push({ "challengeName": challengeMap[i].title.title, "category": challengeMap[i].category });
             challengeChalIdyArray.push(challengeMap[i].chal_id);
         }
-        if (!writeChallenge?.challengeArray[0].user_challenge_templetes[0]) {  // 값이 없다면
+
+        if (writeChallenge?.challengeArray[0].user_challenge_templetes[0] == undefined) {  // 값이 없다면
             var writeTemplate: any = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
         }
         else {
@@ -101,21 +110,19 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         }
         const template = writeTemplate?.challengeTemplateDB;
         const category = writeTemplate?.categoryDB;
-        const userTemplate = writeTemplate.userTemplates;
-        const templateArray = [];
+        const temporaryChallenge = writeTemplate.temporaryChallenge;
         let templateCertain: boolean;
 
         const templates = template.map((e: any) => {
-            return { "title": e.title, "content": e.content, "category": e.challenges.category.name, "image": e.challenges.category.emogi }
+            return { "templateTitle": e.title, "templateContent": e.content, "category": e.challenges.category.name, "image": e.challenges.category.emogi }
         });
-        templateArray.push(templates);
 
-        console.log(templateArray);
-        if (userTemplate == undefined) {
-            templateCertain = false
+
+        if (temporaryChallenge[0] == undefined) {
+            templateCertain = false;
         }
         else {
-            templateCertain = true
+            templateCertain = true;
 
         }
         return res.status(200).json({
@@ -123,11 +130,12 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
             "message": "Ok",
             "data": {
                 templateCertain,
-                userTemplate,
-                challengeArray,
+                temporaryChallenge,
+                challengingArray,
                 templateData: {
-                    challengeName: challengeArray[0].challengeName,
-                    templateArray
+                    challengeName: challengingArray[0].challengeName,
+                    challengeCategory: category[0].category.name,
+                    templates
                 }
             }
         });
@@ -197,7 +205,7 @@ export const selectTemplate = async (req: any, res: Response, next: NextFunction
     try {
         const challengeName = req.params.challengeName;
         const data = await ChallengeController.selectTemplateData(challengeName, req.decoded.id);
-        console.log(data)
+
         if (data) {
             return res.status(200).json({
                 "code": 200,
@@ -222,26 +230,33 @@ export const selectTemplate = async (req: any, res: Response, next: NextFunction
 export const uploadImage = async (req: any, res: Response, next: NextFunction) => {
     try {
         const images: any[] = req.files;
-        const imagesArrays: imagesArrayDTO = images.map((item) => {
-            return {
-                originalname: item.originalname,
-                location: item.location
-            };
+        const { templateName, challengeName } = req.body;
+        const imagesArray = images.map((e) => {
+            return e.location;
         });
-        if (!imagesArrays) {
-            return res.status(404).json({
-                "code": 404,
-                "message": "not found"
+
+        const result = await ChallengeController.insertImageData(challengeName, templateName, req.decoded.id, imagesArray);
+
+        if (result) {
+            const imagesArrays: imagesArrayDTO = images.map((item) => {
+                return {
+                    originalname: item.originalname,
+                    location: item.location
+                };
             });
+            if (!imagesArrays) {
+                return res.status(404).json({
+                    "code": 404,
+                    "message": "not found"
+                });
 
+            }
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                "images": imagesArrays
+            });
         }
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            "images": imagesArrays
-        });
-
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -253,25 +268,35 @@ export const uploadImage = async (req: any, res: Response, next: NextFunction) =
 
 export const uploadVideo = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const images: any[] = req.files;
-        const videoArrays: videoArrayDTO = images.map((item) => {
-            return {
-                originalname: item.originalname,
-                location: item.location
-            };
+        const videos: any[] = req.files;
+        const { templateName, challengeName } = req.body;
+        const videosArray = videos.map((e) => {
+            return e.location;
         });
-        if (!videoArrays) {
-            return res.status(404).json({
-                "code": 404,
-                "message": "not found"
-            });
 
+        const result = await ChallengeController.insertVideoData(challengeName, templateName, req.decoded.id, videosArray);
+
+        if (result) {
+            const videoArrays: videoArrayDTO = videos.map((item) => {
+                return {
+                    originalname: item.originalname,
+                    location: item.location
+                };
+            });
+            if (!videoArrays) {
+                return res.status(404).json({
+                    "code": 404,
+                    "message": "not found"
+                });
+
+            }
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                "images": videoArrays
+            });
         }
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            "videos": videoArrays
-        });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({

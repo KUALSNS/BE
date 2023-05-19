@@ -16,7 +16,7 @@ model users {
   email               String                @db.VarChar(40)
   nickname            String                @db.VarChar(40)
   level               Int?
-  mar_email           Boolean?
+  mar_email           Int                   @default(0) @db.TinyInt
   phone               String                @db.VarChar(30)
   coopon              Int                   @default(0) @db.TinyInt
   created_at          DateTime              @default(now()) @db.Timestamp(0)
@@ -30,8 +30,7 @@ model category {
   cate_id    Int          @id @default(autoincrement())
   type       String       @db.VarChar(20)
   name       String       @db.VarChar(40)
-  count      Int
-  emogi      String       @db.VarChar(100)
+  emogi      String       @db.VarChar(500)
   challenges challenges[]
 }
 
@@ -39,7 +38,6 @@ model challenges {
   chal_id         Int               @default(autoincrement())
   cate_id         Int
   title           String            @db.VarChar(40)
-  emogi           String            @db.VarChar(255)
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   category        category          @relation(fields: [cate_id], references: [cate_id], onDelete: Cascade, map: "cate_idForeignKey")
@@ -90,6 +88,7 @@ model user_challenge_templetes {
   complete            Boolean?
   created_at          DateTime              @default(dbgenerated("(curdate())")) @db.Date
   update_at           DateTime              @default(dbgenerated("(curdate())")) @db.Date
+  finish_at           DateTime?             @db.Date
   templates           templates             @relation(fields: [tem_id], references: [tem_id], onDelete: Cascade, map: "tem_idForeignKey2")
   user_challenges     user_challenges       @relation(fields: [uchal_id], references: [uchal_id], onDelete: Cascade, map: "uchal_idForeignKey2")
   user_template_image user_template_image[]
@@ -104,6 +103,7 @@ model user_template_image {
   uctem_id                 Int
   user_id                  Int
   image_url                String                   @db.VarChar(245)
+  created_at               DateTime                 @default(now()) @db.DateTime(0)
   user_challenge_templetes user_challenge_templetes @relation(fields: [uctem_id], references: [uctem_id], onDelete: Cascade, map: "uctem_idForeignKey5")
   users                    users                    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey5")
 
@@ -115,6 +115,7 @@ model user_template_video {
   uctem_id                 Int
   user_id                  Int
   video_url                String                   @db.VarChar(245)
+  created_at               DateTime                 @default(now()) @db.DateTime(0)
   user_challenge_templetes user_challenge_templetes @relation(fields: [uctem_id], references: [uctem_id], onDelete: Cascade, map: "uctem_idForeignKe6")
   users                    users                    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey6")
 

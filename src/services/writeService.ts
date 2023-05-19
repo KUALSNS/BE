@@ -94,8 +94,8 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
 
         const challengTemplateArray: {
             category: string;
-            "template-title": string;
-            "template-content": string;
+            "templateTitle": string;
+            "templateContent": string;
         }[] = [];
         const relativeChallengeArray = [];
 
@@ -109,7 +109,7 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                     category: {
                         select: {
                             name: true,
-                            emogi:true
+                            emogi: true
                         },
                     },
                     templates: {
@@ -178,10 +178,10 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
         for (var i = 0; i < challengTemplateDB[0].templates.length; i++) {
             const challengTemplate = challengTemplateDB.map((e) => {
                 return [{
-                    "template-title": e.templates[i].title,
-                    "template-content": e.templates[i].content,
+                    "templateTitle": e.templates[i].title,
+                    "templateContent": e.templates[i].content,
                     "category": e.category.name,
-                    "image":e.category.emogi
+                    "image": e.category.emogi
                 }]
             });
             challengTemplateArray.push(challengTemplate[0][0]);
@@ -299,7 +299,7 @@ const writeChallengeData = async (user_id: number) => {
                 }
             }
         }
-        console.log(challengeArray)
+        
         prisma.$disconnect();
         return { challengeArray }
     } catch (error) {
@@ -311,6 +311,7 @@ const writeChallengeData = async (user_id: number) => {
 const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
     try {
         if (!uctem_id) {
+            const temporaryChallenge: string[] = []
             var [challengeTemplateDB, categoryDB] = await Promise.all([
                 prisma.templates.findMany({
                     where: {
@@ -319,12 +320,12 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                     select: {
                         title: true,
                         content: true,
-                        challenges:{
-                            select:{
-                                category:{
-                                    select:{
-                                        name:true,
-                                        emogi:true
+                        challenges: {
+                            select: {
+                                category: {
+                                    select: {
+                                        name: true,
+                                        emogi: true
                                     }
                                 }
                             }
@@ -345,7 +346,7 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                 }),
             ]);
             prisma.$disconnect();
-            return { challengeTemplateDB, categoryDB };
+            return { challengeTemplateDB, categoryDB, temporaryChallenge };
         }
         else {
             var [challengeTemplateDB, categoryDB, userTemplateDB] = await Promise.all([
@@ -356,12 +357,12 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                     select: {
                         title: true,
                         content: true,
-                        challenges:{
-                            select:{
-                                category:{
-                                    select:{
-                                        name:true,
-                                        emogi:true
+                        challenges: {
+                            select: {
+                                category: {
+                                    select: {
+                                        name: true,
+                                        emogi: true
                                     }
                                 }
                             }
@@ -415,9 +416,10 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                 }
 
             })
-            const userTemplates = userTemplate[0];
+
+            const temporaryChallenge = userTemplate[0];
             prisma.$disconnect();
-            return { challengeTemplateDB, categoryDB, userTemplates };
+            return { challengeTemplateDB, categoryDB, temporaryChallenge };
         }
     } catch (error) {
         console.log(error);
@@ -433,6 +435,9 @@ const insertTemporaryChallengeData = async (
     challengeContent: string
 ) => {
     try {
+        const koreanDateISOString = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDateISOString)
+        console.log(koreanTime);
 
         const [challengeIdDB, templateIdDB] = await Promise.all([
             prisma.challenges.findMany({
@@ -462,17 +467,19 @@ const insertTemporaryChallengeData = async (
                     uchal_id: true
                 }
             });
-        console.log(userChallengeDB);
         const challengeSignDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
                 tem_id: templateIdDB[0].tem_id,
+                created_at: koreanTime,
             },
             select: {
                 uctem_id: true
             }
         });
-        if (!challengeSignDB) {
+        console.log(challengeSignDB)
+
+        if (challengeSignDB[0] == undefined) {
             await prisma.user_challenge_templetes.create({
                 data: {
                     uchal_id: userChallengeDB[0].uchal_id,
@@ -482,17 +489,20 @@ const insertTemporaryChallengeData = async (
                     complete: false
                 }
             });
+
         } else {
             await prisma.user_challenge_templetes.updateMany({
                 where: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id
+                    tem_id: templateIdDB[0].tem_id,
+                    created_at: koreanTime,
                 },
                 data: {
                     title: challengeTitle,
                     writing: challengeContent
                 }
             });
+
         }
         prisma.$disconnect();
         return true;
@@ -511,6 +521,9 @@ const insertChallengeCompleteData = async (
     challengeContent: string
 ) => {
     try {
+        const koreanDateISOString = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDateISOString)
+        console.log(koreanTime);
         const [challengeIdDB, templateIdDB] = await Promise.all([
             prisma.challenges.findMany({
                 where: {
@@ -529,6 +542,7 @@ const insertChallengeCompleteData = async (
                 }
             })
         ]);
+
         const userChallengeDB =
             await prisma.user_challenges.findMany({
                 where: {
@@ -539,38 +553,47 @@ const insertChallengeCompleteData = async (
                     uchal_id: true
                 }
             });
-        console.log(userChallengeDB);
+
         const challengeSignDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
                 tem_id: templateIdDB[0].tem_id,
+                created_at: koreanTime,
             },
             select: {
                 uctem_id: true
             }
         });
-        if (!challengeSignDB) {
+        console.log(!challengeSignDB)
+
+        if (challengeSignDB[0] == undefined) {
+            console.log(1);
             await prisma.user_challenge_templetes.create({
                 data: {
                     uchal_id: userChallengeDB[0].uchal_id,
                     tem_id: templateIdDB[0].tem_id,
                     title: challengeTitle,
                     writing: challengeContent,
-                    complete: true
+                    complete: true,
+                    finish_at: koreanTime
                 }
             });
+
         } else {
             await prisma.user_challenge_templetes.updateMany({
                 where: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id
+                    tem_id: templateIdDB[0].tem_id,
+                    created_at: koreanTime,
                 },
                 data: {
                     title: challengeTitle,
                     writing: challengeContent,
-                    complete: true
+                    complete: true,
+                    finish_at: koreanTime
                 }
             });
+
         }
         prisma.$disconnect();
         return true;
@@ -589,6 +612,7 @@ const selectTemplateData = async (
         const koreanDateISOString = getKoreanDateISOString();
         const koreanTime = new Date(koreanDateISOString);
         console.log(koreanTime);
+
         const challengeIdCategoryDB =
             await prisma.challenges.findMany({
                 where: {
@@ -599,7 +623,7 @@ const selectTemplateData = async (
                     category: {
                         select: {
                             name: true,
-                            emogi:true
+                            emogi: true
                         }
                     }
                 }
@@ -653,7 +677,7 @@ const selectTemplateData = async (
             }
         });
         let templateCertain: boolean;
-        var challenging = challengingDB.map((e) => {
+        var temporaryChallenge = challengingDB.map((e) => {
             return {
                 "title": e.title,
                 "writing": e.writing,
@@ -661,22 +685,160 @@ const selectTemplateData = async (
                 "userChallenge": e.user_challenges.challenges.title
             }
         });
-        if (challenging[0] == undefined) {
+        if (temporaryChallenge[0] == undefined) {
             templateCertain = false
         }
         else {
             templateCertain = true
         }
-      console.log(challengeIdCategoryDB)
+
         for (var i = 0; i < templateNameDB.length; i++) {
-            const category = challengeIdCategoryDB.map((e) => {
-                return { "category": e.category.name, "image":e.category.emogi };
+            var category = challengeIdCategoryDB.map((e) => {
+                return { "category": e.category.name, "image": e.category.emogi };
             });
             templateNameDB[i].category = category[0].category;
             templateNameDB[i].image = category[0].image;
         }
+
+        const templates = templateNameDB;
+        const challengeCategory = challengeIdCategoryDB[0].category.name;
+
+        const templateData = { "challengeName": challengeName, "challengeCategory": challengeCategory, "templates": templates };
+
         prisma.$disconnect();
-        return { templateCertain, challenging, templateNameDB };
+        return { templateCertain, temporaryChallenge, templateData };
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        return false;
+    }
+};
+
+const insertImageData = async (
+    challengeName: string,
+    templateName: string,
+    user_id: number,
+    images: string[]
+) => {
+    try {
+
+        const [challengeIdDB, templateIdDB] = await Promise.all([
+            prisma.challenges.findMany({
+                where: {
+                    title: challengeName
+                },
+                select: {
+                    chal_id: true
+                }
+            }),
+            prisma.templates.findMany({
+                where: {
+                    title: templateName
+                },
+                select: {
+                    tem_id: true
+                }
+            })
+        ]);
+
+        const userChallengeDB = await prisma.user_challenges.findMany({
+            where: {
+                user_id: user_id,
+                chal_id: challengeIdDB[0].chal_id
+            },
+            select: {
+                uchal_id: true
+            }
+        });
+
+        const userTemplateIdDB = await prisma.user_challenge_templetes.findMany({
+            where: {
+                uchal_id: userChallengeDB[0].uchal_id,
+                tem_id: templateIdDB[0].tem_id
+            },
+            select: {
+                uctem_id: true
+            }
+        });
+
+        for (var i = 0; i < images.length; i++) {
+            await prisma.user_template_image.createMany({
+                data: {
+                    uctem_id: userTemplateIdDB[0].uctem_id,
+                    user_id: user_id,
+                    image_url: images[i]
+                }
+            });
+
+        }
+        prisma.$disconnect();
+        return true;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        return false;
+    }
+};
+
+const insertVideoData = async (
+    challengeName: string,
+    templateName: string,
+    user_id: number,
+    videos: string[]
+) => {
+    try {
+
+        const [challengeIdDB, templateIdDB] = await Promise.all([
+            prisma.challenges.findMany({
+                where: {
+                    title: challengeName
+                },
+                select: {
+                    chal_id: true
+                }
+            }),
+            prisma.templates.findMany({
+                where: {
+                    title: templateName
+                },
+                select: {
+                    tem_id: true
+                }
+            })
+        ]);
+
+        const userChallengeDB = await prisma.user_challenges.findMany({
+            where: {
+                user_id: user_id,
+                chal_id: challengeIdDB[0].chal_id
+            },
+            select: {
+                uchal_id: true
+            }
+        });
+
+        const userTemplateIdDB = await prisma.user_challenge_templetes.findMany({
+            where: {
+                uchal_id: userChallengeDB[0].uchal_id,
+                tem_id: templateIdDB[0].tem_id
+            },
+            select: {
+                uctem_id: true
+            }
+        });
+
+        for (var i = 0; i < videos.length; i++) {
+            await prisma.user_template_video.createMany({
+                data: {
+                    uctem_id: userTemplateIdDB[0].uctem_id,
+                    user_id: user_id,
+                    video_url: videos[i]
+                }
+            });
+        }
+
+        prisma.$disconnect();
+        return true;
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
@@ -686,12 +848,9 @@ const selectTemplateData = async (
 
 
 
-
-
-
-
 export {
     newChallengeData, startChallengeData, newChallengeResult,
     writeChallengeData, writeTemplateData, insertTemporaryChallengeData,
-    insertChallengeCompleteData, selectTemplateData
+    insertChallengeCompleteData, selectTemplateData, insertImageData,
+    insertVideoData
 }
