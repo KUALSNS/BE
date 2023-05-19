@@ -78,7 +78,6 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
     }
 };
 
-
 export const writeChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
         const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
@@ -87,10 +86,9 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         const challengeChalIdyArray = [];
 
         if (writeChallenge?.challengeArray[0] == undefined) {
-            return res.status(200).json({
+            return res.status(404).json({
                 "code": 404,
                 "message": "오늘은 더 이상 진행할 챌린지가 없습니다",
-
             });
         }
         for (var i = 0; i < challengeCategoryDB!.length; i++) {
