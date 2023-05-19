@@ -299,6 +299,7 @@ const writeChallengeData = async (user_id: number) => {
                 }
             }
         }
+        
         prisma.$disconnect();
         return { challengeArray }
     } catch (error) {
