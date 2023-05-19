@@ -71,16 +71,22 @@ export async function getUserChallengeHistory(userId: number) {
         const temporarilySavedChallenges: user_challenges[] = [];
 
 
+        const userChallenges = users?.user_challenges;
+        if (userChallenges == undefined) {
+            // 가능한 챌린지 보여주기
+            // 진행률 질문하기
+        } else {
+            userChallenges.forEach((userChallenge) => {
+                if (userChallenge.complete) {
+                    finishedChallenges.push(userChallenge);
+                } else if (userChallenge.finish_at == null) {
+                    temporarilySavedChallenges.push(userChallenge);
+                } else {
+                    ongoingChallenges.push(userChallenge);
+                }
+            });
+        }
 
-        // userChallenges.forEach((userChallenge) => {
-        //     if (userChallenge.complete) {
-        //         finishedChallenges.push(userChallenge);
-        //     } else if (userChallenge.finish_at) {
-        //         temporarilySavedChallenges.push(userChallenge);
-        //     } else {
-        //         ongoingChallenges.push(userChallenge);
-        //     }
-        // });
         console.log('Ongoing Challenges:', ongoingChallenges);
         console.log('Finished Challenges:', finishedChallenges);
         console.log('Temporarily Saved Challenges:', temporarilySavedChallenges);
