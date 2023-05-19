@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "tsc && pm2 start dist/src/index.js",
+
+    "dev": "tsc && pm2 start dist/index.js",
     "build": "tsc && node dist",
     "prepare": "husky install",
     "lint": "./node_modules/.bin/eslint .",
