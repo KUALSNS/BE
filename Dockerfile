@@ -13,6 +13,6 @@ RUN npm install -g typescript
 RUN npm install pm2 -g
  
 COPY ./ ./
-
+RUN npm run build
 #CMD ["npm","run","dev"]
-CMD ["pm2-runtime", "dist/index.js"]
+CMD ["npm", "run", "start"]
