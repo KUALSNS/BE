@@ -91,8 +91,8 @@ export const profileUpdate = async (req: Request, res: Response) => {
     const authResult = jwt.verify(accessToken);
     const decoded = jwt.decode(accessToken);
     console.log(decoded);
-    const {  nickname, phoneNumber } = req.body;
-    const returnData: serviceReturnForm = await profileService.updateProfile(nickname, phoneNumber, decoded!.id);
+    const {  nickname, phoneNumber, marketingAgreement } = req.body;
+    const returnData: serviceReturnForm = await profileService.updateProfile(nickname, phoneNumber, marketingAgreement,decoded!.id);
     res.status(returnData.status).send(returnData);
   } catch (error) {
     console.log(error);

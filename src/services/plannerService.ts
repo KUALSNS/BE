@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import {PrismaClient, user_challenges} from '@prisma/client';
 import { Request, Response } from 'express';
 const prisma = new PrismaClient();
 
@@ -41,41 +41,57 @@ export async function getCompletedChallenges(userId: any, startDate: string, fin
 }
 
 
-
-// service function which give data to controller, it receives userid, startdate, finishdate and returns user's completed challenges within the specified date range
-export async function getPlanner(userId: number, startDate: Date, finishDate: Date) {
+export async function getUserChallengeHistory(userId: number) {
     try {
-        // Fetch completed challenges for the given user
-        const completedChallenges = await prisma.user_challenges.findMany({
-        where: {
-            user_id: userId,
-            complete: true,
-            finish_at: {
-            gte: startDate,
-            lte: finishDate,
+        const users = await prisma.users.findUnique({
+            where: { user_id: userId },
+            include: {
+                user_challenges: {
+                    include: {
+                        challenges: true,
+                        user_challenge_templetes: {
+                            orderBy: {update_at: 'desc'},
+                            take: 1,
+                        },
+                        //user_challenge_templetes: true,
+                    },
+                },
             },
-        },
-        include: {
-            challenges: true,
-        },
         });
+        console.log(users)
+        const ongoingChallenges: user_challenges[] = [];
+        const finishedChallenges: user_challenges[] = [];
+        const temporarilySavedChallenges: user_challenges[] = [];
 
-        // Process completed challenges and extract the completion dates
-        const completedDates = completedChallenges.map((challenge) => {
+
+
+        // userChallenges.forEach((userChallenge) => {
+        //     if (userChallenge.complete) {
+        //         finishedChallenges.push(userChallenge);
+        //     } else if (userChallenge.finish_at) {
+        //         temporarilySavedChallenges.push(userChallenge);
+        //     } else {
+        //         ongoingChallenges.push(userChallenge);
+        //     }
+        // });
+        console.log('Ongoing Challenges:', ongoingChallenges);
+        console.log('Finished Challenges:', finishedChallenges);
+        console.log('Temporarily Saved Challenges:', temporarilySavedChallenges);
         return {
-            chalId: challenge.chal_id,
-            completionDate: challenge.finish_at,
+            ongoingChallenges,
+            finishedChallenges,
+            temporarilySavedChallenges,
         };
-        });
-
-        return completedDates;
     } catch (error) {
-        console.error('Error fetching completed challenges:', error);
-        return { error: 'Internal server error' };
+        console.error('Error retrieving user challenge history:', error);
+        throw error;
     }
 }
 
-export async function getUserChallengeHistory(userId: number) {
+
+
+
+export async function gsetUserChallengeHistory(userId: number) {
     const user = await prisma.users.findUnique({
         where: {user_id: userId},
         include: {

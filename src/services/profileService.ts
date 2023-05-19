@@ -175,7 +175,7 @@ const updatePassword = async (oldPassword: string, newPassword: string, user_id:
 
 
 // profile update
-const updateProfile = async (nickname: string, phoneNumber: string, user_id: number) => {
+const updateProfile = async (nickname: string, phoneNumber: string,marketingAgreement:boolean, user_id: number) => {
   const returnForm: serviceReturnForm = {
     status: 500,
     message: "server error",
@@ -185,7 +185,8 @@ const updateProfile = async (nickname: string, phoneNumber: string, user_id: num
     where: { user_id: user_id },
     data: {
       nickname: nickname,
-      phone: phoneNumber
+      phone: phoneNumber,
+      mar_email: marketingAgreement
     }
   })
     .then((data: Object) => {

@@ -4,7 +4,7 @@ import {verifyToken} from "../middleware/auth";
 const router = express.Router();
 
 
-router.get('/calandar',PlannerController.getPlannerData);
+router.get('/calendar',PlannerController.getPlannerData);
 router.get('/history',PlannerController.getUserChallengeHistory);
 
 
