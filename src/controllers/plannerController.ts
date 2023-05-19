@@ -47,7 +47,6 @@ export async function getUserChallengeHistory(req: Request, res: Response, next:
         const userId = decoded!.id;
 
         const userChallengeHistory = await plannerService.getUserChallengeHistory(userId);
-        console.log(userChallengeHistory);
         // 사용자 기록이 없다면 가능한 챌린지들 보여주기
 
         return res.status(200).json({

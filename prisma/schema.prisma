@@ -16,7 +16,7 @@ model users {
   email               String                @db.VarChar(40)
   nickname            String                @db.VarChar(40)
   level               Int?
-  mar_email           Boolean?
+  mar_email           Int                   @default(0) @db.TinyInt
   phone               String                @db.VarChar(30)
   coopon              Int                   @default(0) @db.TinyInt
   created_at          DateTime              @default(now()) @db.Timestamp(0)
@@ -30,7 +30,7 @@ model category {
   cate_id    Int          @id @default(autoincrement())
   type       String       @db.VarChar(20)
   name       String       @db.VarChar(40)
-  count      Int
+  emogi      String       @db.VarChar(500)
   challenges challenges[]
 }
 
@@ -38,7 +38,7 @@ model challenges {
   chal_id         Int               @default(autoincrement())
   cate_id         Int
   title           String            @db.VarChar(40)
-  emogi           String            @db.VarChar(255)
+  emogi           String            @db.VarChar(500)
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   category        category          @relation(fields: [cate_id], references: [cate_id], onDelete: Cascade, map: "cate_idForeignKey")
