@@ -4,18 +4,28 @@ const prisma = new PrismaClient();
 
 export async function getCompletedChallenges(userId: any, startDate: string, finishDate: string) {
     try {
-        // get user's completed challenges templates within the specified date range
+        // get user's completed challenges templates within startDate and finishDate
         const user = await prisma.users.findUnique({
             where: { user_id: userId },
             include: {
                 user_challenges: {
-                    where: { complete: true },
                     include: {
-                        user_challenge_templetes: true,
-                    },
-                },
-            },
-        });
+                        //challenges: true,
+                        user_challenge_templetes: {
+                            where: {
+                                complete: true,
+                                update_at: {
+                                    gte: new Date(startDate),
+                                    lte: new Date(finishDate),
+                                },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+        console.log(user)
         const completedDates: Date[] = [];
 
         user?.user_challenges.forEach((challenge) => {
@@ -25,10 +35,7 @@ export async function getCompletedChallenges(userId: any, startDate: string, fin
                 }
             });
         });
-
         return completedDates;
-
-
     } catch (error) {
         console.error('Error fetching completed challenges:', error);
         return { error: 'Internal server error',
@@ -107,20 +114,23 @@ export async function gsetUserChallengeHistory(userId: number) {
         },
     });
 
+    console.log(user)
+    // ongoingChallenges, completedChallenges, temporarilySavedChallenges filter
     const ongoingChallenges = user?.user_challenges.filter(
-        // 시작했고, 끝나지 않은 챌린지
-        (challenge) => !challenge.complete && challenge.finish_at === null
+      // 시작했고, 끝나지 않은 챌린지
+      (challenge) => !challenge.complete && challenge.finish_at === null
     );
 
     const finishedChallenges = user?.user_challenges.filter(
-        // 끝난 챌린지
-        (challenge) => challenge.complete
+      // 끝난 챌린지
+      (challenge) => challenge.complete
     );
 
     const temporarilySavedChallenges = user?.user_challenges.filter(
-        //임시저장 챌린지
-        (challenge) => !challenge.complete && challenge.finish_at !== null
+      //임시저장 챌린지
+      (challenge) => !challenge.complete && challenge.finish_at !== null
     );
+
 
     return {
         ongoingChallenges,
