@@ -8,4 +8,6 @@ router.patch('/logout',UserController.userLogout);
 router.get('/signup/verify-email',UserController.verifyEmail);
 router.post('/signup/verify-email-code',UserController.sendEmail);
 router.post('/signup',UserController.userSignup);
+router.get('/idFind',UserController.userIdFind);
+
 export = router

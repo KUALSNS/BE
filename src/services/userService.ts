@@ -119,5 +119,21 @@ const userSignup = async (
 };
 
 
-export  { userIdentifierSelect,  userSignup}
+const userId = async (userEmail: string) => {
+  try {
+    const userIdDB = await prisma.users.findMany({
+      where:{
+        email: userEmail
+      },
+      select:{
+        identifier:true
+      }
+    });
+    return userIdDB;
+  
+  } catch (error) {
+    console.log(error);
+  } 
+}
+export  { userIdentifierSelect,  userSignup, userId}
 
