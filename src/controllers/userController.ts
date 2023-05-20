@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
-import { smtpSender } from '../modules/mailHandler';
+import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
 declare var process: {
     env: {
         SALTROUNDS: string
@@ -292,24 +292,32 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
 
 export const userIdFind = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const  email : string = req.query.email as string;
-        const  code  = req.query.code;
+        const email: string = req.query.email as string;
+        const code = req.query.code;
         await redisClient.connect();
         const redisCode = await redisClient.v4.get(email);
         if (redisCode == parseInt(<string>code)) {
-            
-            if(typeof email !== "undefined"){
-                var userId = await UserService.userId(email);
-                if(typeof userId !== "undefined"){
-                    await redisClient.disconnect();
-                    return res.status(200).json({
-                        message: "OK",
-                        code: 200,
-                        userId: userId[0].identifier
-                    });
-            }
-            }
 
+            if (typeof email !== "undefined") {
+                var userId = await UserService.userId(email);
+                if(userId![0] == undefined){
+                    return res.status(404).json({
+                        code: 404,
+                        message: "email can't find"
+                    });
+
+
+                }else{
+                    if (typeof userId !== "undefined") {
+                        await redisClient.disconnect();
+                        return res.status(200).json({
+                            message: "OK",
+                            code: 200,
+                            userId: userId[0].identifier
+                        });
+                    }
+                }              
+            }
         } else {
             await redisClient.disconnect();
             return res.status(400).send({ status: 400, message: "Fail Verify Email" });
@@ -317,5 +325,36 @@ export const userIdFind = async (req: Request, res: Response, next: NextFunction
     } catch (error) {
         await redisClient.disconnect();
         return res.status(500).send({ status: 500, message: "Fail Verify Email" });
+    }
+};
+
+
+export const userPasswordFind = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { identifier, userEmail } = req.body;
+        const userIdSign = await UserService.userIdentifier(identifier);
+        if (userIdSign![0] == null || userIdSign![0] == undefined) {
+            return res.status(404).json({
+                code: 404,
+                message: "Id can't find"
+            });
+        }
+        const passwordUpdate = await UserService.updatePassword(identifier, userEmail);
+        if (typeof passwordUpdate !== 'undefined') {
+            await randomPasswordsmtpSender(
+                userEmail,
+                passwordUpdate
+            );
+            return res.status(200).json({
+                message: "OK",
+                code: 200
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            code: 500,
+            message: "Server Error"
+        });
     }
 };

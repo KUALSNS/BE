@@ -55,5 +55,37 @@ export const smtpSender = async function (email: string) {
 
 }
 
+export const randomPasswordsmtpSender = async (email: string, randomPassword: string) => {
+  try {
+    console.log(randomPassword)
 
-module.exports.smtpSender = smtpSender;
+    const mailOptions = {
+      from: "jftj" + "@naver.com",
+      to: email,
+      subject: 'Writon 서비스 이메일 인증 코드입니다.',
+      text: `임시비밀번호 : ${randomPassword}`
+    };
+    await smtpTransport.sendMail(mailOptions);
+    smtpTransport.close();
+    return {
+      status: 200,
+      message: '이메일이 성공적으로 전송되었습니다.',
+      responseData: {
+        verificationCode: randomPassword
+      }
+    };
+  } catch (error) {
+    await redisClient.disconnect();
+    return {
+      status: 500,
+      message: '이메일 전송에 실패하였습니다.',
+      responseData: {
+        error: error
+      }
+    }
+  }
+
+}
+
+
+exports.smtpSender = smtpSender;
