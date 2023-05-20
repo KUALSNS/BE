@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/calendar',PlannerController.getPlannerData);
 router.get('/history',PlannerController.getUserChallengeHistory);
-
+router.get('/statistic',PlannerController.getUserStatistics);
 
 
 export = router

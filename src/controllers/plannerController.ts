@@ -37,6 +37,35 @@ export async function getPlannerData(req: Request, res: Response, next: NextFunc
     }
 }
 
+// getUserStatistics data controller which returns the number of challenges solved by the user in a month or week use period
+export async function getUserStatistics(req: Request, res: Response, next: NextFunction) {
+    try {
+        //아래 부분은 미들웨어로 빼야함
+        const accessToken = (req.headers.access as string).split('Bearer ')[1];
+        const authResult = await jwt.verify(accessToken);
+        const decoded = jwt.decode(accessToken);
+        const userId = decoded!.id;
+
+        const { period } = req.query;
+        const userStatistics = await plannerService.getUserStatistics(userId,<string>period);
+
+        return res.status(200).json({
+            "code": 200,
+            "message": "Ok",
+            data: {
+                userStatistics
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching completed challenges:', error);
+        return res.status(500).json({
+            "code": 500,
+            message: "Server Error"
+        });
+    }
+}
+
+
 // getuserhistory data controller
 export async function getUserChallengeHistory(req: Request, res: Response, next: NextFunction) {
     try {

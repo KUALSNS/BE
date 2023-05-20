@@ -47,6 +47,15 @@ export async function getCompletedChallenges(userId: any, startDate: string, fin
 
 }
 
+export async function getUserStatistics(userId: number, period: string) {
+    // challenge participation count this month
+
+    // challenge participation count last month
+
+
+}
+
+
 
 export async function getUserChallengeHistory(userId: number) {
     try {
