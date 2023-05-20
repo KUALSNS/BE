@@ -288,3 +288,34 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
         });
     }
 };
+
+
+export const userIdFind = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const  email : string = req.query.email as string;
+        const  code  = req.query.code;
+        await redisClient.connect();
+        const redisCode = await redisClient.v4.get(email);
+        if (redisCode == parseInt(<string>code)) {
+            
+            if(typeof email !== "undefined"){
+                var userId = await UserService.userId(email);
+                if(typeof userId !== "undefined"){
+                    await redisClient.disconnect();
+                    return res.status(200).json({
+                        message: "OK",
+                        code: 200,
+                        userId: userId[0].identifier
+                    });
+            }
+            }
+
+        } else {
+            await redisClient.disconnect();
+            return res.status(400).send({ status: 400, message: "Fail Verify Email" });
+        }
+    } catch (error) {
+        await redisClient.disconnect();
+        return res.status(500).send({ status: 500, message: "Fail Verify Email" });
+    }
+};
