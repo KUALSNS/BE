@@ -699,8 +699,14 @@ const selectTemplateData = async (
             templateNameDB[i].category = category[0].category;
             templateNameDB[i].image = category[0].image;
         }
+        //console.log(templateNameDB)
+        const templates  = templateNameDB.map((e) => {
+            return { "templateTitle": e.title, "templateContent" : e.content, "category":e.category, "image": e.image};
 
-        const templates = templateNameDB;
+        })
+
+       
+        console.log(templates)
         const challengeCategory = challengeIdCategoryDB[0].category.name;
 
         const templateData = { "challengeName": challengeName, "challengeCategory": challengeCategory, "templates": templates };
