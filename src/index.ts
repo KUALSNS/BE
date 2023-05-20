@@ -33,6 +33,8 @@ app.all('/*', function (req, res, next) {
 app.use('/api/user', require('./routers/userRouter'));
 app.use('/api/challenge', require('./routers/challengeRouter'));
 app.use('/api/profile', require('./routers/profileRouter'));
+app.use('/api/planner', require('./routers/plannerRouter'));
+
 
 app
     .listen(port, () => {
