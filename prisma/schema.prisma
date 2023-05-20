@@ -100,25 +100,29 @@ model user_challenge_templetes {
 }
 
 model user_template_image {
+  image_id                 Int                      @default(autoincrement())
   uctem_id                 Int
   user_id                  Int
   image_url                String                   @db.VarChar(245)
-  created_at               DateTime                 @default(now()) @db.DateTime(0)
+  created_at               DateTime                 @default(now()) @db.Timestamp(0)
   user_challenge_templetes user_challenge_templetes @relation(fields: [uctem_id], references: [uctem_id], onDelete: Cascade, map: "uctem_idForeignKey5")
   users                    users                    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey5")
 
-  @@id([uctem_id, user_id])
+  @@id([image_id, uctem_id, user_id])
   @@index([user_id], map: "user_idForeignKey5")
+  @@index([uctem_id], map: "uctem_idForeignKey5")
 }
 
 model user_template_video {
+  video_id                 Int                      @default(autoincrement())
   uctem_id                 Int
   user_id                  Int
   video_url                String                   @db.VarChar(245)
-  created_at               DateTime                 @default(now()) @db.DateTime(0)
-  user_challenge_templetes user_challenge_templetes @relation(fields: [uctem_id], references: [uctem_id], onDelete: Cascade, map: "uctem_idForeignKe6")
+  created_at               DateTime                 @default(now()) @db.Timestamp(0)
+  user_challenge_templetes user_challenge_templetes @relation(fields: [uctem_id], references: [uctem_id], onDelete: Cascade, map: "uctem_idForeignKey6")
   users                    users                    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "user_idForeignKey6")
 
-  @@id([uctem_id, user_id])
+  @@id([video_id, uctem_id, user_id])
   @@index([user_id], map: "user_idForeignKey6")
+  @@index([uctem_id], map: "uctem_idForeignKey6")
 }
