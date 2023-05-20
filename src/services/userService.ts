@@ -3,7 +3,7 @@ import { DATA_SOURCES } from '../config/auth';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
-import {  randomPasswordFunction }  from '../modules/randomPassword';
+import { randomPasswordFunction } from '../modules/randomPassword';
 const prisma = new PrismaClient();
 //import { v4 as uuidv4 } from 'uuid';
 
@@ -30,7 +30,7 @@ const userSignup = async (
   email: string,
   password: string,
   nickname: string,
-  userId : string,
+  userId: string,
   phoneNumber: string
 ) => {
   const returnForm: serviceReturnForm = {
@@ -86,35 +86,35 @@ const userSignup = async (
 
     // * Create User typescript error catching
     await prisma.users
-        .create({
-            data: {
-                email: email,
-                password: encryptedPassword,
-                nickname: nickname,
-                identifier: userId,
-                phone: phoneNumber,
-                role: "user",
-            },
-        })
-        .then((data) => {
-            if (data) {
-                returnForm.status = 200;
-                returnForm.message = "Success";
-                data.password = ""
-                returnForm.responseData = data;
-            } else {
-                returnForm.status = 400;
-                returnForm.message = "User Not Found";
+      .create({
+        data: {
+          email: email,
+          password: encryptedPassword,
+          nickname: nickname,
+          identifier: userId,
+          phone: phoneNumber,
+          role: "user",
+        },
+      })
+      .then((data) => {
+        if (data) {
+          returnForm.status = 200;
+          returnForm.message = "Success";
+          data.password = ""
+          returnForm.responseData = data;
+        } else {
+          returnForm.status = 400;
+          returnForm.message = "User Not Found";
 
-            }
-        })
-        .catch((e) => {
-            console.log(e);
-            returnForm.status = 500;
-            returnForm.message = "Server Error on create user process";
-            return returnForm; // Add return statement here
         }
-        );
+      })
+      .catch((e) => {
+        console.log(e);
+        returnForm.status = 500;
+        returnForm.message = "Server Error on create user process";
+        return returnForm; // Add return statement here
+      }
+      );
   }
   return returnForm;
 };
@@ -123,40 +123,59 @@ const userSignup = async (
 const userId = async (userEmail: string) => {
   try {
     const userIdDB = await prisma.users.findMany({
-      where:{
+      where: {
         email: userEmail
       },
-      select:{
-        identifier:true
+      select: {
+        identifier: true
       }
     });
     return userIdDB;
-  
+
   } catch (error) {
     console.log(error);
-  } 
+  }
 }
 
-const updatePassword = async (userIdentifier : string, userEmail : string) => {
+const userIdentifier = async (userIdentifier: string) => {
   try {
-    const randomPassword =  randomPasswordFunction();
+    const userIdDB = await prisma.users.findMany({
+      where: {
+        identifier: userIdentifier
+      },
+      select: {
+        user_id: true
+      }
+    });
+    return userIdDB;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+
+const updatePassword = async (userIdentifier: string, userEmail: string) => {
+  try {
+    const randomPassword = randomPasswordFunction();
     const encryptedPassword = await bcrypt.hash(randomPassword, 10);
     await prisma.users.updateMany({
       where: {
-         identifier: userIdentifier,
-         email: userEmail
+        identifier: userIdentifier,
+        email: userEmail
       },
       data: {
         password: encryptedPassword
       }
-  });
-    return encryptedPassword;
-  
+    });
+    return randomPassword;
+
   } catch (error) {
     console.log(error);
-  } 
+  }
 }
 
 
-export  { userIdentifierSelect,  userSignup, userId,updatePassword }
+export { userIdentifierSelect, userSignup, userId, updatePassword, userIdentifier }
 

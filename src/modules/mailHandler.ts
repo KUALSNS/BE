@@ -55,9 +55,10 @@ export const smtpSender = async function (email: string) {
 
 }
 
-export const randomPasswordsmtpSender = async function (email: string, randomPassword : string) {
+export const randomPasswordsmtpSender = async (email: string, randomPassword: string) => {
   try {
-  
+    console.log(randomPassword)
+
     const mailOptions = {
       from: "jftj" + "@naver.com",
       to: email,
@@ -66,7 +67,6 @@ export const randomPasswordsmtpSender = async function (email: string, randomPas
     };
     await smtpTransport.sendMail(mailOptions);
     smtpTransport.close();
-    await redisClient.disconnect();
     return {
       status: 200,
       message: '이메일이 성공적으로 전송되었습니다.',
