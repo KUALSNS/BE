@@ -175,7 +175,7 @@ const updatePassword = async (oldPassword: string, newPassword: string, user_id:
 
 
 // profile update
-const updateProfile = async (nickname: string, phoneNumber: string,marketingAgreement:boolean, user_id: number) => {
+const updateProfile = async (nickname: string, phoneNumber: string,marketingAgreement:number, user_id: number) => {
   const returnForm: serviceReturnForm = {
     status: 500,
     message: "server error",

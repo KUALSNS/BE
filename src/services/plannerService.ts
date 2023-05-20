@@ -58,34 +58,47 @@ export async function getUserChallengeHistory(userId: number) {
                         challenges: true,
                         user_challenge_templetes: {
                             orderBy: {update_at: 'desc'},
-                            take: 1,
+                            //take: 1,
                         },
                         //user_challenge_templetes: true,
                     },
                 },
             },
         });
-        console.log(users)
+        //console.log(users)
+
         const ongoingChallenges: user_challenges[] = [];
         const finishedChallenges: user_challenges[] = [];
         const temporarilySavedChallenges: user_challenges[] = [];
 
 
+
+
         const userChallenges = users?.user_challenges;
-        if (userChallenges == undefined) {
+        if (userChallenges == undefined || userChallenges.length == 0) {
             // 가능한 챌린지 보여주기
             // 진행률 질문하기
         } else {
+            userChallenges.forEach((challenge) => {
+                const completedTemplatesCount = challenge.user_challenge_templetes.filter(
+                  (template) => template.complete
+                ).length;
+                const completionRatio = completedTemplatesCount / 30;
+                const achievement = Math.round(completionRatio * 100);
+                // @ts-ignore
+                challenge.achievement = achievement;
+            });
             userChallenges.forEach((userChallenge) => {
                 if (userChallenge.complete) {
                     finishedChallenges.push(userChallenge);
-                } else if (userChallenge.finish_at == null) {
+                } else if (userChallenge.complete == null) {
                     temporarilySavedChallenges.push(userChallenge);
                 } else {
                     ongoingChallenges.push(userChallenge);
                 }
             });
         }
+
 
         console.log('Ongoing Challenges:', ongoingChallenges);
         console.log('Finished Challenges:', finishedChallenges);
