@@ -16,6 +16,7 @@ export interface TemplateDTO {
   title: string,
   content: string,
   category?: string;
+  image?: string;
 }
 
 export interface mainChallengeDTO {

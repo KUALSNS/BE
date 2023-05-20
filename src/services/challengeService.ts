@@ -26,6 +26,7 @@ const beforeMainData = async () => {
           category: {
             select: {
               name: true,
+              emogi: true
             }
           }
         }
@@ -35,7 +36,7 @@ const beforeMainData = async () => {
       return e.name
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
 
     });
     for (var i = 0; i < challenges.length; i++) {
@@ -64,12 +65,13 @@ const wholeCategoryData = async () => {
         category: {
           select: {
             name: true,
+            emogi: true
           }
         }
       }
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name, "image":e.category.emogi }]
     });
     for (var i = 0; i < challenges.length; i++) {
       challengesArray.push(challenges[i][0]);
@@ -220,7 +222,7 @@ const afterMainData = async (user_id: number) => {
       title: string;
       category: string;
     }[] = [];
-    const userChallengeCountArray: {
+    const userChallengeArray: {
       challenges: string;
       achievement: number;
     }[] = [];
@@ -239,6 +241,8 @@ const afterMainData = async (user_id: number) => {
           category: {
             select: {
               name: true,
+              emogi: true
+
             }
           }
         }
@@ -259,7 +263,7 @@ const afterMainData = async (user_id: number) => {
         select: {
           challenges: {
             select: {
-              title: true
+              title: true,
             }
           },
           user_challenge_templetes: {
@@ -281,6 +285,7 @@ const afterMainData = async (user_id: number) => {
     });
 
 
+    console.log(challengesDB)
     const nickname = nicknameArray[0];
     const coopon = cooponArray[0];
 
@@ -289,10 +294,10 @@ const afterMainData = async (user_id: number) => {
       return [{ "challenges": e.challenges.title, "achievement": Math.round(e.user_challenge_templetes.length * 3.3) }]
     });
     for (var i = 0; i < userChallengeCount.length; i++) {
-      userChallengeCountArray.push(userChallengeCount[i][0]);
+      userChallengeArray.push(userChallengeCount[i][0]);
     }
     let challengeCertain: boolean;
-    const userChallengeSu = userChallengeCountArray.length;
+    const userChallengeSu = userChallengeArray.length;
     if (userChallengeSu == 0) {
       challengeCertain = false;
     } else {
@@ -303,22 +308,20 @@ const afterMainData = async (user_id: number) => {
       return e.name
     });
     const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name }]
+      return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
 
     });
+
     for (var i = 0; i < challenges.length; i++) {
       challengesArray.push(challenges[i][0]);
     }
-
-
-
     prisma.$disconnect();
     return {
       nickname,
       coopon,
       userChallengeSu,
       "challengeCertain": challengeCertain,
-      userChallengeCountArray,
+      userChallengeArray,
       category,
       challengesArray
     };
@@ -330,14 +333,6 @@ const afterMainData = async (user_id: number) => {
 
 const newChallengeData = async (user_id: number, newChallenge: string) => {
   try {
-    const challengTemplateDB = await prisma.user_challenge_templetes.findMany({
-
-      select: {
-        created_at: true
-      }
-
-    });
-    console.log(challengTemplateDB[0].created_at)
     const [userCooponDB, challengesCountDB, challengesOverlapDB] = await Promise.all([
       await prisma.users.findUnique({
         where: {
