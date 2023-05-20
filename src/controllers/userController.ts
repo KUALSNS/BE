@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
-import { smtpSender } from '../modules/mailHandler';
+import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
 declare var process: {
     env: {
         SALTROUNDS: string
@@ -317,5 +317,42 @@ export const userIdFind = async (req: Request, res: Response, next: NextFunction
     } catch (error) {
         await redisClient.disconnect();
         return res.status(500).send({ status: 500, message: "Fail Verify Email" });
+    }
+};
+
+
+export const userPasswordFind = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { identifier, userEmail }= req.body;
+        const userIdSign = await UserService.userId(userEmail);
+        console.log(userIdSign);
+        if (userIdSign == null || userIdSign == undefined) {
+            return res.status(404).json({
+                code: 404,
+                message: "Id can't find"
+            });
+        }
+        const passwordUpdate : string = await UserService.updatePassword(identifier, userEmail) as string;
+        console.log(passwordUpdate)
+        const random = await randomPasswordsmtpSender(
+                userEmail,
+                passwordUpdate
+            );
+        console.log(random)
+           
+        if(passwordUpdate){
+            return res.status(200).json({
+                message: "OK",
+                code: 200           
+            });       
+        }
+        console.log(3)
+     
+    } catch (error) {
+           return res.status(500).json({
+            code: 500,
+            message: "Server Error"
+        });
     }
 };

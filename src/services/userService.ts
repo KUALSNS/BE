@@ -3,6 +3,7 @@ import { DATA_SOURCES } from '../config/auth';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
+import {  randomPasswordFunction }  from '../modules/randomPassword';
 const prisma = new PrismaClient();
 //import { v4 as uuidv4 } from 'uuid';
 
@@ -135,5 +136,27 @@ const userId = async (userEmail: string) => {
     console.log(error);
   } 
 }
-export  { userIdentifierSelect,  userSignup, userId}
+
+const updatePassword = async (userIdentifier : string, userEmail : string) => {
+  try {
+    const randomPassword =  randomPasswordFunction();
+    const encryptedPassword = await bcrypt.hash(randomPassword, 10);
+    await prisma.users.updateMany({
+      where: {
+         identifier: userIdentifier,
+         email: userEmail
+      },
+      data: {
+        password: encryptedPassword
+      }
+  });
+    return encryptedPassword;
+  
+  } catch (error) {
+    console.log(error);
+  } 
+}
+
+
+export  { userIdentifierSelect,  userSignup, userId,updatePassword }
 
