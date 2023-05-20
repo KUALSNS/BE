@@ -311,6 +311,7 @@ const writeChallengeData = async (user_id: number) => {
 const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
     try {
         if (!uctem_id) {
+            console.log(1);
             const temporaryChallenge: string[] = []
             var [challengeTemplateDB, categoryDB] = await Promise.all([
                 prisma.templates.findMany({
@@ -416,8 +417,8 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                 }
 
             })
-
-            const temporaryChallenge = userTemplate[0];
+          
+            const temporaryChallenge = userTemplate;
             prisma.$disconnect();
             return { challengeTemplateDB, categoryDB, temporaryChallenge };
         }

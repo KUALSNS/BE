@@ -110,16 +110,15 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
         }
         const template = writeTemplate?.challengeTemplateDB;
         const category = writeTemplate?.categoryDB;
-        const temporaryChallenges = writeTemplate.temporaryChallenge;
+        const temporaryChallenge = writeTemplate.temporaryChallenge;
         let templateCertain: boolean;
-        const temporaryChallenge : any[] = [];
 
         const templates = template.map((e: any) => {
             return { "templateTitle": e.title, "templateContent": e.content, "category": e.challenges.category.name, "image": e.challenges.category.emogi }
         });
-        console.log(temporaryChallenge);
-        temporaryChallenge.push(temporaryChallenges)
-       
+
+        console.log(temporaryChallenge[0]);
+
 
         if (temporaryChallenge[0] == undefined) {
             templateCertain = false;
