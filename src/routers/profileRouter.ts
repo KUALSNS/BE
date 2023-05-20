@@ -3,6 +3,7 @@ import * as ProfileController  from '../controllers/profileController'
 const router = express.Router()
 import {passwordUpdate, profileUpdate, userChallengeStatistics} from '../controllers/profileController';
 import { verifyToken } from '../middleware/auth';
+import cors from 'cors';
 
 router.use(cors({
   credentials : true
