@@ -56,7 +56,7 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                                 templateData: {
                                     challengeName: startChallenge.newChallenge,
                                     challengeCategory: data.userChallenging[0].category,
-                                    template: data.challengTemplateArray
+                                    templates: data.challengTemplateArray
                                 }
                             }
                         });
