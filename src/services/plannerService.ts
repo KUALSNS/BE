@@ -91,15 +91,44 @@ async function getMonthStatistics(userId: number) {
         missed: 27 - thisMonthCount,
     };
 }
+export function getDateRangeStartingSunday() {
+    const today = new Date();
+    const currentDay = today.getDay(); // 0: Sunday, 1: Monday, ..., 6: Saturday
+    const startDate = new Date(today); // Clone today's date
+
+    // Calculate the start date of the week (previous Sunday)
+    startDate.setDate(today.getDate() - currentDay);
+
+    // Calculate the end date of the week (next Saturday)
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+
+    return {
+        startDate,
+        endDate,
+    };
+}
+
 
 async function getWeekStatistics(userId: number) {
-    const finishDate = new Date();
-    const startDate = new Date();
+    const { startDate, endDate } = getDateRangeStartingSunday();
+    const thisWeek = await getCompletedChallenges(userId, startDate.toISOString(), endDate.toISOString());
+    console.log(thisWeek);
+    // calculate startDate to 7 days before
     startDate.setDate(startDate.getDate() - 7);
-    const thisWeek = await getCompletedChallenges(userId, startDate.toISOString(), finishDate.toISOString());
-    finishDate.setDate(finishDate.getDate() - 7);
-    startDate.setDate(startDate.getDate() - 7);
-    const lastWeek = await getCompletedChallenges(userId, startDate.toISOString(), finishDate.toISOString());
+    endDate.setDate(endDate.getDate() - 7);
+
+    const lastWeek = await getCompletedChallenges(userId, startDate.toISOString(), endDate.toISOString());
+
+
+
+    // const finishDate = new Date();
+    // const startDate = new Date();
+    // startDate.setDate(startDate.getDate() - 7);
+    // const thisWeek = await getCompletedChallenges(userId, startDate.toISOString(), finishDate.toISOString());
+    // finishDate.setDate(finishDate.getDate() - 7);
+    // startDate.setDate(startDate.getDate() - 7);
+    // const lastWeek = await getCompletedChallenges(userId, startDate.toISOString(), finishDate.toISOString());
     console.log(lastWeek);
     console.log(thisWeek);
 
