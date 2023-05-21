@@ -30,9 +30,23 @@ export const userProfile = async (req: Request, res: Response) => {
 
 }
 
+export const couponActivation = async (req: Request, res: Response) => {
+    try {
+        const accessToken = (req.headers.access as string).split('Bearer ')[1];
+        const authResult = jwt.verify(accessToken);
+        const decoded = jwt.decode(accessToken);
+        console.log(decoded);
+        const { couponCode } = req.body;
+        const returnData: serviceReturnForm = await profileService.couponActivation( decoded!.id,parseInt(couponCode),);
+        return res.status(returnData.status).send(returnData);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ status: 500, message: "Fail Coupon Activation" });
+    }
+}
 
 
-// user challenge statistics function which returns the number of challenges solved by the user in a month or week use period
+
 export const userChallengeStatistics = async (req: Request, res: Response) => {
     try {
         const accessToken = (req.headers.access as string).split('Bearer ')[1];

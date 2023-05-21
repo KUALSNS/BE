@@ -16,5 +16,7 @@ router.get('/history', verifyToken, ProfileController.userChallengeStatistics);
 router.patch('/password', verifyToken, ProfileController.passwordUpdate);
 router.patch('/phone', verifyToken, ProfileController.profileUpdate);
 router.patch('/email', verifyToken, ProfileController.emailUpdate);
+// coupon activation router
+router.post('/coupon', verifyToken, ProfileController.couponActivation);
 
 export = router
