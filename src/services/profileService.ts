@@ -34,8 +34,37 @@ const getProfile = async (userId: number) => {
     return returnForm;
 }
 
+const couponActivation = async (userId: number, couponActivation: number) => {
+    const returnForm: serviceReturnForm = {
+        status: 500,
+        message: "server error",
+        responseData: {},
+    };
+    try {
+        const data = await prisma.users.update({
+            where: {
+                user_id: userId
+            },
+            data: {
+                coopon: couponActivation
+            }
+        });
+        if (data) {
+            returnForm.status = 200;
+            returnForm.message = "Success";
+        } else {
+            returnForm.status = 400;
+            returnForm.message = "User Not Found";
+        }
+    } catch (e: any) {
+        console.log(e);
+        returnForm.status = 500;
+        returnForm.message = "Server Error on coupon activation process";
+    }
+    return returnForm;
+}
 
-// user challenge statistics function which returns the number of challenges solved by the user in a month or week
+
 const getChallengeStatistics = async (year: string, month: string, week: string, period:string, userId: number) => {
     const returnForm: serviceReturnForm = {
         status: 500,
@@ -92,7 +121,6 @@ const getChallengeStatistics = async (year: string, month: string, week: string,
 }
 
 
-// update email with validation using try catch
 const updateEmail = async (email: string, user_id: number) => {
     const returnForm: serviceReturnForm = {
         status: 500,
@@ -123,7 +151,6 @@ const updateEmail = async (email: string, user_id: number) => {
     return returnForm;
 }
 
-// password update with hashing using try catch using bcrypt compare
 const updatePassword = async (oldPassword: string, newPassword: string, user_id: number) => {
     const returnForm: serviceReturnForm = {
         status: 500,
@@ -177,7 +204,6 @@ const updatePassword = async (oldPassword: string, newPassword: string, user_id:
 }
 
 
-// profile update
 const updateProfile = async (nickname: string, phoneNumber: string,marketingAgreement:number, user_id: number) => {
   const returnForm: serviceReturnForm = {
     status: 500,
@@ -211,4 +237,4 @@ const updateProfile = async (nickname: string, phoneNumber: string,marketingAgre
   return returnForm;
 }
 
-export  { getProfile, updateProfile,updatePassword, updateEmail, getChallengeStatistics}
+export  { getProfile, updateProfile,updatePassword, updateEmail, getChallengeStatistics, couponActivation}
