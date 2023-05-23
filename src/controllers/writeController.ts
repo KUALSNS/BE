@@ -5,9 +5,12 @@ import { prisma } from '@prisma/client';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
 import { Console } from 'console';
 
-
+import { getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
 export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
     try {
+        const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
+        const koreanTime2 = new Date(koreanDateISOString2)
+        console.log(koreanTime2);
         const newChallenge: string = req.params.name;
         const data = await ChallengeController.newChallengeData(req.decoded.id, newChallenge);
         const challengesCount: number = data?.challengesCount as number;
@@ -38,7 +41,7 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
                 });
             }
         } else {
-            if (2 < challengesCount) {
+            if (2 <= challengesCount) {
                 return res.status(418).json({
                     "code": 418,
                     "message": "더 이상 챌린지를 할 수 없습니다.",

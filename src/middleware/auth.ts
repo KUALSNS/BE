@@ -18,14 +18,14 @@ const sign = (userId: string, userRole: number) => {
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '10m',
+    expiresIn: '14d',
   });
 }
 
 const refresh = () => {
   return jwt.sign({}, secret, {
     algorithm: 'HS256',
-    expiresIn: '30m',
+    expiresIn: '30d',
   });
 }
 const decode = (token: string) => {
