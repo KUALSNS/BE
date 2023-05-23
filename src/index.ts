@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
 import {stream} from './modules/loggerHandler';
-import {getKoreanDateISOString} from './modules/koreanTime';
+import {getKoreanDateISOString, getKoreanDateISOStringAdd9Hours} from './modules/koreanTime';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,7 +13,9 @@ const port = process.env.PORT || 3000;
   const koreanTime = new Date(koreanDateISOString)
   console.log(koreanTime);
 
-
+  const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
+  const koreanTime2 = new Date(koreanDateISOString2)
+  console.log(koreanTime2);
 
 
 app.use(morgan('combined', { stream: stream }));

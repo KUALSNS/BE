@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth';
 import { TemplateDTO } from '../interfaces/DTO';
 import mysql from 'mysql2/promise';
-import { getKoreanDateISOString } from '../modules/koreanTime';
+import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
 const prisma = new PrismaClient();
 
 
@@ -61,6 +61,9 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
 
 const startChallengeData = async (user_id: number, newChallenge: string) => {
     try {
+        const koreanDateISOStringAdd9Hours = getKoreanDateISOStringAdd9Hours();
+        const koreanTimeAdd9Hours = new Date(koreanDateISOStringAdd9Hours)
+        console.log(koreanTimeAdd9Hours);
         const chalId = await prisma.challenges.findMany({
             where: {
                 title: newChallenge
@@ -73,7 +76,8 @@ const startChallengeData = async (user_id: number, newChallenge: string) => {
         await prisma.user_challenges.create({
             data: {
                 user_id: user_id,
-                chal_id: chalIdData
+                chal_id: chalIdData,
+                finish_at: koreanTimeAdd9Hours
             }
         });
         prisma.$disconnect();
@@ -299,7 +303,7 @@ const writeChallengeData = async (user_id: number) => {
                 }
             }
         }
-        
+
         prisma.$disconnect();
         return { challengeArray }
     } catch (error) {
@@ -417,7 +421,7 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                 }
 
             })
-          
+
             const temporaryChallenge = userTemplate;
             prisma.$disconnect();
             return { challengeTemplateDB, categoryDB, temporaryChallenge };
@@ -701,12 +705,12 @@ const selectTemplateData = async (
             templateNameDB[i].image = category[0].image;
         }
         //console.log(templateNameDB)
-        const templates  = templateNameDB.map((e) => {
-            return { "templateTitle": e.title, "templateContent" : e.content, "category":e.category, "image": e.image};
+        const templates = templateNameDB.map((e) => {
+            return { "templateTitle": e.title, "templateContent": e.content, "category": e.category, "image": e.image };
 
         })
 
-       
+
         console.log(templates)
         const challengeCategory = challengeIdCategoryDB[0].category.name;
 
