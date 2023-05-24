@@ -6,13 +6,11 @@ const prisma = new PrismaClient();
 // 나누기, 프리즈마 부분
 export async function getCompletedChallenges(userId: any, startDate: string, finishDate: string) {
     try {
-        // get user's completed challenges templates within startDate and finishDate
         const user = await prisma.users.findUnique({
             where: { user_id: userId },
             include: {
                 user_challenges: {
                     include: {
-                        //challenges: true,
                         user_challenge_templetes: {
                             where: {
                                 complete: true,
@@ -20,37 +18,30 @@ export async function getCompletedChallenges(userId: any, startDate: string, fin
                                     gte: new Date(startDate),
                                     lte: new Date(finishDate),
                                 },
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        );
-        //console.log(user)
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
         const completedDates: Date[] = [];
         const uniqueCompletedDates: Set<string> = new Set();
 
         user?.user_challenges.forEach((challenge) => {
             challenge.user_challenge_templetes.forEach((template) => {
                 if (template.complete && !uniqueCompletedDates.has(template.update_at.toISOString())) {
-                    console.log(template.update_at);
                     uniqueCompletedDates.add(template.update_at.toISOString());
                     completedDates.push(template.update_at);
                 }
             });
         });
+
         return completedDates;
     } catch (error) {
-
         console.error('Error fetching completed challenges:', error);
-        return { error: 'Internal server error',
-            map(e: (challenge: {chal_id: number; finish_at: string}) => {completionDate: string; chalId: number}) {
-                
-            }
-        };
+        throw new Error('Internal server error' + error);
     }
-
 }
 async function getMonthStatistics(userId: number) {
     const finishDate = new Date();
