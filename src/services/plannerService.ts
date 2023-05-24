@@ -211,7 +211,6 @@ export async function getUserChallengeHistory(userId: number) {
         const userChallenges = users?.user_challenges;
         if (userChallenges == undefined || userChallenges.length == 0) {
             // 가능한 챌린지 보여주기
-            // 진행률 질문하기
         } else {
             userChallenges.forEach((challenge) => {
                 const completedTemplatesCount = challenge.user_challenge_templetes.filter(
@@ -223,12 +222,14 @@ export async function getUserChallengeHistory(userId: number) {
                 challenge.achievement = achievement;
             });
             userChallenges.forEach((userChallenge) => {
-                if (userChallenge.complete) {
-                    finishedChallenges.push(userChallenge);
-                } else if (userChallenge.complete == null) {
-                    temporarilySavedChallenges.push(userChallenge);
-                } else {
-                    ongoingChallenges.push(userChallenge);
+                if (userChallenge.user_challenge_templetes.length != 0) {
+                    if (userChallenge.complete) {
+                        finishedChallenges.push(userChallenge);
+                    } else if (userChallenge.user_challenge_templetes[0].complete) {
+                        ongoingChallenges.push(userChallenge);
+                    } else {
+                        temporarilySavedChallenges.push(userChallenge);
+                    }
                 }
             });
         }
