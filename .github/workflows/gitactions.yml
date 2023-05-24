@@ -2,7 +2,7 @@ name:  Tarae Nodejs(TypeScript) CI with NPM and CD with Docker & AWS EC2
 
 on:
   push:
-    branches: [ "fix_58" ]
+    branches: [ "develop" ]
 
 permissions:
   contents: read
