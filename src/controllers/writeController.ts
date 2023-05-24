@@ -210,7 +210,7 @@ export const selectTemplate = async (req: any, res: Response, next: NextFunction
     try {
         const challengeName = req.params.challengeName;
         const data = await ChallengeController.selectTemplateData(challengeName, req.decoded.id);
-
+    
         if (data) {
             return res.status(200).json({
                 "code": 200,

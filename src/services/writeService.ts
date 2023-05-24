@@ -614,9 +614,31 @@ const selectTemplateData = async (
     user_id: number
 ) => {
     try {
+        const userChallenging = [];
         const koreanDateISOString = getKoreanDateISOString();
         const koreanTime = new Date(koreanDateISOString);
         console.log(koreanTime);
+
+        const challenge = await writeChallengeData(user_id);
+        console.log(challenge?.challengeArray);
+        const challengeArray = challenge?.challengeArray;
+
+        for (var i = 0; i < challengeArray!.length; i++) {
+            const ChallengeMap = challengeArray!.map((e) => {
+                return { "challengeName": e.challenges.title, "category": e.challenges.category.name };
+            });
+            if (userChallenging.indexOf(ChallengeMap[i]) === -1) {
+                userChallenging.push(ChallengeMap[i]);
+            }
+
+        }
+
+        const challengingArray = [
+            ...userChallenging.filter(item => item.challengeName === challengeName),
+            ...userChallenging.filter(item => item.challengeName !== challengeName)
+        ];
+        console.log(challengingArray)
+
 
         const challengeIdCategoryDB =
             await prisma.challenges.findMany({
@@ -704,20 +726,17 @@ const selectTemplateData = async (
             templateNameDB[i].category = category[0].category;
             templateNameDB[i].image = category[0].image;
         }
-        //console.log(templateNameDB)
         const templates = templateNameDB.map((e) => {
             return { "templateTitle": e.title, "templateContent": e.content, "category": e.category, "image": e.image };
 
         })
 
-
-        console.log(templates)
         const challengeCategory = challengeIdCategoryDB[0].category.name;
 
         const templateData = { "challengeName": challengeName, "challengeCategory": challengeCategory, "templates": templates };
 
         prisma.$disconnect();
-        return { templateCertain, temporaryChallenge, templateData };
+        return { templateCertain, temporaryChallenge, challengingArray, templateData };
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
