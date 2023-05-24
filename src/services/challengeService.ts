@@ -242,8 +242,13 @@ const afterMainData = async (user_id: number) => {
             select: {
               name: true,
               emogi: true
-
             }
+          }
+
+        },
+        orderBy: {
+          category: {
+            name: 'asc'
           }
         }
       }),
