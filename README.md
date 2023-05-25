@@ -3,7 +3,45 @@
 ---
 **Front-End** : <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=React&logoColor=black"/><img alt="Vite" src = "https://img.shields.io/badge/vite-%23646CFF.svg?style=flat-square&logo=vite&logoColor=white"/><img src="https://img.shields.io/badge/Axios-8b00ff?style=flat-square&logo=Axios&logoColor=black"/>
 
-**Back-End** : <img alt="Node.js" src ="https://img.shields.io/badge/Node.js-339933.svg?&style=flat-square&logo=Node.js&logoColor=white"/><img alt="Express" src ="https://img.shields.io/badge/Express-000000.svg?&style=flat-square&logo=Express&logoColor=white"/><img alt="npm" src ="https://img.shields.io/badge/prisma-2D3748.svg?&style=flat-square&logo=prisma&logoColor=white"/><img src="https://img.shields.io/badge/Docker-0067a3?style=flat-square&logo=Docker&logoColor=white"/>
+**Back-End** : 
+</br>
+Lanuage && Framework 
+</br>&nbsp;
+   <img src="https://img.shields.io/badge/node.js-339933?style=flat-the-badge&logo=node.js&logoColor=white"> 
+   <img src="https://img.shields.io/badge/express-000000?style=flat-the-badge&logo=express&logoColor=white"> 
+   <img src="https://img.shields.io/badge/typescript-3178C6?style=flat-the-badge&logo=typescript&logoColor=white"> 
+</br>
+Infra
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/docker-2496ED?style=flat-the-badge&logo=docker&logoColor=white"> 
+ <img src="https://img.shields.io/badge/githubactions-2088FF?style=flat-the-badge&logo=githubactions&logoColor=white"> 
+ <img src="https://img.shields.io/badge/amazons3-569A31?style=flat-the-badge&logo=amazons3&logoColor=white"> 
+ <img src="https://img.shields.io/badge/amazonec2-FF9900?style=flat-the-badge&logo=amazonec2&logoColor=white"> 
+ <img src="https://img.shields.io/badge/amazonrds-527FFF?style=flat-the-badge&logo=amazonrds&logoColor=white"> 
+</br>
+Monitoring
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/pm2-2B037A?style=flat-the-badge&logo=pm2&logoColor=white"> 
+ <img src="https://img.shields.io/badge/slack-4A154B?style=flat-the-badge&logo=slack&logoColor=white"> 
+</br>
+DB
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/mysql-4479A1?style=flat-the-badge&logo=mysql&logoColor=white"> 
+ <img src="https://img.shields.io/badge/redis-DC382D?style=flat-the-badge&logo=redis&logoColor=white"> 
+</br>
+API Documentation 
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/postman-FF6C37?style=flat-the-badge&logo=postman&logoColor=white"> 
+
+
+
+
+
+
+
+
+
+
 
 ### 🧑‍ 팀원
 |                          허연우                           |                                                                   백주연                                                                    |                  이승렬                   |                                               최호연                                                |                             
