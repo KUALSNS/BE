@@ -29,6 +29,11 @@ const beforeMainData = async () => {
               emogi: true
             }
           }
+        },
+        orderBy: {
+          category: {
+            name: 'asc'
+          }
         }
       })
     ]);
@@ -244,7 +249,6 @@ const afterMainData = async (user_id: number) => {
               emogi: true
             }
           }
-
         },
         orderBy: {
           category: {
