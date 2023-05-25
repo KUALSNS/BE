@@ -287,4 +287,5 @@ To Reviewers
 ## ⚙️ Software Architecture
 
 ---
-![Architecture](https://user-images.githubusercontent.com/37439067/231813229-3c364744-3da4-46eb-8bfb-9f584adae10e.JPG)
+![Architecture](https://github.com/KUALSNS/BE/assets/37439067/cd0733d3-629c-40d2-b115-1f0835adb8f7)
+
