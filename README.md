@@ -1,9 +1,26 @@
 ### 💻 기술 스택
 
 ---
-**Front-End** : <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=React&logoColor=black"/><img alt="Vite" src = "https://img.shields.io/badge/vite-%23646CFF.svg?style=flat-square&logo=vite&logoColor=white"/><img src="https://img.shields.io/badge/Axios-8b00ff?style=flat-square&logo=Axios&logoColor=black"/>
-
-**Back-End** : 
+🗝️**Front-End**🗝️ : 
+</br>
+Lanuage && Framework 
+</br>&nbsp;
+   <img src="https://img.shields.io/badge/javascript-F7DF1E?style=flat-the-badge&logo=javascript&logoColor=white"> 
+   <img src="https://img.shields.io/badge/react-61DAFB?style=flat-the-badge&logo=react&logoColor=white"> 
+</br>
+CommunicationMethod
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/axios-5A29E4?style=flat-the-badge&logo=axios&logoColor=white"> 
+</br>
+StateManagement 
+</br>&nbsp;
+<img src="https://img.shields.io/badge/recoil-f26b00?style=flat-the-badge&logo=recoil&logoColor=white"> 
+</br>
+Tool 
+</br>&nbsp;
+<img src="https://img.shields.io/badge/vite-646CFF?style=flat-the-badge&logo=vite&logoColor=white"> 
+</br></br>
+🔓**Back-End**🔓 : 
 </br>
 Lanuage && Framework 
 </br>&nbsp;
