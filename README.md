@@ -24,9 +24,9 @@ Build Tool
 </br>
 Lanuage && Framework 
 </br>&nbsp;
-   <img src="https://img.shields.io/badge/node.js-339933?style=flat-the-badge&logo=node.js&logoColor=white"> 
-   <img src="https://img.shields.io/badge/express-000000?style=flat-the-badge&logo=express&logoColor=white"> 
-   <img src="https://img.shields.io/badge/typescript-3178C6?style=flat-the-badge&logo=typescript&logoColor=white"> 
+ <img src="https://img.shields.io/badge/typescript-3178C6?style=flat-the-badge&logo=typescript&logoColor=white"> 
+ <img src="https://img.shields.io/badge/node.js-339933?style=flat-the-badge&logo=node.js&logoColor=white"> 
+ <img src="https://img.shields.io/badge/express-000000?style=flat-the-badge&logo=express&logoColor=white"> 
 </br>
 Infra
 </br>&nbsp;
