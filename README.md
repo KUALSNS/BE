@@ -14,7 +14,7 @@ CommunicationMethod
 </br>
 StateManagement 
 </br>&nbsp;
-<img src="https://img.shields.io/badge/recoil-f26b00?style=flat-the-badge&logo=recoil&logoColor=white"> 
+<img src="https://img.shields.io/badge/relay-f26b00?style=flat-the-badge&logo=relay&logoColor=white"> 
 </br>
 Tool 
 </br>&nbsp;
