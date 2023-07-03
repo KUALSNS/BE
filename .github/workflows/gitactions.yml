@@ -50,7 +50,7 @@ jobs:
             docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
 
             # 잠시 대기하여 green 컨테이너가 실행될 시간을 확보
-            sleep 80
+            sleep 50
 
             docker stop green || true
             docker rm green || true
