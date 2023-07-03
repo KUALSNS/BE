@@ -49,7 +49,7 @@ jobs:
 
             docker stop blue || true
             docker rm blue || true
-            docker rmi blue || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }} || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
             docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
 
@@ -62,7 +62,7 @@ jobs:
 
             docker stop green || true
             docker rm green || true
-            docker rmi green || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }} || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
             docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
            
