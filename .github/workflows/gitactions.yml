@@ -31,10 +31,10 @@ jobs:
     - name: Build Docker Image For Node.js
       run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }} .
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/blue .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/green .
+          docker push ${{ secrets.DOCKER_USERNAME }}/blue
+          docker push ${{ secrets.DOCKER_USERNAME }}/green
          
     # 서버에서 Docker 이미지 실행
     - name: EC2 Docker Run
@@ -49,9 +49,9 @@ jobs:
 
             docker stop blue || true
             docker rm blue || true
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }} || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
-            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/blue || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/blue
+            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue
 
             sleep 10
             sudo touch /etc/nginx/blue.flag
@@ -62,7 +62,7 @@ jobs:
 
             docker stop green || true
             docker rm green || true
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }} || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
-            docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/green || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/green
+            docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green
            
