@@ -1,4 +1,5 @@
-FROM node:18.6.0 AS builder
+FROM node:18.6.0 as green
+
 
 WORKDIR /app
  
@@ -7,18 +8,30 @@ COPY package-lock.json /app/
 COPY .env ./
 
 RUN npm install
+
 RUN npm install -g typescript
 RUN npm install pm2 -g
  
 COPY ./ ./
 
-RUN npm run build
+CMD ["npm","run","dev"]
 
-FROM nginx:latest
 
-COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+FROM node:18.6.0 as blue
 
-EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /app
+ 
+COPY package.json /app/
+COPY package-lock.json /app/
+COPY .env ./
+
+RUN npm install
+
+RUN npm install -g typescript
+RUN npm install pm2 -g
+ 
+COPY ./ ./
+
+CMD ["npm","run","dev"]
+

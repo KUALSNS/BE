@@ -31,8 +31,10 @@ jobs:
     - name: Build Docker Image For Node.js
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }} --target green .
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }} --target blue .
+         docker push ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
     # 서버에서 Docker 이미지 실행
     - name: EC2 Docker Run
       uses: appleboy/ssh-action@v0.1.6
@@ -41,9 +43,12 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker stop Tarae
-          docker rm Tarae
-          docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
-          docker run -d -p 3000:3000 --name Tarae ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 
+          docker stop green || true
+          docker rm green || true
+          docker stop blue || true
+          docker rm blue || true
+          docker pull ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
+          docker run -d -p 3000:80 --name green ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+          docker run -d -p 3001:80 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
       
