@@ -43,12 +43,16 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker stop green || true
-          docker rm green || true
-          docker stop blue || true
-          docker rm blue || true
-          docker pull ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
-          docker pull ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
-          docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
-          docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
-      
+            docker stop blue || true
+            docker rm blue || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
+            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:${{ github.sha }}
+
+            # 잠시 대기하여 green 컨테이너가 실행될 시간을 확보
+            sleep 180
+
+            docker stop green || true
+            docker rm green || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+            docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green:${{ github.sha }}
+           
