@@ -43,6 +43,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+        
           docker stop green || true
           docker rm green || true
           docker stop blue || true
