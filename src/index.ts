@@ -6,7 +6,7 @@ import {stream} from './modules/loggerHandler';
 import {getKoreanDateISOString, getKoreanDateISOStringAdd9Hours} from './modules/koreanTime';
 dotenv.config();
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT1 || process.env.PORT2 || 3000;
 
 
   const koreanDateISOString = getKoreanDateISOString();

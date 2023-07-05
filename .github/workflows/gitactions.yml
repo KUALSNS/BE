@@ -30,9 +30,12 @@ jobs:
  
     - name: Build Docker Image For Node.js
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/blue .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/green .
+          docker push ${{ secrets.DOCKER_USERNAME }}/blue
+          docker push ${{ secrets.DOCKER_USERNAME }}/green
+         
     # 서버에서 Docker 이미지 실행
     - name: EC2 Docker Run
       uses: appleboy/ssh-action@v0.1.6
@@ -41,9 +44,25 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+            sudo touch /etc/nginx/green.flag
+            sudo rm /etc/nginx/blue.flag
 
-          docker stop Tarae
-          docker rm Tarae
-          docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
-          docker run -d -p 443:3001 --name Tarae ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 
+            docker stop blue || true
+            docker rm blue || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/blue || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/blue
+            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue
+
+            sleep 10
+            sudo touch /etc/nginx/blue.flag
+            sudo rm /etc/nginx/green.flag
+
+            # 잠시 대기하여 green 컨테이너가 실행될 시간을 확보
+            sleep 30
+
+            docker stop green || true
+            docker rm green || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/green || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/green
+            docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green
+           
