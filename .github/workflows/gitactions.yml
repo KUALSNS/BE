@@ -61,6 +61,7 @@ jobs:
             # 잠시 대기하여 green 컨테이너가 실행될 시간을 확보
             sleep 70
 
+
             docker stop green || true
             docker rm green || true
             docker rmi ${{ secrets.DOCKER_USERNAME }}/green || true
