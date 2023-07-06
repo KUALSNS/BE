@@ -47,21 +47,17 @@ jobs:
         script: |
             sudo touch /etc/nginx/green.flag
             sudo rm /etc/nginx/blue.flag
-            docker stop blue 
-            docker rm blue  
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/blue 
+         
             docker pull ${{ secrets.DOCKER_USERNAME }}/blue
             docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue
 
-            sleep 60
+            sleep 30
             sudo touch /etc/nginx/blue.flag
             sudo rm /etc/nginx/green.flag
 
-        
+            sleep 30
 
-            docker stop green 
-            docker rm green 
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/green
+         
             docker pull ${{ secrets.DOCKER_USERNAME }}/green
             docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green
            
