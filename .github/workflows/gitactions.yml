@@ -32,10 +32,10 @@ jobs:
       run: |
 
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/blue .
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/green .
-          docker push ${{ secrets.DOCKER_USERNAME }}/blue
-          docker push ${{ secrets.DOCKER_USERNAME }}/green
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/blue:1.0 .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/green:1.0 .
+          docker push ${{ secrets.DOCKER_USERNAME }}/blue:1.0
+          docker push ${{ secrets.DOCKER_USERNAME }}/green:1.0
          
     # 서버에서 Docker 이미지 실행
     - name: EC2 Docker Run
@@ -47,11 +47,10 @@ jobs:
         script: |
             sudo touch /etc/nginx/green.flag
             sudo rm /etc/nginx/blue.flag
-            docker stop blue 
-            docker rm blue  
-            docker rmi -f ${{ secrets.DOCKER_USERNAME }}/blue 
-            docker pull ${{ secrets.DOCKER_USERNAME }}/blue
-            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue
+
+         
+            docker pull ${{ secrets.DOCKER_USERNAME }}/blue:1.0
+            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:1.0
 
             sleep 30
             sudo touch /etc/nginx/blue.flag
@@ -59,9 +58,7 @@ jobs:
 
             sleep 30
 
-            docker stop green 
-            docker rm green 
-            docker rmi -f ${{ secrets.DOCKER_USERNAME }}/green
-            docker pull ${{ secrets.DOCKER_USERNAME }}/green
-            docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green
+           
+            docker pull ${{ secrets.DOCKER_USERNAME }}/green:1.0
+            docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green:1.0
            
