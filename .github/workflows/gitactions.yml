@@ -47,7 +47,9 @@ jobs:
         script: |
             sudo touch /etc/nginx/green.flag
             sudo rm /etc/nginx/blue.flag
-
+            docker stop blue || true
+            docker rm blue || true 
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/blue || true
           
             docker pull ${{ secrets.DOCKER_USERNAME }}/blue
             docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue
@@ -59,8 +61,9 @@ jobs:
             # 잠시 대기하여 green 컨테이너가 실행될 시간을 확보
             sleep 70
 
-
-       
+            docker stop green || true
+            docker rm green || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/green || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/green
             docker run -d -p 3001:3001 --name green ${{ secrets.DOCKER_USERNAME }}/green
            
