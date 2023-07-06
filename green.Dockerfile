@@ -1,6 +1,5 @@
 FROM node:18.6.0 as green
 
-
 WORKDIR /app
  
 COPY package.json /app/
