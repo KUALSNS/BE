@@ -9,4 +9,4 @@ router.get('/history',PlannerController.getUserChallengeHistory);
 router.get('/statistic',PlannerController.getUserStatistics);
 
 
-export = router
+export default router

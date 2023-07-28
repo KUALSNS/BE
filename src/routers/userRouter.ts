@@ -11,4 +11,4 @@ router.post('/signup',UserController.userSignup);
 router.get('/idFind',UserController.userIdFind);
 router.post('/passwordFind',UserController.userPasswordFind);
 
-export = router
+export default router
