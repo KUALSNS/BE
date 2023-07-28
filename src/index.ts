@@ -7,8 +7,8 @@ import {getKoreanDateISOString, getKoreanDateISOStringAdd9Hours} from './modules
 dotenv.config();
 const app = express();
 
-const port1 = process.env.PORT1 || 3000;
-//const port2 = process.env.PORT2 || 3001;
+const port = process.env.PORT || 3000;
+
 
   const koreanDateISOString = getKoreanDateISOString();
   const koreanTime = new Date(koreanDateISOString)
@@ -40,10 +40,10 @@ app.use('/api/planner', require('./routers/plannerRouter'));
 
 
 app
-    .listen(port1, () => {
+    .listen(port, () => {
         console.log(`
     ################################################
-          🛡️  Server listening on port: ${port1} 🛡️
+          🛡️  Server listening on port: ${port} 🛡️
     ################################################
   `);
         console.info('Tarae Server Start');
@@ -53,13 +53,3 @@ app
         process.exit(1);
     });
 
-    // app.listen(port2, () => {
-    //     console.log(`
-    //       ################################################
-    //             🛡️  Server 2 listening on port: ${port2} 🛡️
-    //       ################################################
-    //     `);
-    //   }).on('error', (err) => {
-    //     console.error(err);
-    //     process.exit(1);
-    // });
