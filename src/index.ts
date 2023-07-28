@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 const port1 = process.env.PORT1 || 3000;
-const port2 = process.env.PORT2 || 3001;
+//const port2 = process.env.PORT2 || 3001;
 
   const koreanDateISOString = getKoreanDateISOString();
   const koreanTime = new Date(koreanDateISOString)
@@ -53,13 +53,13 @@ app
         process.exit(1);
     });
 
-    app.listen(port2, () => {
-        console.log(`
-          ################################################
-                🛡️  Server 2 listening on port: ${port2} 🛡️
-          ################################################
-        `);
-      }).on('error', (err) => {
-        console.error(err);
-        process.exit(1);
-    });
+    // app.listen(port2, () => {
+    //     console.log(`
+    //       ################################################
+    //             🛡️  Server 2 listening on port: ${port2} 🛡️
+    //       ################################################
+    //     `);
+    //   }).on('error', (err) => {
+    //     console.error(err);
+    //     process.exit(1);
+    // });
