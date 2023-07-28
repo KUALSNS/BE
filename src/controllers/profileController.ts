@@ -2,7 +2,7 @@ import { serviceReturnForm } from '../modules/responseHandler';
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import *  as profileService from '../services/profileService';
-import * as jwt from '../middleware/auth';
+import * as jwt from '../modules/jwtModules';
 
 /**
  * @route Method /Route

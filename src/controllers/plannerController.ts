@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
-import * as jwt from '../middleware/auth';
+import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService';
 
 const prisma = new PrismaClient();

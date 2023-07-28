@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
-import * as jwt from '../middleware/auth';
+import * as jwt from '../modules/jwtModules';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
