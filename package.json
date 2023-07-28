@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "tsc && pm2-runtime dist/index.js -i 0",
     "build": "tsc && node dist",
