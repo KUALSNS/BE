@@ -1,17 +1,44 @@
+
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/challengeService';
-
+import { beforeMainDTO } from '../interfaces/challengeDTO';
 
 
 export const beforeMain = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const data = await ChallengeController.beforeMainData();
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            data
-        });
+
+        const challengesArray = [];
+
+        const data : beforeMainDTO | undefined = await ChallengeController.beforeMainData();
+
+        if(data != undefined){
+            const category = data.categoryDB.map((e) => {
+                return e.name
+              });
+            const challenges = data.challengesDB.map((e) => {
+            return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
+            });
+
+            for (var i = 0; i < challenges.length; i++) {
+                challengesArray.push(challenges[i][0]);
+                }
+
+            
+            return res.status(200).json({
+                "code": 200,
+                "message": "Ok",
+                category,
+                challengesArray
+            });
+        }else{
+            return res.status(400).json({
+                "code": 400,
+                "message": "값을 찾을 수 없습니다.",
+            });
+        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({

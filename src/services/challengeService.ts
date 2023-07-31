@@ -1,16 +1,13 @@
 import { PrismaClient } from '@prisma/client'
-import { DATA_SOURCES } from '../config/auth';
-import mysql from 'mysql2/promise';
-import { mainChallengeDTO } from '../interfaces/DTO';
-const prisma = new PrismaClient();
+import { DATA_SOURCES } from '../config/auth'
+import mysql from 'mysql2/promise'
+import { mainChallengeDTO } from '../interfaces/DTO'
+const prisma = new PrismaClient()
 
 
 const beforeMainData = async () => {
   try {
-    const challengesArray: {
-      title: string;
-      category: string;
-    }[] = [];
+  
     const [categoryDB, challengesDB] = await Promise.all([
       prisma.category.findMany({
         where: {
@@ -36,25 +33,16 @@ const beforeMainData = async () => {
           }
         }
       })
-    ]);
-    const category = categoryDB.map((e) => {
-      return e.name
-    });
-    const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
-
-    });
-    for (var i = 0; i < challenges.length; i++) {
-      challengesArray.push(challenges[i][0]);
-    }
-    prisma.$disconnect();
+    ])
+ 
+    prisma.$disconnect()
     return {
-      category,
-      challengesArray
-    };
+      categoryDB, 
+      challengesDB
+    }
   } catch (error) {
-    console.log(error);
-    prisma.$disconnect();
+    console.log(error)
+    prisma.$disconnect()
   }
 }
 
