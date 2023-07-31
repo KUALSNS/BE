@@ -1,3 +1,6 @@
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';

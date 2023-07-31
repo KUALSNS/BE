@@ -1,3 +1,5 @@
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { userLoginDto, userSignupDto } from '../interfaces/DTO';

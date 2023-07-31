@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsc && pm2-runtime dist/index.js -i 0",
+    "start": "nodemon",
     "build": "tsc && node dist",
     "prepare": "husky install",
     "lint": "./node_modules/.bin/eslint .",
@@ -36,7 +37,6 @@
     "prisma": "^3.8.0",
     "redis": "^4.6.6",
     "slack-node": "^0.1.8"
-
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -59,7 +59,8 @@
     "husky": "^8.0.0",
     "multer-s3": "^3.0.1",
     "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "ts-node": "^10.8.0",
+    "ts-node-dev": "^2.0.0-0",
+    "typescript": "4.6.4"
   }
 }

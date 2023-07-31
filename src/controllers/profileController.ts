@@ -1,3 +1,5 @@
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 import { serviceReturnForm } from '../modules/responseHandler';
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
