@@ -48,15 +48,12 @@ const beforeMainData = async () => {
 
 const challengeSearchData = async (challengeSearch: string) => {
   try {
-    const challengesArray: {
-      title: string;
-      category: string;
-    }[] = [];
-    const challengeSearchData = challengeSearch.replace(/ /g, "");
+  
+    
     const challengesDB = await prisma.challenges.findMany({
       where: {
         title: {
-          contains: challengeSearchData
+          contains: challengeSearch
         }
       },
       select: {
@@ -68,15 +65,10 @@ const challengeSearchData = async (challengeSearch: string) => {
         }
       }
     });
-    const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name }]
-    });
-    for (var j = 0; j < challengesDB.length; j++) {
-      challengesArray.push(challenges[j][0]);
-    }
-    console.log(challengesArray);
+  
+ 
     prisma.$disconnect();
-    return challengesArray
+    return challengesDB
   } catch (error) {
     console.log(error);
     prisma.$disconnect();

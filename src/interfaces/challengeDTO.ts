@@ -1,8 +1,10 @@
-interface CategoryDBEntry {
+import exp from "constants";
+
+interface beforeMainCategory {
     name: string;
   }
   
-interface ChallengeDBEntry {
+interface beforeMainChallenge {
     title: string;
     category: {
       name: string;
@@ -11,7 +13,19 @@ interface ChallengeDBEntry {
   }
   
  export interface beforeMainDTO {
-    categoryDB: CategoryDBEntry[];
-    challengesDB: ChallengeDBEntry[];
+    categoryDB: beforeMainCategory[];
+    challengesDB: beforeMainChallenge[];
+  }
+
+  export interface categorySearchRequestDTO{
+    categorySearch : string
+  }
+
+
+  export interface challengeSearchDTO{
+    title: string;
+    category: {
+        name: string;
+    };
   }
   
