@@ -9,29 +9,24 @@ import { beforeMainDTO, categorySearchRequestDTO, challengeSearchDTO } from '../
 
 export const beforeMain = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
-        const challengesArray = [];
-
         const data : beforeMainDTO | undefined = await ChallengeController.beforeMainData();
 
         if(data != undefined){
             const category = data.categoryDB.map((e) => {
                 return e.name
               });
-            const challenges = data.challengesDB.map((e) => {
-            return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
-            });
+            const challenges = data.challengesDB.map((e) => ({
+                ...e,
+                title : e.title,
+                category : e.category.name,
+                image : e.category.emogi
+            }));
 
-            for (var i = 0; i < challenges.length; i++) {
-                challengesArray.push(challenges[i][0]);
-                }
-
-            
             return res.status(200).json({
                 "code": 200,
                 "message": "Ok",
                 category,
-                challengesArray
+                challenges
             });
         }else{
             return res.status(400).json({
