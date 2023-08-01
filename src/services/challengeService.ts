@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth'
 import mysql from 'mysql2/promise'
-import { mainChallengeDTO } from '../interfaces/DTO'
 const prisma = new PrismaClient()
 
 
@@ -77,14 +76,8 @@ const challengeSearchData = async (challengeSearch: string) => {
 
 const afterMainData = async (user_id: number) => {
   try {
-    const challengesArray: {
-      title: string;
-      category: string;
-    }[] = [];
-    const userChallengeArray: {
-      challenges: string;
-      achievement: number;
-    }[] = [];
+  
+    console.log(1);
     const [categoryDB, challengesDB, userDB, userChallengeCountDB] = await Promise.all([
       prisma.category.findMany({
         where: {
@@ -140,53 +133,10 @@ const afterMainData = async (user_id: number) => {
         }
       })
     ]);
-    const nicknameArray = userDB.map((e) => {
-      return e.nickname
-    });
-    const cooponArray = userDB.map((e) => {
-      return e.coopon;
-    });
-
-
-    console.log(challengesDB)
-    const nickname = nicknameArray[0];
-    const coopon = cooponArray[0];
-
-
-    const userChallengeCount = userChallengeCountDB.map((e) => {
-      return [{ "challenges": e.challenges.title, "achievement": Math.round(e.user_challenge_templetes.length * 3.3) }]
-    });
-    for (var i = 0; i < userChallengeCount.length; i++) {
-      userChallengeArray.push(userChallengeCount[i][0]);
-    }
-    let challengeCertain: boolean;
-    const userChallengeSu = userChallengeArray.length;
-    if (userChallengeSu == 0) {
-      challengeCertain = false;
-    } else {
-      challengeCertain = true;
-    }
-
-    const category = categoryDB.map((e) => {
-      return e.name
-    });
-    const challenges = challengesDB.map((e) => {
-      return [{ "title": e.title, "category": e.category.name, "image": e.category.emogi }]
-
-    });
-
-    for (var i = 0; i < challenges.length; i++) {
-      challengesArray.push(challenges[i][0]);
-    }
+    console.log(categoryDB);
     prisma.$disconnect();
     return {
-      nickname,
-      coopon,
-      userChallengeSu,
-      "challengeCertain": challengeCertain,
-      userChallengeArray,
-      category,
-      challengesArray
+      categoryDB, challengesDB, userDB, userChallengeCountDB    
     };
   } catch (error) {
     console.log(error);

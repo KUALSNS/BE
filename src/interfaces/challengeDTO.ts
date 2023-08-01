@@ -1,31 +1,67 @@
 import exp from "constants";
 
 interface beforeMainCategory {
-    name: string;
-  }
-  
+  name: string;
+}
+
 interface beforeMainChallenge {
+  title: string;
+  category: {
+    name: string;
+    emogi: string;
+  };
+}
+
+export interface beforeMainDTO {
+  categoryDB: beforeMainCategory[];
+  challengesDB: beforeMainChallenge[];
+}
+
+export interface categorySearchRequestDTO {
+  categorySearch: string
+}
+
+
+export interface challengeSearchDTO {
+  title: string;
+  category: {
+    name: string;
+  };
+}
+
+
+
+interface afterMainCategory {
+  name: string;
+};
+
+interface afterMainChallenges {
+  title: string;
+  category: {
+    name: string;
+    emogi: string;
+  };
+
+};
+
+interface afterMainUser {
+  nickname: string;
+  coopon: number;
+};
+
+interface afterMainUserChallengeCount {
+  challenges: {
     title: string;
-    category: {
-      name: string;
-      emogi: string;
-    };
-  }
-  
- export interface beforeMainDTO {
-    categoryDB: beforeMainCategory[];
-    challengesDB: beforeMainChallenge[];
-  }
+  };
+  user_challenge_templetes: {
+    title: string | null;
+  }[];
+};
 
-  export interface categorySearchRequestDTO{
-    categorySearch : string
-  }
+export interface afterMainDTO {
+  categoryDB : afterMainCategory[];
+  challengesDB : afterMainChallenges[];
+  userDB : afterMainUser[];
+  userChallengeCountDB : afterMainUserChallengeCount[]
+}
 
-
-  export interface challengeSearchDTO{
-    title: string;
-    category: {
-        name: string;
-    };
-  }
-  

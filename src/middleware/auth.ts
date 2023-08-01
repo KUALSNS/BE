@@ -1,15 +1,25 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express'
-const secret = process.env.JSONSECRET!;
+import { TokenError } from '../interfaces/error';
 
-const verifyToken = (req : any, res : Response, next : NextFunction) => {
+
+
+
+
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token : string = req.header("access") as string;
+    const secret = process.env.JSONSECRET!;
+    const token: string = req.header("access") as string;
     const organized_token = token.substr(7);
-    req.decoded = jwt.verify(organized_token,secret);
+
+    const decodedValue = jwt.verify(organized_token, secret) as JwtPayload;
+    req.decoded = decodedValue;
+
     return next();
-  } catch (error : any) {
-    if (error.name === 'TokenExpiredError') { // 유효기간 초과
+  } catch (error) {
+
+    const tokenError = error as TokenError;
+    if (tokenError.name === 'TokenExpiredError') { // 유효기간 초과
       return res.status(419).json({
         code: 419,
         message: '토큰이 만료되었습니다',
