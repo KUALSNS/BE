@@ -5,23 +5,33 @@ import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { randomPasswordFunction } from '../modules/randomPassword';
 const prisma = new PrismaClient();
-//import { v4 as uuidv4 } from 'uuid';
 
 
 
-const userIdentifierSelect = async (userIdentifier: string) => {
+/**
+ * 
+ * @param userIdentifier 유저 아이디
+ * @returns 1. 유저에 대한 아이디, 권한, 비밀번호
+ *          2. 오류 시 false반환
+ */
+const userIdentifierSign = async (userIdentifier: string) => {
   const connection = await mysql.createConnection(DATA_SOURCES.development);
   await connection.connect();
+ 
   try {
     const userSelect: string = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
-    const userSelectResult: any = await connection.query(userSelect);
-    return userSelectResult[0][0];
+    const userSelectResult = await connection.query(userSelect);
+    await connection.end();
+
+    const rowData = userSelectResult[0] as mysql.RowDataPacket[];
+    const userElement = rowData[0]; 
+    return userElement;
   } catch (error) {
     console.log(error);
-  } finally {
-    await connection.end();
-  }
+    return false;
+  } 
 }
+
 
 
 
@@ -178,5 +188,5 @@ const updatePassword = async (userIdentifier: string, userEmail: string) => {
 }
 
 
-export { userIdentifierSelect, userSignup, userId, updatePassword, userIdentifier }
+export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier }
 

@@ -1,10 +1,10 @@
 import exp from "constants";
 
-interface beforeMainCategory {
+interface beforeMainCategoryDB {
   name: string;
 }
 
-interface beforeMainChallenge {
+interface beforeMainChallengeDB {
   title: string;
   category: {
     name: string;
@@ -12,17 +12,17 @@ interface beforeMainChallenge {
   };
 }
 
-export interface beforeMainDTO {
-  categoryDB: beforeMainCategory[];
-  challengesDB: beforeMainChallenge[];
+export interface beforeMainDto {
+  categoryDB: beforeMainCategoryDB[];
+  challengesDB: beforeMainChallengeDB[];
 }
 
-export interface categorySearchRequestDTO {
+export interface categorySearchRequestDto {
   categorySearch: string
 }
 
 
-export interface challengeSearchDTO {
+export interface challengeSearchDto {
   title: string;
   category: {
     name: string;

@@ -34,14 +34,16 @@ const beforeMainData = async () => {
       })
     ])
  
-    prisma.$disconnect()
+    prisma.$disconnect();
     return {
       categoryDB, 
       challengesDB
     }
   } catch (error) {
-    console.log(error)
-    prisma.$disconnect()
+    console.log(error);
+    prisma.$disconnect();
+    return false;
+
   }
 }
 
@@ -71,6 +73,7 @@ const challengeSearchData = async (challengeSearch: string) => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
+    return false;
   }
 };
 
@@ -141,6 +144,7 @@ const afterMainData = async (user_id: number) => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
+    return false;
   }
 }
 
