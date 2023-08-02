@@ -6,7 +6,15 @@ import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/challengeService';
 import { afterMainDTO, beforeMainDto, categorySearchRequestDto, challengeSearchDto } from '../interfaces/challengeDTO';
 
-
+/**
+ * 로그인 이전 메인 화면 함수
+ * @param req 
+ * @param res  
+ * @param next 
+ * @returns  1. 카테고리와 챌린지 데이터 반환
+ *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
+ *           3. 서버 오류 반환
+ */
 export const beforeMain = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data : beforeMainDto | undefined | false = await ChallengeController.beforeMainData();
@@ -51,7 +59,15 @@ export const beforeMain = async (req: Request, res: Response, next: NextFunction
     }
 };
 
-
+/**
+ * 메인 화면에서의 카테고리 검색 함수
+ * @param req  검색할  카테고리
+ * @param res 
+ * @param next 
+ * @returns  1. 검색 결과 반환
+ *           2. 검색 결과가 없을 시 클라이언트 오류 반환
+ *           3. 서버 오류 반환
+ */
 export const challengeSearch = async (req: Request<any, any, any, categorySearchRequestDto>, res: Response, next: NextFunction) => {
     try {
       
@@ -93,10 +109,20 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
     }
 };
 
-export const afterMain = async (req: any, res: Response, next: NextFunction) => {
+/**
+ * 로그인 후 메인 화면 함수
+ * @param req 미들웨어를 통한 유저 id
+ * @param res 
+ * @param next 
+ * @returns  1.  카테고리, 챌린지 데이터, 유저의 챌린지 개수, 챌린지별 달성률, 쿠폰 사용 유무 반환
+ *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
+ *           3. 서버 오류 반환
+ */
+export const afterMain = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
-        const data : afterMainDTO | undefined | false = await ChallengeController.afterMainData(req.decoded.id);
+        
+        const user_id = req.decoded?.id;
+        const data : afterMainDTO | undefined | false = await ChallengeController.afterMainData(user_id);
         if(data){
             if(data !== undefined){
                 const nickname = data.userDB[0].nickname;

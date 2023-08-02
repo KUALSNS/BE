@@ -3,7 +3,11 @@ import { DATA_SOURCES } from '../config/auth'
 import mysql from 'mysql2/promise'
 const prisma = new PrismaClient()
 
-
+/**
+ * 로그인 이전 메인 페이지 DB함수
+ * @returns  1. 카테고리와 챌린지 데이터 반환
+ *           2. 오류 시 false 반환
+ */
 const beforeMainData = async () => {
   try {
   
@@ -47,9 +51,14 @@ const beforeMainData = async () => {
   }
 }
 
+/**
+ * 
+ * @param challengeSearch 검색 단어
+ * @returns 1.검색 결과 반환
+ *          2. 오류 시 false반환
+ */
 const challengeSearchData = async (challengeSearch: string) => {
   try {
-  
     
     const challengesDB = await prisma.challenges.findMany({
       where: {
@@ -77,10 +86,15 @@ const challengeSearchData = async (challengeSearch: string) => {
   }
 };
 
+/**
+ * 
+ * @param user_id 유저 아이디 
+ * @returns 1.  카테고리, 챌린지 데이터, 유저의 챌린지 개수, 챌린지별 달성률, 쿠폰 사용 유무 반환
+ *          2. 오류 시 false 반환 
+ */
 const afterMainData = async (user_id: number) => {
   try {
   
-    console.log(1);
     const [categoryDB, challengesDB, userDB, userChallengeCountDB] = await Promise.all([
       prisma.category.findMany({
         where: {
@@ -147,10 +161,6 @@ const afterMainData = async (user_id: number) => {
     return false;
   }
 }
-
-
-
-
 
 
 
