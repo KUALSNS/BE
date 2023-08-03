@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import {  decoded, refreshResultDB, userLoginRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
+import { decoded, passwordUpdate, redisCode, refreshResultDB, userIdDB, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, userPasswordFindRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules';
@@ -10,6 +10,7 @@ import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
 import { RowDataPacket } from 'mysql2/promise';
+import { randomPasswordFunction } from '../modules/randomPassword';
 declare var process: {
     env: {
         SALTROUNDS: string
@@ -141,28 +142,28 @@ export const userSignup = async (req: Request, res: Response) => {
  *          2. 200 accessToken, refreshToken 발급
  *          3. 서버 오류
  */
-export const userLogin = async (req: Request<any,any,userLoginRequestDto>, res: Response, next: NextFunction) => {
+export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response, next: NextFunction) => {
     try {
-        const { userIdentifier, userPassword }  = req.body;
-        const data : false | RowDataPacket = await UserService.userIdentifierSign(userIdentifier);
+        const { userIdentifier, userPassword } = req.body;
+        const data: false | RowDataPacket = await UserService.userIdentifierSign(userIdentifier);
 
-        if(data){
+        if (data) {
             if (data == null || data == undefined) {
                 return res.status(404).json({
                     code: 404,
                     message: "Id can't find"
                 });
             }
-    
+
             const comparePassword = await bcrypt.compare(userPassword, data.password);
-    
+
             if (!comparePassword) {
                 return res.status(419).json({
                     code: 419,
                     message: "Password can't find"
                 });
             }
-    
+
             const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
             const refreshToken = "Bearer " + jwt.refresh();
             await redisClient.connect();
@@ -177,7 +178,7 @@ export const userLogin = async (req: Request<any,any,userLoginRequestDto>, res: 
                 },
                 role: data.role
             });
-        }else{
+        } else {
             return res.status(502).json({
                 "code": 502,
                 message: "Server Error"
@@ -208,22 +209,22 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
 
-        if(requestAccessToken !== undefined  && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string'){
+        if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
-            const authResult  = jwt.verify(accessToken);
-            const decoded  : decoded | undefined = jwt.decode(accessToken);
+            const authResult = jwt.verify(accessToken);
+            const decoded: decoded | undefined = jwt.decode(accessToken);
 
             console.log(decoded)
-    
+
             await redisClient.disconnect();
 
-            if(decoded !== undefined){
+            if (decoded !== undefined) {
 
-                const refreshResult :  refreshResultDB | undefined = await jwt.refreshVerify(refreshToken, decoded.id);
-        
+                const refreshResult: refreshResultDB | undefined = await jwt.refreshVerify(refreshToken, decoded.id);
+
                 await redisClient.connect();
                 if (authResult.state === false) {
                     if (typeof refreshResult != 'undefined') {
@@ -260,14 +261,14 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
 
             }
 
-        
-        }else{
+
+        } else {
             await redisClient.disconnect();
             return res.status(402).json({
                 code: 402,
                 message: '헤더의 값을 알 수 없습니다.',
             });
-        } 
+        }
     } catch (error) {
         console.error(error);
         await redisClient.disconnect();
@@ -324,34 +325,54 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
     }
 };
 
-
-export const userIdFind = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * 아이디 찾기 함수
+ * @param req  email, 인증 코드
+ * @param res 
+ * @param next 
+ * @returns 1. 아이디를 찾을 수 없을 경우(404)
+ *          2. 해당 유저의 아이디 반환(200)
+ *          3. service 함수 에러 (502)
+ *          4. 메일 인증 실패 (400)
+ *          5. 서버 에러(500)
+ */
+export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDto>, res: Response, next: NextFunction) => {
     try {
-        const email: string = req.query.email as string;
+        const email = req.query.email;
         const code = req.query.code;
+
         await redisClient.connect();
-        const redisCode = await redisClient.v4.get(email);
+        const redisCode: redisCode = await redisClient.v4.get(email);
+
         if (redisCode == parseInt(<string>code)) {
 
             if (typeof email !== "undefined") {
-                var userId = await UserService.userId(email);
-                if(userId![0] == undefined){
-                    return res.status(404).json({
-                        code: 404,
-                        message: "email can't find"
-                    });
+                const data: userIdDB[] | false = await UserService.userId(email);
 
+                if (data) {
 
-                }else{
-                    if (typeof userId !== "undefined") {
-                        await redisClient.disconnect();
-                        return res.status(200).json({
-                            message: "OK",
-                            code: 200,
-                            userId: userId[0].identifier
+                    if (data[0] == undefined) {
+                        return res.status(404).json({
+                            code: 404,
+                            message: "email can't find"
                         });
+
+
+                    } else {
+                        if (typeof data !== "undefined") {
+                            await redisClient.disconnect();
+                            return res.status(200).json({
+                                message: "OK",
+                                code: 200,
+                                userId: data[0].identifier
+                            });
+                        }
                     }
-                }              
+                } else {
+                    await redisClient.disconnect();
+                    return res.status(502).send({ status: 502, message: "DB Server Error" });
+
+                }
             }
         } else {
             await redisClient.disconnect();
@@ -359,33 +380,63 @@ export const userIdFind = async (req: Request, res: Response, next: NextFunction
         }
     } catch (error) {
         await redisClient.disconnect();
-        return res.status(500).send({ status: 500, message: "Fail Verify Email" });
+        return res.status(500).send({ status: 500, message: "Server Error" });
     }
 };
 
-
-export const userPasswordFind = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * 비밀번호 변경 함수
+ * @param req  유저 아이디, 이메일
+ * @param res 
+ * @param next 
+ * @returns 1. 확인 코드(200)
+ *          2. id를 찾을 수 없음 (404)\
+ *          3. service 함수 에러 (502)
+ *          4. 서버 에러 (500)
+ */
+export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequestDto>, res: Response, next: NextFunction) => {
     try {
 
         const { identifier, userEmail } = req.body;
-        const userIdSign = await UserService.userIdentifier(identifier);
-        if (userIdSign![0] == null || userIdSign![0] == undefined) {
-            return res.status(404).json({
-                code: 404,
-                message: "Id can't find"
+        const userIdSignData : userIdentifierDB[] | false = await UserService.userIdentifier(identifier);
+
+        if(userIdSignData){
+            if (userIdSignData[0] == null || userIdSignData[0] == undefined) {
+                return res.status(404).json({
+                    code: 404,
+                    message: "Id can't find"
+                });
+            }
+            const randomPassword = randomPasswordFunction();
+            const encryptedPassword = await bcrypt.hash(randomPassword, 10);
+            const passwordUpdate : passwordUpdate | false= await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
+
+            if(passwordUpdate){
+                if (typeof passwordUpdate !== 'undefined') {
+                    await randomPasswordsmtpSender(
+                        userEmail,
+                        passwordUpdate
+                    );
+                    return res.status(200).json({
+                        message: "OK",
+                        code: 200
+                    });
+                }
+
+            }else{
+                return res.status(502).json({
+                    code: 502,
+                    message: "DB Server Error"
+                });
+            }         
+        }else{
+            return res.status(502).json({
+                code: 502,
+                message: "DB Server Error"
             });
+
         }
-        const passwordUpdate = await UserService.updatePassword(identifier, userEmail);
-        if (typeof passwordUpdate !== 'undefined') {
-            await randomPasswordsmtpSender(
-                userEmail,
-                passwordUpdate
-            );
-            return res.status(200).json({
-                message: "OK",
-                code: 200
-            });
-        }
+
     } catch (error) {
         return res.status(500).json({
             code: 500,

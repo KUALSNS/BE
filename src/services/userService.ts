@@ -129,7 +129,12 @@ const userSignup = async (
   return returnForm;
 };
 
-
+/**
+ * 유저 아이디 조회 함수
+ * @param userEmail 유저 이메일
+ * @returns 1. 유저 아이디 반환
+ *          2. 실패 시 false 반환
+ */
 const userId = async (userEmail: string) => {
   try {
     const userIdDB = await prisma.users.findMany({
@@ -144,10 +149,16 @@ const userId = async (userEmail: string) => {
 
   } catch (error) {
     console.log(error);
+    return false;
   }
 }
 
-
+/**
+ * 아이디 조회 함수
+ * @param userIdentifier 유저 아이디
+ * @returns 1. 유저 id
+ *          2. 실패 시 false 반환
+ */
 const userIdentifier = async (userIdentifier: string) => {
   try {
     const userIdDB = await prisma.users.findMany({
@@ -162,15 +173,23 @@ const userIdentifier = async (userIdentifier: string) => {
 
   } catch (error) {
     console.log(error);
+    return false;
   }
 }
 
 
-
-const updatePassword = async (userIdentifier: string, userEmail: string) => {
+/**
+ * 임시 비밀 번호 업데이트 함수
+ * @param userIdentifier 유저 아이디
+ * @param userEmail      유저 이메일
+ * @param encryptedPassword  암호화 된 비밀번호
+ * @param randomPassword     랜덤 비밀 번호
+ * @returns   1. 랜덤 비밀 번호
+ *            2. 실패 시 false 반환
+ */
+const updatePassword = async (userIdentifier: string, userEmail: string, encryptedPassword: string, randomPassword : string) => {
   try {
-    const randomPassword = randomPasswordFunction();
-    const encryptedPassword = await bcrypt.hash(randomPassword, 10);
+   
     await prisma.users.updateMany({
       where: {
         identifier: userIdentifier,
@@ -184,6 +203,7 @@ const updatePassword = async (userIdentifier: string, userEmail: string) => {
 
   } catch (error) {
     console.log(error);
+    return false;
   }
 }
 
