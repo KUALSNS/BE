@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { randomPasswordFunction } from '../modules/randomPassword';
 const prisma = new PrismaClient();
-
+const connection =  mysql.createConnection(DATA_SOURCES.development);
 
 
 /**
@@ -15,13 +15,13 @@ const prisma = new PrismaClient();
  *          2. 오류 시 false반환
  */
 const userIdentifierSign = async (userIdentifier: string) => {
-  const connection = await mysql.createConnection(DATA_SOURCES.development);
-  await connection.connect();
+
+  await (await connection).connect();
  
   try {
-    const userSelect: string = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
-    const userSelectResult = await connection.query(userSelect);
-    await connection.end();
+    const userSelect  = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
+    const userSelectResult = await (await connection).query(userSelect);
+    await (await connection).end();
 
     const rowData = userSelectResult[0] as mysql.RowDataPacket[];
     const userElement = rowData[0]; 

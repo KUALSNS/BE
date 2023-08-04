@@ -145,9 +145,7 @@ export const userSignup = async (req: Request, res: Response) => {
 export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response) => {
     try {
         const { userIdentifier, userPassword } = req.body;
-        const start1 = new Date().getTime();
         const data: false | RowDataPacket = await UserService.userIdentifierSign(userIdentifier);
-        const end1 = new Date().getTime();
         if (data) {
             if (data == null || data == undefined) {
                 return res.status(404).json({
@@ -155,30 +153,20 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
                     message: "Id can't find"
                 });
             }
-            const start2 = new Date().getTime();
             const comparePassword = await bcrypt.compare(userPassword, data.password);
-            const end2 = new Date().getTime();
             if (!comparePassword) {
                 return res.status(419).json({
                     code: 419,
                     message: "Password can't find"
                 });
             }
-            const start4 = new Date().getTime();
             const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
             const refreshToken = "Bearer " + jwt.refresh();
-            const end4 = new Date().getTime();
 
             await redisClient.connect();
-            const start3 = new Date().getTime();
             await redisClient.v4.set(String(data.user_id), refreshToken);
-            const end3 = new Date().getTime();
             await redisClient.disconnect();
 
-            console.log(`유저 데이터 조회 시간 : ${end1 - start1}ms`);
-            console.log(`비밀번호 비교 시간 : ${end2 - start2}ms`);
-            console.log(`레디스 등록 시간 : ${end3 - start3}ms`);
-            console.log(`토큰 발급 시간 : ${end4 - start4}ms`);
             return res.status(200).json({
                 code: 200,
                 message: "Ok",
