@@ -744,6 +744,14 @@ const selectTemplateData = async (
     }
 };
 
+/**
+ * 
+ * @param challengeName 챌린지 이름
+ * @param templateName 템플릿 이름
+ * @param user_id 유저 아이디
+ * @param images 이미지
+ * @returns 
+ */
 const insertImageData = async (
     challengeName: string,
     templateName: string,
@@ -780,7 +788,8 @@ const insertImageData = async (
                 uchal_id: true
             }
         });
-
+        console.log(userChallengeDB[0].uchal_id)
+        console.log( templateIdDB)
         const userTemplateIdDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
@@ -810,6 +819,16 @@ const insertImageData = async (
     }
 };
 
+
+
+/**
+ * 
+ * @param challengeName 챌린지 이름
+ * @param templateName 템플릿 이름
+ * @param user_id 유저 아이디
+ * @param images 이미지
+ * @returns 
+ */
 const insertVideoData = async (
     challengeName: string,
     templateName: string,

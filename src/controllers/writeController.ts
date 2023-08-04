@@ -4,12 +4,13 @@ const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
-import { prisma } from '@prisma/client';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
-import { Console } from 'console';
-
 import { getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
-export const newChallenge = async (req: any, res: Response, next: NextFunction) => {
+import { uploadRequestDto } from '../interfaces/writeDTO';
+import { IFile } from '../interfaces/express';
+
+
+export const newChallenge = async (req: any, res: Response) => {
     try {
         const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
         const koreanTime2 = new Date(koreanDateISOString2)
@@ -84,7 +85,7 @@ export const newChallenge = async (req: any, res: Response, next: NextFunction) 
     }
 };
 
-export const writeChallenge = async (req: any, res: Response, next: NextFunction) => {
+export const writeChallenge = async (req: any, res: Response) => {
     try {
         const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
         const challengeCategoryDB = writeChallenge?.challengeArray;
@@ -156,7 +157,7 @@ export const writeChallenge = async (req: any, res: Response, next: NextFunction
     }
 };
 
-export const insertTemporaryChallenge = async (req: any, res: Response, next: NextFunction) => {
+export const insertTemporaryChallenge = async (req: any, res: Response) => {
     try {
         const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
 
@@ -182,7 +183,7 @@ export const insertTemporaryChallenge = async (req: any, res: Response, next: Ne
     }
 };
 
-export const insertChallengeComplete = async (req: any, res: Response, next: NextFunction) => {
+export const insertChallengeComplete = async (req: any, res: Response) => {
     try {
         const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
 
@@ -209,11 +210,11 @@ export const insertChallengeComplete = async (req: any, res: Response, next: Nex
     }
 };
 
-export const selectTemplate = async (req: any, res: Response, next: NextFunction) => {
+export const selectTemplate = async (req: any, res: Response) => {
     try {
         const challengeName = req.params.challengeName;
         const data = await ChallengeController.selectTemplateData(challengeName, req.decoded.id);
-    
+
         if (data) {
             return res.status(200).json({
                 "code": 200,
@@ -235,15 +236,26 @@ export const selectTemplate = async (req: any, res: Response, next: NextFunction
     }
 };
 
-export const uploadImage = async (req: any, res: Response, next: NextFunction) => {
+/**
+ * 이미지 등록 함수
+ * @param req 유저 아이디, 이미지 
+ * @param res 
+ * @param next 
+ * @returns 1. 빈 객체 요청 시 (404)
+ *          2. 코드 수행 완료 시 (200)
+ *          3. 서버 에러 (500)
+ */
+export const uploadImage = async (req: Request<any, any, uploadRequestDto>, res: Response) => {
     try {
-        const images: any[] = req.files;
+        const images: IFile[] = req.files;
         const { templateName, challengeName } = req.body;
+
+
         const imagesArray = images.map((e) => {
             return e.location;
         });
 
-        const result = await ChallengeController.insertImageData(challengeName, templateName, req.decoded.id, imagesArray);
+        const result = await ChallengeController.insertImageData(challengeName, templateName, req.decoded?.id, imagesArray);
 
         if (result) {
             const imagesArrays: imagesArrayDTO = images.map((item) => {
@@ -264,7 +276,10 @@ export const uploadImage = async (req: any, res: Response, next: NextFunction) =
                 "message": "Ok",
                 "images": imagesArrays
             });
+
+
         }
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -274,15 +289,25 @@ export const uploadImage = async (req: any, res: Response, next: NextFunction) =
     }
 };
 
-export const uploadVideo = async (req: any, res: Response, next: NextFunction) => {
+
+/**
+ * 비디오 등록 함수
+ * @param req 유저 아이디, 비디오
+ * @param res 
+ * @param next 
+ * @returns 1. 빈 객체 요청 시 (404)
+ *          2. 코드 수행 완료 시 (200)
+ *          3. 서버 에러 (500)
+ */
+export const uploadVideo = async (req: Request<any, any, uploadRequestDto>, res: Response) => {
     try {
-        const videos: any[] = req.files;
+        const videos : IFile[] = req.files;
         const { templateName, challengeName } = req.body;
         const videosArray = videos.map((e) => {
             return e.location;
         });
 
-        const result = await ChallengeController.insertVideoData(challengeName, templateName, req.decoded.id, videosArray);
+        const result = await ChallengeController.insertVideoData(challengeName, templateName, req.decoded?.id, videosArray);
 
         if (result) {
             const videoArrays: videoArrayDTO = videos.map((item) => {

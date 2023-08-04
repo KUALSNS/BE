@@ -142,11 +142,12 @@ export const userSignup = async (req: Request, res: Response) => {
  *          2. 200 accessToken, refreshToken 발급
  *          3. 서버 오류
  */
-export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response, next: NextFunction) => {
+export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response) => {
     try {
         const { userIdentifier, userPassword } = req.body;
+        const start1 = new Date().getTime();
         const data: false | RowDataPacket = await UserService.userIdentifierSign(userIdentifier);
-
+        const end1 = new Date().getTime();
         if (data) {
             if (data == null || data == undefined) {
                 return res.status(404).json({
@@ -154,21 +155,30 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
                     message: "Id can't find"
                 });
             }
-
+            const start2 = new Date().getTime();
             const comparePassword = await bcrypt.compare(userPassword, data.password);
-
+            const end2 = new Date().getTime();
             if (!comparePassword) {
                 return res.status(419).json({
                     code: 419,
                     message: "Password can't find"
                 });
             }
-
+            const start4 = new Date().getTime();
             const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
             const refreshToken = "Bearer " + jwt.refresh();
+            const end4 = new Date().getTime();
+
             await redisClient.connect();
+            const start3 = new Date().getTime();
             await redisClient.v4.set(String(data.user_id), refreshToken);
+            const end3 = new Date().getTime();
             await redisClient.disconnect();
+
+            console.log(`유저 데이터 조회 시간 : ${end1 - start1}ms`);
+            console.log(`비밀번호 비교 시간 : ${end2 - start2}ms`);
+            console.log(`레디스 등록 시간 : ${end3 - start3}ms`);
+            console.log(`토큰 발급 시간 : ${end4 - start4}ms`);
             return res.status(200).json({
                 code: 200,
                 message: "Ok",
@@ -203,7 +213,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
  *           3. accessToken, refreshToken 재발급
  *           4. 서버 오류
  */
-export const userReissueToken = async (req: Request, res: Response, next: NextFunction) => {
+export const userReissueToken = async (req: Request, res: Response) => {
     try {
         await redisClient.connect();
         const requestAccessToken = req.headers.access;
@@ -289,7 +299,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
  *  1. 로그아웃 완료
  *  2. accessToken 오류
  */
-export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
+export const userLogout = async (req: Request, res: Response) => {
     try {
         await redisClient.connect();
         if (typeof req.headers.access == "string") {
@@ -336,7 +346,7 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
  *          4. 메일 인증 실패 (400)
  *          5. 서버 에러(500)
  */
-export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDto>, res: Response, next: NextFunction) => {
+export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDto>, res: Response) => {
     try {
         const email = req.query.email;
         const code = req.query.code;
@@ -394,7 +404,7 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
  *          3. service 함수 에러 (502)
  *          4. 서버 에러 (500)
  */
-export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequestDto>, res: Response, next: NextFunction) => {
+export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequestDto>, res: Response) => {
     try {
 
         const { identifier, userEmail } = req.body;

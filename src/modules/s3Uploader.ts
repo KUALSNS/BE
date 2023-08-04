@@ -8,7 +8,7 @@ require('dotenv').config();
 
 
 
-const uploadImage: any = multer({
+const uploadImage = multer({
   storage: multerS3({
     s3: new S3Client({
       credentials: {
@@ -26,7 +26,7 @@ const uploadImage: any = multer({
   })
 })
 
-const uploadVideo: any = multer({
+const uploadVideo = multer({
   storage: multerS3({
     s3: new S3Client({
       credentials: {

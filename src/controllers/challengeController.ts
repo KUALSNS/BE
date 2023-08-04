@@ -2,7 +2,7 @@
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
-import { NextFunction, Request, Response } from 'express';
+import {  Request, Response } from 'express';
 import * as ChallengeController from '../services/challengeService';
 import { afterMainDTO, beforeMainDto, categorySearchRequestDto, challengeSearchDto } from '../interfaces/challengeDTO';
 
@@ -15,7 +15,7 @@ import { afterMainDTO, beforeMainDto, categorySearchRequestDto, challengeSearchD
  *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
  *           3. 서버 오류 반환
  */
-export const beforeMain = async (req: Request, res: Response, next: NextFunction) => {
+export const beforeMain = async (req: Request, res: Response) => {
     try {
         const data : beforeMainDto | undefined | false = await ChallengeController.beforeMainData();
 
@@ -68,7 +68,7 @@ export const beforeMain = async (req: Request, res: Response, next: NextFunction
  *           2. 검색 결과가 없을 시 클라이언트 오류 반환
  *           3. 서버 오류 반환
  */
-export const challengeSearch = async (req: Request<any, any, any, categorySearchRequestDto>, res: Response, next: NextFunction) => {
+export const challengeSearch = async (req: Request<any, any, any, categorySearchRequestDto>, res: Response) => {
     try {
       
         const categorySearch = req.query.categorySearch;
@@ -118,7 +118,7 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
  *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
  *           3. 서버 오류 반환
  */
-export const afterMain = async (req: Request, res: Response, next: NextFunction) => {
+export const afterMain = async (req: Request, res: Response) => {
     try {
         
         const user_id = req.decoded?.id;
