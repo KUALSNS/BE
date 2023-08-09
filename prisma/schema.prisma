@@ -49,15 +49,14 @@ model challenges {
 }
 
 model templates {
-  tem_id                   Int                        @default(autoincrement())
-  chal_id                  Int
-  title                    String                     @db.VarChar(40)
-  content                  String                     @db.LongText
-  created_at               DateTime                   @default(now()) @db.Timestamp(0)
-  update_at                DateTime                   @default(now()) @db.Timestamp(0)
-  templatescol             String?                    @db.VarChar(45)
-  challenges               challenges                 @relation(fields: [chal_id], references: [chal_id], onDelete: NoAction, onUpdate: NoAction, map: "chal_idForeignKey4")
-  user_challenge_templetes user_challenge_templetes[]
+  tem_id       Int        @default(autoincrement())
+  chal_id      Int
+  title        String     @db.VarChar(40)
+  content      String     @db.LongText
+  created_at   DateTime   @default(now()) @db.Timestamp(0)
+  update_at    DateTime   @default(now()) @db.Timestamp(0)
+  templatescol String?    @db.VarChar(45)
+  challenges   challenges @relation(fields: [chal_id], references: [chal_id], onDelete: NoAction, onUpdate: NoAction, map: "chal_idForeignKey4")
 
   @@id([tem_id, chal_id])
   @@index([chal_id], map: "chal_idForeignKey3_idx")
@@ -82,20 +81,17 @@ model user_challenges {
 model user_challenge_templetes {
   uctem_id            Int                   @default(autoincrement())
   uchal_id            Int
-  tem_id              Int
   title               String?               @db.VarChar(30)
   writing             String                @db.LongText
   complete            Boolean?
   created_at          DateTime              @default(dbgenerated("(curdate())")) @db.Date
   update_at           DateTime              @default(dbgenerated("(curdate())")) @db.Date
   finish_at           DateTime?             @db.Date
-  templates           templates             @relation(fields: [tem_id], references: [tem_id], onDelete: Cascade, map: "tem_idForeignKey2")
   user_challenges     user_challenges       @relation(fields: [uchal_id], references: [uchal_id], onDelete: Cascade, map: "uchal_idForeignKey2")
   user_template_image user_template_image[]
   user_template_video user_template_video[]
 
-  @@id([uctem_id, uchal_id, tem_id])
-  @@index([tem_id], map: "tem_idForeignKey2")
+  @@id([uctem_id, uchal_id])
   @@index([uchal_id], map: "uchal_idForeignKey2")
 }
 
