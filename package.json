@@ -19,7 +19,7 @@
     "@types/morgan": "^1.9.4",
     "@types/nodemailer": "^6.4.7",
     "aws-sdk": "^2.1377.0",
-    "axios": "^1.2.2",
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
