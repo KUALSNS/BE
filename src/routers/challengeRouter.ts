@@ -2,7 +2,7 @@ import express from 'express';
 import * as ChallengeController from '../controllers/challengeController'
 import * as WriteController from '../controllers/writeController'
 import { verifyToken } from '../middleware/auth';
-import { uploadImage, uploadVideo } from '../modules/s3Uploader';
+
 
 
 

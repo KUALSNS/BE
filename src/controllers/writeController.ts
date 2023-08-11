@@ -6,7 +6,6 @@ import { NextFunction, Request, Response } from 'express';
 import * as ChallengeController from '../services/writeService';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
 import { getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
-import { uploadRequestDto } from '../interfaces/writeDTO';
 import { IFile } from '../interfaces/express';
 
 

@@ -22,11 +22,16 @@ export interface categorySearchRequestDto {
 }
 
 
-export interface challengeSearchDto {
+interface challengeSearchDto {
+  category: string;
   title: string;
-  category: {
-    name: string;
-  };
+}
+
+
+export interface challengeSearchResponseDto {
+  code: number;
+  message: string;
+  challenges?: challengeSearchDto[];
 }
 
 

@@ -2,9 +2,9 @@
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
-import {  Request, Response } from 'express';
+import { Request, Response } from 'express';
 import * as ChallengeController from '../services/challengeService';
-import { afterMainDTO, beforeMainDto, categorySearchRequestDto, challengeSearchDto } from '../interfaces/challengeDTO';
+import { afterMainDTO, beforeMainDto, categorySearchRequestDto,  challengeSearchResponseDto } from '../interfaces/challengeDTO';
 
 /**
  * 로그인 이전 메인 화면 함수
@@ -17,39 +17,39 @@ import { afterMainDTO, beforeMainDto, categorySearchRequestDto, challengeSearchD
  */
 export const beforeMain = async (req: Request, res: Response) => {
     try {
-        const data : beforeMainDto | undefined | false = await ChallengeController.beforeMainData();
+        const data: beforeMainDto | undefined | false = await ChallengeController.beforeMainData();
 
-        if(data){
-            if(data != undefined){
+        if (data) {
+            if (data != undefined) {
                 const category = data.categoryDB.map((e) => {
                     return e.name
-                  });
+                });
                 const challenges = data.challengesDB.map((e) => ({
                     ...e,
-                    title : e.title,
-                    category : e.category.name,
-                    image : e.category.emogi
+                    title: e.title,
+                    category: e.category.name,
+                    image: e.category.emogi
                 }));
-    
+
                 return res.status(200).json({
                     "code": 200,
                     "message": "Ok",
                     category,
                     challenges
                 });
-            }else{
+            } else {
                 return res.status(400).json({
                     "code": 400,
                     "message": "값을 찾을 수 없습니다.",
                 });
             }
-        }else{
+        } else {
             return res.status(500).json({
                 "code": 500,
                 message: "Server Error"
             });
 
-        }   
+        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -68,34 +68,36 @@ export const beforeMain = async (req: Request, res: Response) => {
  *           2. 검색 결과가 없을 시 클라이언트 오류 반환
  *           3. 서버 오류 반환
  */
-export const challengeSearch = async (req: Request<any, any, any, categorySearchRequestDto>, res: Response) => {
+export const challengeSearch = async (req: Request<any, any, any, categorySearchRequestDto>, res: Response<challengeSearchResponseDto>) => {
     try {
-      
+
         const categorySearch = req.query.categorySearch;
         const SearchWord = categorySearch.replace(/ /g, "");
-        const data : challengeSearchDto[] | undefined | false = await ChallengeController.challengeSearchData(SearchWord);
+        const data = await ChallengeController.challengeSearchData(SearchWord);
 
-        if(data){
-            if(data != undefined){
+        console.log(data)
+  
+        if (data) {
+            if (data != undefined) {
                 const challenges = data.map((item) => ({
                     ...item,
                     category: item.category.name
-                  }));
+                }));
                 return res.status(200).json({
-                    "code": 200,
-                    "message": "Ok",
+                    code: 200,
+                    message: "Ok",
                     challenges
                 });
-            }else{
+            } else {
                 return res.status(400).json({
-                    "code": 400,
-                    "message": "값을 찾을 수 없습니다.",
+                    code: 400,
+                    message: "값을 찾을 수 없습니다.",
                 });
-    
+
             }
-        }else{
-            return res.status(500).json({
-                "code": 500,
+        } else {
+            return res.status(502).json({
+                code: 502,
                 message: "Server Error"
             });
 
@@ -103,7 +105,7 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            "code": 500,
+            code: 500,
             message: "Server Error"
         });
     }
@@ -120,59 +122,59 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
  */
 export const afterMain = async (req: Request, res: Response) => {
     try {
-        
+
         const user_id = req.decoded?.id;
-        const data : afterMainDTO | undefined | false = await ChallengeController.afterMainData(user_id);
-        if(data){
-            if(data !== undefined){
+        const data: afterMainDTO | undefined | false = await ChallengeController.afterMainData(user_id);
+        if (data) {
+            if (data !== undefined) {
                 const nickname = data.userDB[0].nickname;
                 const coopen = data.userDB[0].coopon;
                 const userChallengeArray = data.userChallengeCountDB.map((e) => ({
                     challenges: e.challenges.title,
-                    achievement: Math.round(e.user_challenge_templetes.length * 3.3) 
+                    achievement: Math.round(e.user_challenge_templetes.length * 3.3)
                 }));
                 const category = data.categoryDB.map((e) => e.name);
                 const challengesArray = data.challengesDB.map((e) => ({
                     ...e,
                     title: e.title,
-                    category : e.category.name,
+                    category: e.category.name,
                     image: e.category.emogi
                 }));
                 let challengeCertain: boolean;
                 const userChallengeSu = userChallengeArray.length;
-    
+
                 if (userChallengeSu == 0) {
-                  challengeCertain = false;
+                    challengeCertain = false;
                 } else {
-                  challengeCertain = true;
+                    challengeCertain = true;
                 }
-            
+
                 return res.status(200).json({
                     "code": 200,
                     "message": "Ok",
                     "data": {
-                        nickname,            
-                        coopen,              
-                        challengeCertain,               
-                        userChallengeSu,               
+                        nickname,
+                        coopen,
+                        challengeCertain,
+                        userChallengeSu,
                         userChallengeArray,
-                        category,               
-                        challengesArray                        
+                        category,
+                        challengesArray
                     }
                 });
-            }else{   
+            } else {
                 return res.status(400).json({
                     "code": 400,
                     "message": "값을 찾을 수 없습니다.",
-                });    
+                });
             }
-        }else{
+        } else {
             return res.status(500).json({
                 "code": 500,
                 "message": "Server Error"
             });
 
-        }   
+        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({
