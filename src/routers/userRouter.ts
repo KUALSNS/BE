@@ -11,7 +11,8 @@ router.post('/signup/verify-email-code', UserController.sendEmail);
 router.post('/signup', UserController.userSignup);
 router.get('/idFind', UserController.userIdFind);
 router.post('/passwordFind', UserController.userPasswordFind);
-router.get('/check-identifier', UserController.checkIdentifier)
+router.get('/check-identifier', UserController.checkIdentifier);
+router.post('/kakao-login', UserController.kakaoLogIn);
 
 export default router;
 

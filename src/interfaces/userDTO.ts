@@ -18,7 +18,7 @@ export interface refreshResultDB {
 export interface decoded{
     message: string;
     id: string;
-    role: number;
+    role: string;
 }
 
 
@@ -58,11 +58,25 @@ export type passwordUpdate = string;
 
 
 export interface checkIdentifierRequestDto {
-    checkIdentifier : string
+    checkIdentifier : string;
 }
 
 export interface checkIdentifierResponseDto {
     message : string;
-    code : number
+    code : number;
 }
+
+
+export interface kakaoLogInResponseDto {
+    message : string;
+    code : number;
+    data? : {
+        accessToken : string,
+        refreshToken : string
+    }
+    role? : string;
+}
+
+
+
 

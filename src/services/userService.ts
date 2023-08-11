@@ -16,21 +16,21 @@ const prisma = new PrismaClient();
  */
 const userIdentifierSign = async (userIdentifier: string) => {
   try {
-    const connection =  await mysql.createConnection(DATA_SOURCES.development);
+    const connection = await mysql.createConnection(DATA_SOURCES.development);
     await connection.connect();
 
-    const userSelect  = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
+    const userSelect = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
     const userSelectResult = await connection.query(userSelect);
     await connection.end();
 
 
     const rowData = userSelectResult[0] as mysql.RowDataPacket[];
-    const userElement = rowData[0]; 
+    const userElement = rowData[0];
     return userElement;
   } catch (error) {
     console.log(error);
     return false;
-  } 
+  }
 }
 
 
@@ -188,9 +188,9 @@ const userIdentifier = async (userIdentifier: string) => {
  * @returns   1. 랜덤 비밀 번호
  *            2. 실패 시 false 반환
  */
-const updatePassword = async (userIdentifier: string, userEmail: string, encryptedPassword: string, randomPassword : string) => {
+const updatePassword = async (userIdentifier: string, userEmail: string, encryptedPassword: string, randomPassword: string) => {
   try {
-   
+
     await prisma.users.updateMany({
       where: {
         identifier: userIdentifier,
@@ -217,16 +217,42 @@ const selectIdentifier = async (userIdentifier: string) => {
   try {
 
     const identifier = await prisma.users.findUnique({
-      where : {
-        identifier : userIdentifier
+      where: {
+        identifier: userIdentifier
       }
     })
+    console.log(identifier)
 
     return identifier
 
   } catch (error) {
     console.log(error);
     return false;
+  }
+}
+
+/**
+ * 
+ * @param kakaoEmail     카카오 이메일
+ * @param kakaoNickname  카카오 닉네임
+ * @returns 
+ */
+const kakaoSignUp = async (kakaoEmail: string, kakaoNickname: string) => {
+  try {
+
+    await prisma.users.create({
+      data : {
+        role : "user",
+        identifier : kakaoEmail,
+        nickname : kakaoNickname,
+        password: '', 
+        email: '',    
+        phone: '',       
+      }
+    });
+    return; 
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -237,5 +263,6 @@ const selectIdentifier = async (userIdentifier: string) => {
 
 
 
-export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier, selectIdentifier }
+
+export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier, selectIdentifier, kakaoSignUp }
 

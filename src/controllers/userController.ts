@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import { checkIdentifierRequestDto, checkIdentifierResponseDto, decoded, passwordUpdate, redisCode, refreshResultDB, userIdDB, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, userPasswordFindRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
+import { checkIdentifierRequestDto, checkIdentifierResponseDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, refreshResultDB, userIdDB, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, userPasswordFindRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules';
@@ -11,6 +11,7 @@ import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
 import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword';
+import axios from 'axios';
 declare var process: {
     env: {
         SALTROUNDS: string
@@ -392,13 +393,13 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
  *          3. service 함수 에러 (502)
  *          4. 서버 에러 (500)
  */
-export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequestDto>, res: Response) => {
+export const userPasswordFind = async (req: Request<any, any, userPasswordFindRequestDto>, res: Response) => {
     try {
 
         const { identifier, userEmail } = req.body;
-        const userIdSignData : userIdentifierDB[] | false = await UserService.userIdentifier(identifier);
+        const userIdSignData: userIdentifierDB[] | false = await UserService.userIdentifier(identifier);
 
-        if(userIdSignData){
+        if (userIdSignData) {
             if (userIdSignData[0] == null || userIdSignData[0] == undefined) {
                 return res.status(404).json({
                     code: 404,
@@ -407,9 +408,9 @@ export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequ
             }
             const randomPassword = randomPasswordFunction();
             const encryptedPassword = await bcrypt.hash(randomPassword, 10);
-            const passwordUpdate : passwordUpdate | false= await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
+            const passwordUpdate: passwordUpdate | false = await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
 
-            if(passwordUpdate){
+            if (passwordUpdate) {
                 if (typeof passwordUpdate !== 'undefined') {
                     await randomPasswordsmtpSender(
                         userEmail,
@@ -421,13 +422,13 @@ export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequ
                     });
                 }
 
-            }else{
+            } else {
                 return res.status(502).json({
                     code: 502,
                     message: "DB Server Error"
                 });
-            }         
-        }else{
+            }
+        } else {
             return res.status(502).json({
                 code: 502,
                 message: "DB Server Error"
@@ -452,13 +453,13 @@ export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequ
  *          2. 아이디 사용 가능
  *          3. 아이디 중복
  */
-export const checkIdentifier = async (req: Request<any,any,any,checkIdentifierRequestDto>, res: Response<checkIdentifierResponseDto>) => {
+export const checkIdentifier = async (req: Request<any, any, any, checkIdentifierRequestDto>, res: Response<checkIdentifierResponseDto>) => {
     try {
 
         const checkIdentifier = req.query.checkIdentifier;
         const identifierData = await UserService.selectIdentifier(checkIdentifier);
-     
-        if(identifierData == null){
+
+        if (identifierData == null) {
 
             return res.status(200).json({
                 message: "아이디 사용 가능",
@@ -469,7 +470,7 @@ export const checkIdentifier = async (req: Request<any,any,any,checkIdentifierRe
         return res.status(400).json({
             message: "아이디 중복",
             code: 400
-        });  
+        });
 
     } catch (error) {
         return res.status(500).json({
@@ -478,6 +479,77 @@ export const checkIdentifier = async (req: Request<any,any,any,checkIdentifierRe
         });
     }
 };
+
+/**
+ * 
+ * @param req 카카오 accessToken
+ * @param res access, refresh 토큰
+ * @returns 1. 서버 오류
+ *          2. 정상 반응
+ */
+export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseDto>) => {
+    try {
+
+        await redisClient.connect();
+        const kakaoAccessToken = req.headers.access;
+
+        if (kakaoAccessToken !== undefined && typeof kakaoAccessToken == 'string') {
+            const userData = await axios({
+                method: 'get',
+                url: 'https://kapi.kakao.com/v2/user/me',
+                headers: {
+                    Authorization: `Bearer ${kakaoAccessToken}`
+                }
+            });
+
+            const userEmail = userData.data.kakao_account.email;                        // 데이터 정보를 받아봐야됨
+            const userNickname = userData.data.kakao_account.profile_nickname;              // 데이터 정보를 받아봐야됨
+
+
+            const userCheck = await UserService.selectIdentifier(userEmail);
+           
+
+            if(userCheck == null){           
+                await UserService.kakaoSignUp(userEmail, userNickname);
+            }
+            const userId = await UserService.selectIdentifier(userEmail);
+
+            if(userId){
+                const accessToken = "Bearer " + jwt.sign(String(userId.user_id), userId.role);
+                const refreshToken = "Bearer " + jwt.refresh();
+    
+                await redisClient.connect();
+                await redisClient.v4.set(String(userId.user_id), refreshToken);
+                await redisClient.disconnect();
+    
+                return res.status(200).json({
+                    code: 200,
+                    message: "Ok",
+                    data: {
+                        accessToken,
+                        refreshToken
+                    },
+                   role: userId.role
+               });   
+            }
+        }
+    } catch (error) {
+        return res.status(500).json({
+            code: 500,
+            message: "Server Error"
+        });
+    }
+};
+
+
+
+
+
+
+
+
+
+
 
 
 
