@@ -12,12 +12,12 @@ model users {
   user_id         Int               @id @default(autoincrement())
   role            String            @db.VarChar(20)
   identifier      String            @unique(map: "identifierUnique") @db.VarChar(40)
-  password        String            @db.VarChar(255)
-  email           String            @db.VarChar(40)
+  password        String?           @db.VarChar(255)
+  email           String?           @db.VarChar(40)
   nickname        String            @db.VarChar(40)
   level           Int?
   mar_email       Int               @default(0) @db.TinyInt
-  phone           String            @db.VarChar(30)
+  phone           String?           @db.VarChar(30)
   coopon          Int               @default(0) @db.TinyInt
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
