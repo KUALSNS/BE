@@ -56,3 +56,13 @@ export interface userIdentifierDB {
 
 export type passwordUpdate = string;
 
+
+export interface checkIdentifierRequestDto {
+    checkIdentifier : string
+}
+
+export interface checkIdentifierResponseDto {
+    message : string;
+    code : number
+}
+

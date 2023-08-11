@@ -208,6 +208,34 @@ const updatePassword = async (userIdentifier: string, userEmail: string, encrypt
   }
 }
 
+/**
+ * 
+ * @param userIdentifier 유저 아이디
+ * @returns 유저 정보
+ */
+const selectIdentifier = async (userIdentifier: string) => {
+  try {
 
-export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier }
+    const identifier = await prisma.users.findUnique({
+      where : {
+        identifier : userIdentifier
+      }
+    })
+
+    return identifier
+
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+
+
+
+
+
+
+
+export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier, selectIdentifier }
 

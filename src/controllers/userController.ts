@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import { decoded, passwordUpdate, redisCode, refreshResultDB, userIdDB, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, userPasswordFindRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
+import { checkIdentifierRequestDto, checkIdentifierResponseDto, decoded, passwordUpdate, redisCode, refreshResultDB, userIdDB, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, userPasswordFindRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules';
@@ -442,3 +442,42 @@ export const userPasswordFind = async (req: Request<any,any,userPasswordFindRequ
         });
     }
 };
+
+/**
+ * 
+ * @param req 유저 아이디
+ * @param res 중복 확인 결과
+ * @returns 
+ *          1. 서버 오류
+ *          2. 아이디 사용 가능
+ *          3. 아이디 중복
+ */
+export const checkIdentifier = async (req: Request<any,any,any,checkIdentifierRequestDto>, res: Response<checkIdentifierResponseDto>) => {
+    try {
+
+        const checkIdentifier = req.query.checkIdentifier;
+        const identifierData = await UserService.selectIdentifier(checkIdentifier);
+     
+        if(identifierData == null){
+
+            return res.status(200).json({
+                message: "아이디 사용 가능",
+                code: 200
+            });
+
+        }
+        return res.status(400).json({
+            message: "아이디 중복",
+            code: 400
+        });  
+
+    } catch (error) {
+        return res.status(500).json({
+            code: 500,
+            message: "Server Error"
+        });
+    }
+};
+
+
+
