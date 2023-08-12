@@ -221,7 +221,6 @@ const selectIdentifier = async (userIdentifier: string) => {
         identifier: userIdentifier
       }
     })
-    console.log(identifier)
 
     return identifier
 

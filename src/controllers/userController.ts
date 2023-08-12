@@ -490,7 +490,6 @@ export const checkIdentifier = async (req: Request<any, any, any, checkIdentifie
 export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseDto>) => {
     try {
 
-        await redisClient.connect();
         const kakaoAccessToken = req.headers.access;
 
         if (kakaoAccessToken !== undefined && typeof kakaoAccessToken == 'string') {
@@ -502,26 +501,26 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
                 }
             });
 
-            const userEmail = userData.data.kakao_account.email;                        // 데이터 정보를 받아봐야됨
-            const userNickname = userData.data.kakao_account.profile_nickname;              // 데이터 정보를 받아봐야됨
-
-
+            const userEmail = userData.data.kakao_account.email;                       
+            const userNickname =  userData.data.properties.nickname;              
             const userCheck = await UserService.selectIdentifier(userEmail);
-           
+       
 
             if(userCheck == null){           
                 await UserService.kakaoSignUp(userEmail, userNickname);
             }
+       
             const userId = await UserService.selectIdentifier(userEmail);
+       
 
             if(userId){
                 const accessToken = "Bearer " + jwt.sign(String(userId.user_id), userId.role);
                 const refreshToken = "Bearer " + jwt.refresh();
-    
+          
                 await redisClient.connect();
                 await redisClient.v4.set(String(userId.user_id), refreshToken);
                 await redisClient.disconnect();
-    
+             
                 return res.status(200).json({
                     code: 200,
                     message: "Ok",
@@ -534,6 +533,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
             }
         }
     } catch (error) {
+        await redisClient.disconnect();
         return res.status(500).json({
             code: 500,
             message: "Server Error"
