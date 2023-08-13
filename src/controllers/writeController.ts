@@ -7,12 +7,21 @@ import * as WriteService from '../services/writeService';
 import { newChallengeRequestDto, newChallengeResponseDto } from '../interfaces/writeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
-
+/**
+ * 새 챌린지 시작 
+ * @param req 챌린지 이름
+ * @param res 
+ * @returns 
+ *            1. 서버오류(500)
+ *            2. 이미 진행 중인 챌린지(415)
+ *            3. 챌린지 수 초과(418)
+ *            4. 데이터 반환 : 유저의 해당 챌린지 데이터와 시작한 챌린지 템플릿( 200)
+ */
 export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Response<newChallengeResponseDto>) => {
     try {
 
         const newChallenge = req.params.name;
-        const newChallengeData = await WriteService.newChallengeData(req.decoded?.id, newChallenge);
+        const newChallengeData = await WriteService.newChallengeData(req.decoded?.id);
         const challengesCount = newChallengeData?.challengesCountDB._count.uchal_id;
         const chalIdData = await WriteService.selectChallenge(newChallenge);
 

@@ -7,9 +7,12 @@ import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modu
 const prisma = new PrismaClient();
 
 
-
-
-const newChallengeData = async (user_id: number, newChallenge: string) => {
+/**
+ * 유저의 쿠폰 여부와 유저의 챌린지 수 조회 함수
+ * @param user_id  유저 아이디
+ * @returns 유저의 쿠폰 여부와 유저의 챌린지 수
+ */
+const newChallengeData = async (user_id: number) => {
     try {
         const [userCooponDB, challengesCountDB] = await Promise.all([
             prisma.users.findUnique({
@@ -43,6 +46,11 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
     }
 };
 
+/**
+ * 챌린지 이름에 따른 챌린지 id 조회 함수
+ * @param newChallenge 챌린지 이름
+ * @returns  해당 챌린지의 id
+ */
 const selectChallenge = async (newChallenge: string) => {
     try {
 
@@ -65,7 +73,12 @@ const selectChallenge = async (newChallenge: string) => {
     }
 };
 
-
+/**
+ *  유저의 챌린지 시작 db 적용 함수
+ * @param user_id 유저 id
+ * @param chalId 챌린지 id
+ * @returns 
+ */
 const startChallenge = async (user_id: number, chalId: number) => {
     try {
         const koreanDate = getKoreanDateISOStringAdd9Hours();
@@ -90,6 +103,12 @@ const startChallenge = async (user_id: number, chalId: number) => {
     }
 };
 
+/**
+ * 유저의 해당 챌린지가 진행 중인지 판단 함수
+ * @param userId 유저 id
+ * @param chalId 챌린지 id
+ * @returns  해당 조회 데이터
+ */
 const userChallengeSelect = async (userId: number, chalId: number) => {
     try {
 
@@ -113,7 +132,12 @@ const userChallengeSelect = async (userId: number, chalId: number) => {
     }
 };
 
-
+/**
+ * 챌린지 시작 시 글쓰기 랜더링 시 필요한 데이터 조회 함수
+ * @param user_id       유저 id
+ * @param challenge_id  챌린지 id
+ * @returns  챌린지 템플릿, 유저의 진행 챌린지 데이터
+ */
 const newChallengeResult = async (user_id: number, challenge_id: number) => {
     try {
         const koreanDateISOString = getKoreanDateISOString();
