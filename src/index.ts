@@ -8,6 +8,8 @@ import challengeRouter from './routers/challengeRouter';
 import userRouter from './routers/userRouter'; 
 import profileRouter from './routers/profileRouter'
 import plannerRouter from './routers/plannerRouter'; 
+import writeRouter from './routers/writeRouter'; 
+
 
 dotenv.config();
 const app = express();
@@ -38,6 +40,7 @@ app.use('/api/user', userRouter);
 app.use('/api/challenge', challengeRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/planner', plannerRouter);
+app.use('/api/write', writeRouter);
 
 app.listen(port, () => {
   console.log(`
