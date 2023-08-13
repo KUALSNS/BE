@@ -12,7 +12,7 @@ interface beforeMainChallengeDB {
   };
 }
 
-export interface beforeMainDto {
+export interface beforeMainResponseDto {
   categoryDB: beforeMainCategoryDB[];
   challengesDB: beforeMainChallengeDB[];
 }
@@ -33,7 +33,6 @@ export interface challengeSearchResponseDto {
   message: string;
   challenges?: challengeSearchDto[];
 }
-
 
 
 interface afterMainCategory {
@@ -63,10 +62,13 @@ interface afterMainUserChallengeCount {
   }[];
 };
 
-export interface afterMainDTO {
+export interface afterMainResponseDTO {
   categoryDB : afterMainCategory[];
   challengesDB : afterMainChallenges[];
   userDB : afterMainUser[];
   userChallengeCountDB : afterMainUserChallengeCount[]
 }
+
+
+
 
