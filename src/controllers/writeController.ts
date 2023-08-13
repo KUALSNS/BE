@@ -9,70 +9,133 @@ import { getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
 import { IFile } from '../interfaces/express';
 
 
-export const newChallenge = async (req: any, res: Response) => {
+
+export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Response) => {
     try {
-        const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
-        const koreanTime2 = new Date(koreanDateISOString2)
-        console.log(koreanTime2);
-        const newChallenge: string = req.params.name;
-        const data = await ChallengeController.newChallengeData(req.decoded.id, newChallenge);
-        const challengesCount: number = data?.challengesCount as number;
-        const challengesOverlap: any = data?.challengesOverlap as any;
-        if (data?.coopon) {
-            if (challengesOverlap == undefined) {
-                const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
-                if (startChallenge) {
-                    const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
-                    return res.status(200).json({
-                        "code": 200,
-                        "message": "OK",
-                        "data": {
-                            "challengingArray": data.userChallenging,
-                            templateData: {
-                                challengeName: startChallenge.newChallenge,
-                                challengeCategory: data.userChallenging[0].category,
-                                templates: data.challengTemplateArray
-                            }
-                        }
-                    });
-                }
-            }
-            else {
-                return res.status(415).json({
-                    "code": 415,
-                    "message": "현재 진행 중인 챌린지와 중복됩니다.",
-                });
-            }
-        } else {
-            if (2 <= challengesCount) {
-                return res.status(418).json({
-                    "code": 418,
-                    "message": "더 이상 챌린지를 할 수 없습니다.",
-                });
-            } else {
-                if (challengesOverlap == undefined) {
-                    const startChallenge = await ChallengeController.startChallengeData(req.decoded.id, newChallenge);
-                    if (startChallenge) {
-                        const data: any = await ChallengeController.newChallengeResult(req.decoded.id, startChallenge.chalIdData, startChallenge.newChallenge);
-                        return res.status(200).json({
-                            "code": 200,
-                            "message": "OK",
-                            "data": {
-                                "challengingArray": data.userChallenging,
-                                templateData: {
-                                    challengeName: startChallenge.newChallenge,
-                                    challengeCategory: data.userChallenging[0].category,
-                                    templates: data.challengTemplateArray
+
+        const newChallenge = req.params.name;
+        const newChallengeData = await ChallengeController.newChallengeData(req.decoded?.id, newChallenge);
+
+        if (newChallengeData !== undefined) {
+
+            const challengesCount = newChallengeData.challengesCountDB._count.uchal_id;
+            const challengesOverlap = newChallengeData.challengesOverlapDB[0].user_challenges[0];
+
+            if (newChallengeData.userCooponDB !== null) {
+                if (newChallengeData.userCooponDB.coopon) {
+
+                    const chalIdData = await ChallengeController.selectChallenge(newChallenge);
+
+                    if (chalIdData !== undefined && chalIdData !== false) {
+
+                        const challengePossible = await ChallengeController.userChallengeSelect(req.decoded?.id, chalIdData[0].chal_id)
+                        
+                        if (challengePossible?.uchal_id === undefined) {
+
+                            const startChallenge = await ChallengeController.startChallenge(req.decoded?.id, chalIdData[0].chal_id);
+
+                            if (startChallenge) {
+
+                                const data = await ChallengeController.newChallengeResult(req.decoded?.id, chalIdData[0].chal_id);
+
+                                if (data !== undefined) {
+
+                        
+                                    const relativeChallengeArray = [];
+                                    const challengTemplate = data.challengTemplateDB.map((e) => {
+                                        const transformedTemplates = e.templates.map((template) => ({
+                                            templateTitle: template.title,
+                                            templateContent: template.content,
+                                            category: e.category.name,
+                                            image: e.category.emogi
+                                        }));
+                                    
+                                        return transformedTemplates;
+                                    }).flat(); 
+
+                                    for (var i = 0; i < data.relativeChallengeDBFirst.length; i++) {
+                                        if (!data.relativeChallengeDBFirst[i].user_challenge_templetes[0]) {
+                                        } else {
+                                            const relativeChallengeMap = data.relativeChallengeDBFirst.map((e) => {
+                                                return { challengeName: e.challenges.title, category: e.challenges.category.name };
+                                            });
+                                            relativeChallengeArray.push(relativeChallengeMap[i]);
+                                        }
+                                    }
+
+                                    for (var i = 0; i < data.relativeChallengeDBSecond.length; i++) {
+                                        if (!data.relativeChallengeDBSecond[i].user_challenge_templetes[0]) {
+                                            const relativeChallengeMap = data.relativeChallengeDBSecond.map((e) => {
+                                                return { challengeName: e.challenges.title, category: e.challenges.category.name };
+                                            });
+                                            if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
+                                                relativeChallengeArray.push(relativeChallengeMap[i]);
+                                            }
+                                        }
+                                    }
+                                    const userChallenging = [
+                                        ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
+                                        ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
+                                    ];
+
+                                    return res.status(200).json({
+                                        "code": 200,
+                                        "message": "OK",
+                                        "data": {
+                                            challengingArray: userChallenging,
+                                            templateData: {
+                                                challengeName: newChallenge,
+                                                challengeCategory: userChallenging[0].category,
+                                                templates: challengTemplate
+                                            }
+                                        }
+                                    });
                                 }
                             }
-                        });
+                        } else {
+                            return res.status(415).json({
+                                "code": 415,
+                                "message": "현재 진행 중인 챌린지와 중복됩니다.",
+                            });
+                        }
                     }
-                } else {
-                    return res.status(415).json({
-                        "code": 415,
-                        "message": "현재 진행 중인 챌린지와 중복됩니다.",
-                    });
+
+
                 }
+                // else {
+                //     if (2 <= challengesCount) {
+                //         return res.status(418).json({
+                //             "code": 418,
+                //             "message": "더 이상 챌린지를 할 수 없습니다.",
+                //         });
+                //     } else {
+                //         if (challengesOverlap == undefined) {
+                //             const startChallenge = await ChallengeController.startChallengeData(req.decoded?.id, newChallenge);
+                //             if (startChallenge) {
+                //                 const data: any = await ChallengeController.newChallengeResult(req.decoded?.id, startChallenge.chalIdData, startChallenge.newChallenge);
+                //                 return res.status(200).json({
+                //                     "code": 200,
+                //                     "message": "OK",
+                //                     "data": {
+                //                         "challengingArray": data.userChallenging,
+                //                         templateData: {
+                //                             challengeName: startChallenge.newChallenge,
+                //                             challengeCategory: data.userChallenging[0].category,
+                //                             templates: data.challengTemplateArray
+                //                         }
+                //                     }
+                //                 });
+                //             }
+                //         } else {
+                //             return res.status(415).json({
+                //                 "code": 415,
+                //                 "message": "현재 진행 중인 챌린지와 중복됩니다.",
+                //             });
+                //         }
+                //     }
+
+
+                // }
             }
         }
     } catch (error) {
@@ -83,6 +146,10 @@ export const newChallenge = async (req: any, res: Response) => {
         });
     }
 };
+
+
+
+
 
 export const writeChallenge = async (req: any, res: Response) => {
     try {

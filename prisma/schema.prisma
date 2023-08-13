@@ -8,22 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  user_id         Int               @id @default(autoincrement())
-  role            String            @db.VarChar(20)
-  identifier      String            @unique(map: "identifierUnique") @db.VarChar(40)
-  password        String?           @db.VarChar(255)
-  email           String?           @db.VarChar(40)
-  nickname        String            @db.VarChar(40)
-  level           Int?
-  mar_email       Int               @default(0) @db.TinyInt
-  phone           String?           @db.VarChar(30)
-  coopon          Int               @default(0) @db.TinyInt
-  created_at      DateTime          @default(now()) @db.Timestamp(0)
-  update_at       DateTime          @default(now()) @db.Timestamp(0)
-  user_challenges user_challenges[]
-}
-
 model category {
   cate_id    Int          @id @default(autoincrement())
   type       String       @db.VarChar(20)
@@ -60,6 +44,21 @@ model templates {
   @@index([chal_id], map: "chal_idForeignKey3_idx")
 }
 
+model user_challenge_templetes {
+  uctem_id        Int             @default(autoincrement())
+  uchal_id        Int
+  title           String?         @db.VarChar(30)
+  writing         String          @db.LongText
+  complete        Boolean?
+  created_at      DateTime        @default(dbgenerated("(curdate())")) @db.Date
+  update_at       DateTime        @default(dbgenerated("(curdate())")) @db.Date
+  finish_at       DateTime?       @db.Date
+  user_challenges user_challenges @relation(fields: [uchal_id], references: [uchal_id], onDelete: Cascade, map: "uchal_idForeignKey2")
+
+  @@id([uctem_id, uchal_id])
+  @@index([uchal_id], map: "uchal_idForeignKey2")
+}
+
 model user_challenges {
   uchal_id                 Int                        @default(autoincrement())
   user_id                  Int
@@ -76,17 +75,18 @@ model user_challenges {
   @@index([user_id], map: "user_idForeignKey2")
 }
 
-model user_challenge_templetes {
-  uctem_id        Int             @default(autoincrement())
-  uchal_id        Int
-  title           String?         @db.VarChar(30)
-  writing         String          @db.LongText
-  complete        Boolean?
-  created_at      DateTime        @default(dbgenerated("(curdate())")) @db.Date
-  update_at       DateTime        @default(dbgenerated("(curdate())")) @db.Date
-  finish_at       DateTime?       @db.Date
-  user_challenges user_challenges @relation(fields: [uchal_id], references: [uchal_id], onDelete: Cascade, map: "uchal_idForeignKey2")
-
-  @@id([uctem_id, uchal_id])
-  @@index([uchal_id], map: "uchal_idForeignKey2")
+model users {
+  user_id         Int               @id @default(autoincrement())
+  role            String            @db.VarChar(20)
+  identifier      String            @unique(map: "identifierUnique") @db.VarChar(40)
+  password        String?           @db.VarChar(255)
+  email           String?           @db.VarChar(40)
+  nickname        String            @db.VarChar(40)
+  level           Int?
+  mar_email       Int               @default(0) @db.TinyInt
+  phone           String?           @db.VarChar(30)
+  coopon          Int               @default(0) @db.TinyInt
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  update_at       DateTime          @default(now()) @db.Timestamp(0)
+  user_challenges user_challenges[]
 }

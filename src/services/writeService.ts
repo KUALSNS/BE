@@ -43,14 +43,12 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
                 }
             })
         ]);
-        const coopon = userCooponDB?.coopon;
-        const challengesCount = challengesCountDB._count.uchal_id;
-        const challengesOverlap = challengesOverlapDB[0].user_challenges[0];
+
         prisma.$disconnect();
         return {
-            coopon,
-            challengesCount,
-            challengesOverlap
+            userCooponDB,
+            challengesCountDB,
+            challengesOverlapDB
         }
 
     } catch (error) {
@@ -59,11 +57,9 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
     }
 };
 
-const startChallengeData = async (user_id: number, newChallenge: string) => {
+const selectChallenge = async (newChallenge: string) => {
     try {
-        const koreanDateISOStringAdd9Hours = getKoreanDateISOStringAdd9Hours();
-        const koreanTimeAdd9Hours = new Date(koreanDateISOStringAdd9Hours)
-        console.log(koreanTimeAdd9Hours);
+
         const chalId = await prisma.challenges.findMany({
             where: {
                 title: newChallenge
@@ -72,16 +68,9 @@ const startChallengeData = async (user_id: number, newChallenge: string) => {
                 chal_id: true
             }
         });
-        const chalIdData = chalId[0].chal_id;
-        await prisma.user_challenges.create({
-            data: {
-                user_id: user_id,
-                chal_id: chalIdData,
-                finish_at: koreanTimeAdd9Hours
-            }
-        });
+
         prisma.$disconnect();
-        return { chalIdData, newChallenge };
+        return chalId;
 
     } catch (error) {
         console.log(error);
@@ -90,20 +79,65 @@ const startChallengeData = async (user_id: number, newChallenge: string) => {
     }
 };
 
-const newChallengeResult = async (user_id: number, challenge_id: number, newChallenge: string) => {
+
+const startChallenge = async (user_id: number, chalId: number) => {
+    try {
+        const koreanDate = getKoreanDateISOStringAdd9Hours();
+        const koreanTime = new Date(koreanDate)
+        console.log(koreanTime);
+
+
+        await prisma.user_challenges.create({
+            data: {
+                user_id: user_id,
+                chal_id: chalId,
+                finish_at: koreanTime
+            }
+        });
+        prisma.$disconnect();
+        return true;
+
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        return false;
+    }
+};
+
+const userChallengeSelect = async (userId: number, chalId: number) => {
+    try {
+
+        const result = await prisma.user_challenges.findMany({
+           where:{
+            chal_id : chalId,
+            user_id : userId
+           },
+           select:{
+            uchal_id: true
+           }
+        })
+
+        prisma.$disconnect();
+        return result[0];
+
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+    }
+};
+
+
+
+
+
+
+const newChallengeResult = async (user_id: number, challenge_id: number) => {
     try {
         const koreanDateISOString = getKoreanDateISOString();
         const koreanTime = new Date(koreanDateISOString)
         console.log(koreanTime);
 
-        const challengTemplateArray: {
-            category: string;
-            "templateTitle": string;
-            "templateContent": string;
-        }[] = [];
-        const relativeChallengeArray = [];
-
-        const [challengTemplateDB, relativeChallengeDB1, relativeChallengeDB2] = await Promise.all([
+        const [challengTemplateDB, relativeChallengeDBFirst, relativeChallengeDBSecond] = await Promise.all([
             prisma.challenges.findMany({
                 where: {
                     chal_id: challenge_id
@@ -178,46 +212,11 @@ const newChallengeResult = async (user_id: number, challenge_id: number, newChal
                 }
             }),
         ]);
-
-        for (var i = 0; i < challengTemplateDB[0].templates.length; i++) {
-            const challengTemplate = challengTemplateDB.map((e) => {
-                return [{
-                    "templateTitle": e.templates[i].title,
-                    "templateContent": e.templates[i].content,
-                    "category": e.category.name,
-                    "image": e.category.emogi
-                }]
-            });
-            challengTemplateArray.push(challengTemplate[0][0]);
-        }
-        for (var i = 0; i < relativeChallengeDB1.length; i++) {
-            if (!relativeChallengeDB1[i].user_challenge_templetes[0]) {
-            } else {
-                const relativeChallengeMap = relativeChallengeDB1.map((e) => {
-                    return { "challengeName": e.challenges.title, "category": e.challenges.category.name };
-                });
-                relativeChallengeArray.push(relativeChallengeMap[i]);
-            }
-        }
-
-        for (var i = 0; i < relativeChallengeDB2.length; i++) {
-            if (!relativeChallengeDB2[i].user_challenge_templetes[0]) {
-                const relativeChallengeMap = relativeChallengeDB1.map((e) => {
-                    return { "challengeName": e.challenges.title, "category": e.challenges.category.name };
-                });
-                if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
-                    relativeChallengeArray.push(relativeChallengeMap[i]);
-                }
-            }
-        }
-        const userChallenging = [
-            ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
-            ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
-        ];
         prisma.$disconnect();
         return {
-            userChallenging,
-            challengTemplateArray
+            challengTemplateDB,
+            relativeChallengeDBFirst,
+            relativeChallengeDBSecond
         };
     } catch (error) {
         console.log(error);
@@ -529,6 +528,7 @@ const insertChallengeCompleteData = async (
         const koreanDateISOString = getKoreanDateISOString();
         const koreanTime = new Date(koreanDateISOString)
         console.log(koreanTime);
+
         const [challengeIdDB, templateIdDB] = await Promise.all([
             prisma.challenges.findMany({
                 where: {
@@ -749,7 +749,7 @@ const selectTemplateData = async (
 
 
 export {
-    newChallengeData, startChallengeData, newChallengeResult,
+    newChallengeData, selectChallenge, newChallengeResult, startChallenge,
     writeChallengeData, writeTemplateData, insertTemporaryChallengeData,
-    insertChallengeCompleteData, selectTemplateData
+    insertChallengeCompleteData, selectTemplateData, userChallengeSelect
 }
