@@ -19,6 +19,12 @@ export const beforeMain = async (req: Request, res: Response) => {
     try {
         const data: beforeMainDto | undefined | false = await ChallengeController.beforeMainData();
 
+        if (!data) {
+            return res.status(400).json({
+                "code": 400,
+                "message": "값을 찾을 수 없습니다.",
+            });
+        }
         if (data) {
             if (data != undefined) {
                 const category = data.categoryDB.map((e) => {
@@ -37,19 +43,15 @@ export const beforeMain = async (req: Request, res: Response) => {
                     category,
                     challenges
                 });
-            } else {
-                return res.status(400).json({
-                    "code": 400,
-                    "message": "값을 찾을 수 없습니다.",
-                });
-            }
-        } else {
+            } 
+                
+            
+        }  
             return res.status(500).json({
                 "code": 500,
                 message: "Server Error"
             });
 
-        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({
