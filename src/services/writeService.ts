@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 
 const newChallengeData = async (user_id: number, newChallenge: string) => {
     try {
-        const [userCooponDB, challengesCountDB, challengesOverlapDB] = await Promise.all([
+        const [userCooponDB, challengesCountDB] = await Promise.all([
             prisma.users.findUnique({
                 where: {
                     user_id: user_id
@@ -27,28 +27,12 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
                     uchal_id: true
                 }
             }),
-            prisma.challenges.findMany({
-                where: {
-                    title: newChallenge
-                },
-                select: {
-                    user_challenges: {
-                        where: {
-                            user_id: user_id
-                        },
-                        select: {
-                            chal_id: true
-                        }
-                    }
-                }
-            })
         ]);
 
         prisma.$disconnect();
         return {
             userCooponDB,
             challengesCountDB,
-            challengesOverlapDB
         }
 
     } catch (error) {
@@ -75,7 +59,7 @@ const selectChallenge = async (newChallenge: string) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        return false;
+        return;
     }
 };
 
@@ -392,11 +376,11 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                     select: {
                         title: true,
                         writing: true,
-                        templates: {
-                            select: {
-                                title: true
-                            }
-                        },
+                        // templates: {
+                        //     select: {
+                        //         title: true
+                        //     }
+                        // },
                         user_challenges: {
                             select: {
                                 challenges: {
@@ -415,8 +399,8 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
                 return {
                     "title": e.title,
                     "writing": e.writing,
-                    "templates": e.templates.title,
-                    "user_challenges": e.user_challenges.challenges.title
+           //         "templates": e.templates.title,
+          //          "user_challenges": e.user_challenges.challenges.title
                 }
 
             })
@@ -474,7 +458,7 @@ const insertTemporaryChallengeData = async (
         const challengeSignDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
-                tem_id: templateIdDB[0].tem_id,
+          //      tem_id: templateIdDB[0].tem_id,
                 created_at: koreanTime,
             },
             select: {
@@ -487,7 +471,7 @@ const insertTemporaryChallengeData = async (
             await prisma.user_challenge_templetes.create({
                 data: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id,
+         //           tem_id: templateIdDB[0].tem_id,
                     title: challengeTitle,
                     writing: challengeContent,
                     complete: false
@@ -498,7 +482,7 @@ const insertTemporaryChallengeData = async (
             await prisma.user_challenge_templetes.updateMany({
                 where: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id,
+        //            tem_id: templateIdDB[0].tem_id,
                     created_at: koreanTime,
                 },
                 data: {
@@ -562,7 +546,7 @@ const insertChallengeCompleteData = async (
         const challengeSignDB = await prisma.user_challenge_templetes.findMany({
             where: {
                 uchal_id: userChallengeDB[0].uchal_id,
-                tem_id: templateIdDB[0].tem_id,
+        //        tem_id: templateIdDB[0].tem_id,
                 created_at: koreanTime,
             },
             select: {
@@ -576,7 +560,7 @@ const insertChallengeCompleteData = async (
             await prisma.user_challenge_templetes.create({
                 data: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id,
+      //              tem_id: templateIdDB[0].tem_id,
                     title: challengeTitle,
                     writing: challengeContent,
                     complete: true,
@@ -588,7 +572,7 @@ const insertChallengeCompleteData = async (
             await prisma.user_challenge_templetes.updateMany({
                 where: {
                     uchal_id: userChallengeDB[0].uchal_id,
-                    tem_id: templateIdDB[0].tem_id,
+    //                tem_id: templateIdDB[0].tem_id,
                     created_at: koreanTime,
                 },
                 data: {
@@ -686,11 +670,11 @@ const selectTemplateData = async (
             select: {
                 title: true,
                 writing: true,
-                templates: {
-                    select: {
-                        title: true
-                    }
-                },
+                // templates: {
+                //     select: {
+                //         title: true
+                //     }
+                // },
                 user_challenges: {
                     select: {
                         challenges: {
@@ -708,7 +692,7 @@ const selectTemplateData = async (
             return {
                 "title": e.title,
                 "writing": e.writing,
-                "templates": e.templates.title,
+      //          "templates": e.templates.title,
                 "userChallenge": e.user_challenges.challenges.title
             }
         });

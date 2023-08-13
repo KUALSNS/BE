@@ -7,125 +7,103 @@ import * as ChallengeController from '../services/writeService';
 import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
 import { getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
 import { IFile } from '../interfaces/express';
+import { newChallengeRequestDto, newChallengeResponseDto } from '../interfaces/writeDTO';
 
 
 
-export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Response) => {
+export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Response<newChallengeResponseDto>) => {
     try {
 
         const newChallenge = req.params.name;
         const newChallengeData = await ChallengeController.newChallengeData(req.decoded?.id, newChallenge);
-        if (newChallengeData == undefined) {
+        const challengesCount = newChallengeData?.challengesCountDB._count.uchal_id;
+        const chalIdData = await ChallengeController.selectChallenge(newChallenge);
+
+        if (chalIdData == undefined) {
             return
         }
 
+        const challengePossible = await ChallengeController.userChallengeSelect(req.decoded?.id, chalIdData[0].chal_id)
 
-        const challengesCount = newChallengeData.challengesCountDB._count.uchal_id;
-        //  const challengesOverlap = newChallengeData.challengesOverlapDB[0].user_challenges[0];
+        if (challengePossible?.uchal_id === undefined) {
 
-        if (newChallengeData.userCooponDB !== null) {
+            if (!newChallengeData?.userCooponDB?.coopon) {
+                if (2 <= challengesCount!) {
+                    return res.status(418).json({
+                        code: 418,
+                        message: "더 이상 챌린지를 할 수 없습니다.",
+                    });
+                }
+            }
 
-            const chalIdData = await ChallengeController.selectChallenge(newChallenge);
+            await ChallengeController.startChallenge(req.decoded?.id, chalIdData[0].chal_id);
 
-            if (chalIdData !== undefined && chalIdData !== false) {
+            const data = await ChallengeController.newChallengeResult(req.decoded?.id, chalIdData[0].chal_id);
+            const relativeChallengeArray = [];
+            const challengTemplate = data?.challengTemplateDB.map((e) => {
+                const transformedTemplates = e.templates.map((template) => ({
+                    templateTitle: template.title,
+                    templateContent: template.content,
+                    category: e.category.name,
+                    image: e.category.emogi
+                }));
 
-                const challengePossible = await ChallengeController.userChallengeSelect(req.decoded?.id, chalIdData[0].chal_id)
+                return transformedTemplates;
+            }).flat();
 
-                if (challengePossible?.uchal_id === undefined) {
+            for (var i = 0; i < data!.relativeChallengeDBFirst.length; i++) {
+                if (!data?.relativeChallengeDBFirst[i].user_challenge_templetes[0]) {
+                } else {
+                    const relativeChallengeMap = data.relativeChallengeDBFirst.map((e) => {
+                        return { challengeName: e.challenges.title, category: e.challenges.category.name };
+                    });
+                    relativeChallengeArray.push(relativeChallengeMap[i]);
+                }
+            }
 
-                    console.log(newChallengeData.userCooponDB.coopon)
-
-
-                    if (newChallengeData.userCooponDB.coopon) {
-                        await ChallengeController.startChallenge(req.decoded?.id, chalIdData[0].chal_id);
-
-                        const data = await ChallengeController.newChallengeResult(req.decoded?.id, chalIdData[0].chal_id);
-
-                        if (data !== undefined) {
-
-                            const relativeChallengeArray = [];
-                            const challengTemplate = data.challengTemplateDB.map((e) => {
-                                const transformedTemplates = e.templates.map((template) => ({
-                                    templateTitle: template.title,
-                                    templateContent: template.content,
-                                    category: e.category.name,
-                                    image: e.category.emogi
-                                }));
-
-                                return transformedTemplates;
-                            }).flat();
-
-                            for (var i = 0; i < data.relativeChallengeDBFirst.length; i++) {
-                                if (!data.relativeChallengeDBFirst[i].user_challenge_templetes[0]) {
-                                } else {
-                                    const relativeChallengeMap = data.relativeChallengeDBFirst.map((e) => {
-                                        return { challengeName: e.challenges.title, category: e.challenges.category.name };
-                                    });
-                                    relativeChallengeArray.push(relativeChallengeMap[i]);
-                                }
-                            }
-
-                            for (var i = 0; i < data.relativeChallengeDBSecond.length; i++) {
-                                if (!data.relativeChallengeDBSecond[i].user_challenge_templetes[0]) {
-                                    const relativeChallengeMap = data.relativeChallengeDBSecond.map((e) => {
-                                        return { challengeName: e.challenges.title, category: e.challenges.category.name };
-                                    });
-                                    if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
-                                        relativeChallengeArray.push(relativeChallengeMap[i]);
-                                    }
-                                }
-                            }
-                            const userChallenging = [
-                                ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
-                                ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
-                            ];
-
-                            return res.status(200).json({
-                                "code": 200,
-                                "message": "OK",
-                                "data": {
-                                    challengingArray: userChallenging,
-                                    templateData: {
-                                        challengeName: newChallenge,
-                                        challengeCategory: userChallenging[0].category,
-                                        templates: challengTemplate
-                                    }
-                                }
-                            });
-                        }
-                    }
-                    else {
-
-                        if (2 <= challengesCount) {
-                            return res.status(418).json({
-                                "code": 418,
-                                "message": "더 이상 챌린지를 할 수 없습니다.",
-                            });
-                        }
-
+            for (var i = 0; i < data!.relativeChallengeDBSecond.length; i++) {
+                if (!data!.relativeChallengeDBSecond[i].user_challenge_templetes[0]) {
+                    const relativeChallengeMap = data!.relativeChallengeDBSecond.map((e) => {
+                        return { challengeName: e.challenges.title, category: e.challenges.category.name };
+                    });
+                    if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
+                        relativeChallengeArray.push(relativeChallengeMap[i]);
                     }
                 }
-
-                return res.status(415).json({
-                    "code": 415,
-                    "message": "현재 진행 중인 챌린지와 중복됩니다.",
-                });
-
-
-
             }
+
+            const userChallenging = [
+                ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
+                ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
+            ];
+
+            return res.status(200).json({
+                code: 200,
+                message: "OK",
+                data: {
+                    challengingArray: userChallenging,
+                    templateData: {
+                        challengeName: newChallenge,
+                        challengeCategory: userChallenging[0].category,
+                        templates: challengTemplate!
+                    }
+                }
+            });
+
+
         }
+        return res.status(415).json({
+            code: 415,
+            message: "현재 진행 중인 챌린지와 중복됩니다.",
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            "code": 500,
-            "message": "Server Error"
+            code: 500,
+            message: "Server Error"
         });
     }
 };
-
-
-
 
 
 export const writeChallenge = async (req: any, res: Response) => {
@@ -281,9 +259,55 @@ export const selectTemplate = async (req: any, res: Response) => {
 
 
 
+// function challengeStartMapping(data: any, newChallenge: string) {
+//     const relativeChallengeArray = [];
+//     const challengTemplate = data.challengTemplateDB.map((e: any) => {
+//         const transformedTemplates = e.templates.map((template: any) => ({
+//             templateTitle: template.title,
+//             templateContent: template.content,
+//             category: e.category.name,
+//             image: e.category.emogi
+//         }));
 
+//         return transformedTemplates;
+//     }).flat();
 
+//     for (let i = 0; i < data.relativeChallengeDBFirst.length; i++) {
+//         if (data.relativeChallengeDBFirst[i].user_challenge_templetes[0]) {
+//             const relativeChallengeMap = data.relativeChallengeDBFirst.map((e: any) => ({
+//                 challengeName: e.challenges.title,
+//                 category: e.challenges.category.name
+//             }));
+//             relativeChallengeArray.push(relativeChallengeMap[i]);
+//         }
+//     }
 
+//     for (let i = 0; i < data.relativeChallengeDBSecond.length; i++) {
+//         if (!data.relativeChallengeDBSecond[i].user_challenge_templetes[0]) {
+//             const relativeChallengeMap = data.relativeChallengeDBSecond.map((e: any) => ({
+//                 challengeName: e.challenges.title,
+//                 category: e.challenges.category.name
+//             }));
+//             if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
+//                 relativeChallengeArray.push(relativeChallengeMap[i]);
+//             }
+//         }
+//     }
+
+//     const userChallenging = [
+//         ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
+//         ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
+//     ];
+
+//     return {
+//         challengingArray: userChallenging,
+//         templateData: {
+//             challengeName: newChallenge,
+//             challengeCategory: userChallenging[0]?.category,
+//             templates: challengTemplate
+//         }
+//     };
+// }
 
 
 
