@@ -95,12 +95,12 @@ const startChallenge = async (user_id: number, chalId: number) => {
             }
         });
         prisma.$disconnect();
-        return true;
+        return;
 
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        return false;
+        return;
     }
 };
 
