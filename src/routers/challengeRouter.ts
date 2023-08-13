@@ -9,13 +9,9 @@ import { verifyToken } from '../middleware/auth';
 const router = express.Router();
 
 router.get('/', ChallengeController.beforeMain);
-router.post('/write', verifyToken, WriteController.writeChallenge);
-router.get('/start/:name', verifyToken, WriteController.newChallenge);
 router.post('/main', verifyToken, ChallengeController.afterMain);
 router.get('/search', ChallengeController.challengeSearch)
-router.get('/write/:challengeName', verifyToken, WriteController.selectTemplate);
-router.post('/write/temporary-storage', verifyToken, WriteController.insertTemporaryChallenge);
-router.post('/write/register', verifyToken, WriteController.insertChallengeComplete);
+
 
 
 
