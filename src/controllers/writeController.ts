@@ -3,42 +3,36 @@ const require = createRequire(import.meta.url)
 
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import * as ChallengeController from '../services/writeService';
-import { imagesArrayDTO, videoArrayDTO } from '../interfaces/DTO'
-import { getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
-import { IFile } from '../interfaces/express';
+import * as WriteService from '../services/writeService';
 import { newChallengeRequestDto, newChallengeResponseDto } from '../interfaces/writeDTO';
-
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
 
 export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Response<newChallengeResponseDto>) => {
     try {
 
         const newChallenge = req.params.name;
-        const newChallengeData = await ChallengeController.newChallengeData(req.decoded?.id, newChallenge);
+        const newChallengeData = await WriteService.newChallengeData(req.decoded?.id, newChallenge);
         const challengesCount = newChallengeData?.challengesCountDB._count.uchal_id;
-        const chalIdData = await ChallengeController.selectChallenge(newChallenge);
+        const chalIdData = await WriteService.selectChallenge(newChallenge);
 
         if (chalIdData == undefined) {
             return
         }
 
-        const challengePossible = await ChallengeController.userChallengeSelect(req.decoded?.id, chalIdData[0].chal_id)
+        const challengePossible = await WriteService.userChallengeSelect(req.decoded?.id, chalIdData[0].chal_id)
 
         if (challengePossible?.uchal_id === undefined) {
 
             if (!newChallengeData?.userCooponDB?.coopon) {
                 if (2 <= challengesCount!) {
-                    return res.status(418).json({
-                        code: 418,
-                        message: "더 이상 챌린지를 할 수 없습니다.",
-                    });
+                    return new ErrorResponse(418, "더 이상 챌린지를 할 수 없습니다.").sendResponse(res);
                 }
             }
 
-            await ChallengeController.startChallenge(req.decoded?.id, chalIdData[0].chal_id);
+            await WriteService.startChallenge(req.decoded?.id, chalIdData[0].chal_id);
 
-            const data = await ChallengeController.newChallengeResult(req.decoded?.id, chalIdData[0].chal_id);
+            const data = await WriteService.newChallengeResult(req.decoded?.id, chalIdData[0].chal_id);
             const relativeChallengeArray = [];
             const challengTemplate = data?.challengTemplateDB.map((e) => {
                 const transformedTemplates = e.templates.map((template) => ({
@@ -77,38 +71,30 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
                 ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
             ];
 
-            return res.status(200).json({
-                code: 200,
-                message: "OK",
-                data: {
-                    challengingArray: userChallenging,
+            return new SuccessResponse(
+                200,
+                "OK",
+                {
+                    challengingArray: relativeChallengeArray,
                     templateData: {
                         challengeName: newChallenge,
-                        challengeCategory: userChallenging[0].category,
-                        templates: challengTemplate!
+                        challengeCategory: relativeChallengeArray[0]?.category,
+                        templates: challengTemplate
                     }
                 }
-            });
-
-
+            ).sendResponse(res)
         }
-        return res.status(415).json({
-            code: 415,
-            message: "현재 진행 중인 챌린지와 중복됩니다.",
-        });
+        return new ErrorResponse(415, "현재 진행 중인 챌린지와 중복됩니다.").sendResponse(res);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            code: 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
 
 export const writeChallenge = async (req: any, res: Response) => {
     try {
-        const writeChallenge = await ChallengeController.writeChallengeData(req.decoded.id);
+        const writeChallenge = await WriteService.writeChallengeData(req.decoded.id);
         const challengeCategoryDB = writeChallenge?.challengeArray;
         const challengingArray = [];
         const challengeChalIdyArray = [];
@@ -128,11 +114,11 @@ export const writeChallenge = async (req: any, res: Response) => {
         }
 
         if (writeChallenge?.challengeArray[0].user_challenge_templetes[0] == undefined) {  // 값이 없다면
-            var writeTemplate: any = await ChallengeController.writeTemplateData(challengeChalIdyArray[0]);
+            var writeTemplate: any = await WriteService.writeTemplateData(challengeChalIdyArray[0]);
         }
         else {
             var writeTemplate: any =
-                await ChallengeController.writeTemplateData(challengeChalIdyArray[0],
+                await WriteService.writeTemplateData(challengeChalIdyArray[0],
                     writeChallenge?.challengeArray[0].user_challenge_templetes[0].uctem_id);
 
         }
@@ -183,7 +169,7 @@ export const insertTemporaryChallenge = async (req: any, res: Response) => {
         const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
 
         const data =
-            await ChallengeController.insertTemporaryChallengeData(req.decoded.id,
+            await WriteService.insertTemporaryChallengeData(req.decoded.id,
                 challengeName,
                 templateName,
                 challengeTitle,
@@ -209,7 +195,7 @@ export const insertChallengeComplete = async (req: any, res: Response) => {
         const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
 
         const data =
-            await ChallengeController.insertChallengeCompleteData(
+            await WriteService.insertChallengeCompleteData(
                 req.decoded.id,
                 challengeName,
                 templateName,
@@ -234,7 +220,7 @@ export const insertChallengeComplete = async (req: any, res: Response) => {
 export const selectTemplate = async (req: any, res: Response) => {
     try {
         const challengeName = req.params.challengeName;
-        const data = await ChallengeController.selectTemplateData(challengeName, req.decoded.id);
+        const data = await WriteService.selectTemplateData(challengeName, req.decoded.id);
 
         if (data) {
             return res.status(200).json({
@@ -256,61 +242,6 @@ export const selectTemplate = async (req: any, res: Response) => {
         });
     }
 };
-
-
-
-// function challengeStartMapping(data: any, newChallenge: string) {
-//     const relativeChallengeArray = [];
-//     const challengTemplate = data.challengTemplateDB.map((e: any) => {
-//         const transformedTemplates = e.templates.map((template: any) => ({
-//             templateTitle: template.title,
-//             templateContent: template.content,
-//             category: e.category.name,
-//             image: e.category.emogi
-//         }));
-
-//         return transformedTemplates;
-//     }).flat();
-
-//     for (let i = 0; i < data.relativeChallengeDBFirst.length; i++) {
-//         if (data.relativeChallengeDBFirst[i].user_challenge_templetes[0]) {
-//             const relativeChallengeMap = data.relativeChallengeDBFirst.map((e: any) => ({
-//                 challengeName: e.challenges.title,
-//                 category: e.challenges.category.name
-//             }));
-//             relativeChallengeArray.push(relativeChallengeMap[i]);
-//         }
-//     }
-
-//     for (let i = 0; i < data.relativeChallengeDBSecond.length; i++) {
-//         if (!data.relativeChallengeDBSecond[i].user_challenge_templetes[0]) {
-//             const relativeChallengeMap = data.relativeChallengeDBSecond.map((e: any) => ({
-//                 challengeName: e.challenges.title,
-//                 category: e.challenges.category.name
-//             }));
-//             if (relativeChallengeArray.indexOf(relativeChallengeMap[i]) === -1) {
-//                 relativeChallengeArray.push(relativeChallengeMap[i]);
-//             }
-//         }
-//     }
-
-//     const userChallenging = [
-//         ...relativeChallengeArray.filter(item => item.challengeName === newChallenge),
-//         ...relativeChallengeArray.filter(item => item.challengeName !== newChallenge)
-//     ];
-
-//     return {
-//         challengingArray: userChallenging,
-//         templateData: {
-//             challengeName: newChallenge,
-//             challengeCategory: userChallenging[0]?.category,
-//             templates: challengTemplate
-//         }
-//     };
-// }
-
-
-
 
 
 

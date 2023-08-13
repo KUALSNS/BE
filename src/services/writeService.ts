@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth';
 import { TemplateDTO } from '../interfaces/DTO';
 import mysql from 'mysql2/promise';
+import path from 'path';
 import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
 const prisma = new PrismaClient();
 
@@ -38,6 +39,7 @@ const newChallengeData = async (user_id: number, newChallenge: string) => {
     } catch (error) {
         prisma.$disconnect();
         console.log(error);
+        throw new Error(`Failed ${__dirname} newChallengeData function`);
     }
 };
 
@@ -59,7 +61,7 @@ const selectChallenge = async (newChallenge: string) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        return;
+        throw new Error(`Failed ${__dirname} selectChallenge function`);
     }
 };
 
@@ -84,7 +86,7 @@ const startChallenge = async (user_id: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        return;
+        throw new Error(`Failed ${__dirname} startChallenge function`);
     }
 };
 
@@ -107,12 +109,9 @@ const userChallengeSelect = async (userId: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} userChallengeSelect function`);
     }
 };
-
-
-
-
 
 
 const newChallengeResult = async (user_id: number, challenge_id: number) => {
@@ -205,6 +204,7 @@ const newChallengeResult = async (user_id: number, challenge_id: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} newChallengeResult function`);
     }
 };
 
@@ -292,6 +292,7 @@ const writeChallengeData = async (user_id: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} writeChallengeData function`);
     }
 };
 
