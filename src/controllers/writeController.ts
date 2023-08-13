@@ -75,7 +75,7 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
                 200,
                 "OK",
                 {
-                    challengingArray: relativeChallengeArray,
+                    challengingArray: userChallenging,
                     templateData: {
                         challengeName: newChallenge,
                         challengeCategory: relativeChallengeArray[0]?.category,
