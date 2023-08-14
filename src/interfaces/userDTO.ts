@@ -1,14 +1,20 @@
 
-
-export interface userReissueTokenRequestDto {
-    access: string;
-
-}
+    
 
 export interface userLoginRequestDto {
     userIdentifier: string;
     userPassword: string;
+}
 
+export interface UserLoginResponseDto {
+    accessToken: string;
+    refreshToken: string;
+    role: string;
+}
+
+export interface UserReissueTokenResponseDto {
+    accessToken: string;
+    refreshToken: string;
 }
 
 export interface refreshResultDB {
@@ -20,8 +26,6 @@ export interface decoded{
     id: string;
     role: string;
 }
-
-
 
 export interface userSignupDto {
     userId: string;
@@ -37,7 +41,7 @@ export interface  userIdFindRequestDto {
 }
 
 
-export interface userIdDB {
+export interface UserIdResponseDto {
     identifier: string;
 }
 

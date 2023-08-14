@@ -42,7 +42,7 @@ const newChallengeData = async (user_id: number) => {
     } catch (error) {
         prisma.$disconnect();
         console.log(error);
-        throw new Error(`Failed ${__dirname} newChallengeData function`);
+        throw new Error(`Failed ${path.resolve(__dirname)} newChallengeData function`);
     }
 };
 
@@ -69,7 +69,7 @@ const selectChallenge = async (newChallenge: string) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} selectChallenge function`);
+        throw new Error(`Failed ${path.resolve(__dirname)} selectChallenge function`);
     }
 };
 
@@ -99,7 +99,7 @@ const startChallenge = async (user_id: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} startChallenge function`);
+        throw new Error(`Failed ${path.resolve(__dirname)} startChallenge function`);
     }
 };
 
@@ -128,7 +128,7 @@ const userChallengeSelect = async (userId: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} userChallengeSelect function`);
+        throw new Error(`Failed ${path.resolve(__dirname)} userChallengeSelect function`);
     }
 };
 
@@ -228,7 +228,7 @@ const newChallengeResult = async (user_id: number, challenge_id: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} newChallengeResult function`);
+        throw new Error(`Failed ${path.resolve(__dirname)} newChallengeResult function`);
     }
 };
 
@@ -316,7 +316,7 @@ const writeChallengeData = async (user_id: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} writeChallengeData function`);
+        throw new Error(`Failed ${path.resolve(__dirname)} writeChallengeData function`);
     }
 };
 

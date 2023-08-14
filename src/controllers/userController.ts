@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import { checkIdentifierRequestDto, checkIdentifierResponseDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, refreshResultDB, userIdDB, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, userPasswordFindRequestDto, userReissueTokenRequestDto, userSignupDto } from '../interfaces/userDTO';
+import { checkIdentifierRequestDto, checkIdentifierResponseDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, refreshResultDB, UserIdResponseDto, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto } from '../interfaces/userDTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules';
@@ -12,6 +12,7 @@ import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
 import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword';
 import axios from 'axios';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 declare var process: {
     env: {
         SALTROUNDS: string
@@ -143,53 +144,37 @@ export const userSignup = async (req: Request, res: Response) => {
  *          2. 200 accessToken, refreshToken 발급
  *          3. 서버 오류
  */
-export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response) => {
+export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response<UserLoginResponseDto>) => {
     try {
+
         const { userIdentifier, userPassword } = req.body;
-        const data: false | RowDataPacket = await UserService.userIdentifierSign(userIdentifier);
-        if (data) {
-            if (data == null || data == undefined) {
-                return res.status(404).json({
-                    code: 404,
-                    message: "Id can't find"
-                });
-            }
-            const comparePassword = await bcrypt.compare(userPassword, data.password);
-            if (!comparePassword) {
-                return res.status(419).json({
-                    code: 419,
-                    message: "Password can't find"
-                });
-            }
-            const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
-            const refreshToken = "Bearer " + jwt.refresh();
+        const data = await UserService.userIdentifierSign(userIdentifier);
 
-            await redisClient.connect();
-            await redisClient.v4.set(String(data.user_id), refreshToken);
-            await redisClient.disconnect();
-
-            return res.status(200).json({
-                code: 200,
-                message: "Ok",
-                data: {
-                    accessToken,
-                    refreshToken
-                },
-                role: data.role
-            });
-        } else {
-            return res.status(502).json({
-                "code": 502,
-                message: "Server Error"
-            });
+        if (data == null || data == undefined) {
+            return new ErrorResponse(404, "Id can't find").sendResponse(res);
         }
+        const comparePassword = await bcrypt.compare(userPassword, data.password);
+        if (!comparePassword) {
+            return new ErrorResponse(419, "Password can't find").sendResponse(res);
+        }
+        const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
+        const refreshToken = "Bearer " + jwt.refresh();
+
+        await redisClient.connect();
+        await redisClient.v4.set(String(data.user_id), refreshToken);
+        await redisClient.disconnect();
+
+
+        return new SuccessResponse(200, "OK", {
+            accessToken,
+            refreshToken,
+            role: data.role
+        }).sendResponse(res);
+
     } catch (error) {
         console.error(error);
         await redisClient.disconnect();
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 /**
@@ -202,7 +187,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
  *           3. accessToken, refreshToken 재발급
  *           4. 서버 오류
  */
-export const userReissueToken = async (req: Request, res: Response) => {
+export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
         await redisClient.connect();
         const requestAccessToken = req.headers.access;
@@ -214,67 +199,41 @@ export const userReissueToken = async (req: Request, res: Response) => {
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
             const authResult = jwt.verify(accessToken);
-            const decoded: decoded | undefined = jwt.decode(accessToken);
-
-            console.log(decoded)
+            const decoded = jwt.decode(accessToken);
 
             await redisClient.disconnect();
 
-            if (decoded !== undefined) {
+            const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
-                const refreshResult: refreshResultDB | undefined = await jwt.refreshVerify(refreshToken, decoded.id);
+            await redisClient.connect();
+            if (authResult.state === false) {
 
-                await redisClient.connect();
-                if (authResult.state === false) {
-                    if (typeof refreshResult != 'undefined') {
-                        if (refreshResult.state === false) {
-                            console.log(decoded!.id);
-                            await redisClient.disconnect();
-                            return res.status(419).json({
-                                code: 419,
-                                message: 'login again!',
-                            });
-                        }
-                        else {
-                            const newAccessToken = jwt.sign(String(decoded.id), decoded.role);
-                            const userRefreshToken = await redisClient.v4.get(String(decoded.id));
-                            await redisClient.disconnect();
-                            return res.status(200).json({
-                                code: 200,
-                                message: "Ok",
-                                data: {
-                                    accessToken: "Bearer " + newAccessToken,
-                                    refreshToken: userRefreshToken
-                                },
-                            });
-                        }
-                    }
-                }
-                else {
+                if (refreshResult?.state === false) {
+                    console.log(decoded!.id);
                     await redisClient.disconnect();
-                    return res.status(400).json({
-                        code: 400,
-                        message: 'access token is not expired!',
-                    });
+                    return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
 
+                const newAccessToken = jwt.sign(String(decoded?.id), decoded?.role);
+                const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
+                await redisClient.disconnect();
+                return new SuccessResponse(200, "OK", {
+                    accessToken: "Bearer " + newAccessToken,
+                    refreshToken: userRefreshToken
+                }).sendResponse(res);
             }
-
-
-        } else {
             await redisClient.disconnect();
-            return res.status(402).json({
-                code: 402,
-                message: '헤더의 값을 알 수 없습니다.',
-            });
+            return new ErrorResponse(400, "access token is not expired!").sendResponse(res)
         }
+
+        await redisClient.disconnect();
+        return new ErrorResponse(402, "헤더의 값을 알 수 없습니다.").sendResponse(res);
+
     } catch (error) {
         console.error(error);
         await redisClient.disconnect();
-        return res.status(500).json({
-            code: 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
+
     }
 };
 
@@ -335,7 +294,7 @@ export const userLogout = async (req: Request, res: Response) => {
  *          4. 메일 인증 실패 (400)
  *          5. 서버 에러(500)
  */
-export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDto>, res: Response) => {
+export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDto>, res: Response<UserIdResponseDto>) => {
     try {
         const email = req.query.email;
         const code = req.query.code;
@@ -345,41 +304,25 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
 
         if (redisCode == parseInt(<string>code)) {
 
-            if (typeof email !== "undefined") {
-                const data: userIdDB[] | false = await UserService.userId(email);
+            const data = await UserService.userId(email);
 
-                if (data) {
-
-                    if (data[0] == undefined) {
-                        return res.status(404).json({
-                            code: 404,
-                            message: "email can't find"
-                        });
-
-
-                    } else {
-                        if (typeof data !== "undefined") {
-                            await redisClient.disconnect();
-                            return res.status(200).json({
-                                message: "OK",
-                                code: 200,
-                                userId: data[0].identifier
-                            });
-                        }
-                    }
-                } else {
-                    await redisClient.disconnect();
-                    return res.status(502).send({ status: 502, message: "DB Server Error" });
-
-                }
+            if (data[0] == undefined) {
+                return new ErrorResponse(404,"email can't find").sendResponse(res);
             }
-        } else {
+
             await redisClient.disconnect();
-            return res.status(400).send({ status: 400, message: "Fail Verify Email" });
+    
+            return new SuccessResponse(200,"OK",{
+                userId: data[0].identifier
+            }).sendResponse(res);
         }
+
+        await redisClient.disconnect();
+        return new ErrorResponse(400,"Fail Verify Email").sendResponse(res);
+
     } catch (error) {
         await redisClient.disconnect();
-        return res.status(500).send({ status: 500, message: "Server Error" });
+        return new ErrorResponse(500,"Server Error").sendResponse(res);
     }
 };
 
@@ -501,26 +444,26 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
                 }
             });
 
-            const userEmail = userData.data.kakao_account.email;                       
-            const userNickname =  userData.data.properties.nickname;              
+            const userEmail = userData.data.kakao_account.email;
+            const userNickname = userData.data.properties.nickname;
             const userCheck = await UserService.selectIdentifier(userEmail);
-       
 
-            if(userCheck == null){           
+
+            if (userCheck == null) {
                 await UserService.kakaoSignUp(userEmail, userNickname);
             }
-       
-            const userId = await UserService.selectIdentifier(userEmail);
-       
 
-            if(userId){
+            const userId = await UserService.selectIdentifier(userEmail);
+
+
+            if (userId) {
                 const accessToken = "Bearer " + jwt.sign(String(userId.user_id), userId.role);
                 const refreshToken = "Bearer " + jwt.refresh();
-          
+
                 await redisClient.connect();
                 await redisClient.v4.set(String(userId.user_id), refreshToken);
                 await redisClient.disconnect();
-             
+
                 return res.status(200).json({
                     code: 200,
                     message: "Ok",
@@ -528,8 +471,8 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
                         accessToken,
                         refreshToken
                     },
-                   role: userId.role
-               });   
+                    role: userId.role
+                });
             }
         }
     } catch (error) {

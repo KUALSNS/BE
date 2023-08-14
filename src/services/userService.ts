@@ -4,6 +4,7 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { randomPasswordFunction } from '../modules/randomPassword';
+import path from 'path';
 const prisma = new PrismaClient();
 
 
@@ -29,7 +30,7 @@ const userIdentifierSign = async (userIdentifier: string) => {
     return userElement;
   } catch (error) {
     console.log(error);
-    return false;
+    throw new Error(`Failed ${path.resolve(__dirname)} userIdentifierSign function`);
   }
 }
 
@@ -150,7 +151,7 @@ const userId = async (userEmail: string) => {
 
   } catch (error) {
     console.log(error);
-    return false;
+    throw new Error(`Failed ${path.resolve(__dirname)} userId function`);
   }
 }
 
