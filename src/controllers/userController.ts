@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import { checkIdentifierRequestDto, checkIdentifierResponseDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, refreshResultDB, UserIdResponseDto, userIdFindRequestDto, userIdentifierDB, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto } from '../interfaces/userDTO';
+import { checkIdentifierRequestDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, UserIdResponseDto, userIdFindRequestDto, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto } from '../interfaces/userDTO';
 import *  as UserService from '../services/userService';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules';
@@ -307,22 +307,23 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
             const data = await UserService.userId(email);
 
             if (data[0] == undefined) {
-                return new ErrorResponse(404,"email can't find").sendResponse(res);
+                return new ErrorResponse(404, "email can't find").sendResponse(res);
             }
 
             await redisClient.disconnect();
-    
-            return new SuccessResponse(200,"OK",{
+
+            return new SuccessResponse(200, "OK", {
                 userId: data[0].identifier
             }).sendResponse(res);
         }
 
         await redisClient.disconnect();
-        return new ErrorResponse(400,"Fail Verify Email").sendResponse(res);
+        return new ErrorResponse(400, "Fail Verify Email").sendResponse(res);
 
     } catch (error) {
         await redisClient.disconnect();
-        return new ErrorResponse(500,"Server Error").sendResponse(res);
+        console.error(error);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
@@ -340,50 +341,27 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
     try {
 
         const { identifier, userEmail } = req.body;
-        const userIdSignData: userIdentifierDB[] | false = await UserService.userIdentifier(identifier);
+        const userIdSignData = await UserService.userIdentifier(identifier);
 
-        if (userIdSignData) {
-            if (userIdSignData[0] == null || userIdSignData[0] == undefined) {
-                return res.status(404).json({
-                    code: 404,
-                    message: "Id can't find"
-                });
-            }
-            const randomPassword = randomPasswordFunction();
-            const encryptedPassword = await bcrypt.hash(randomPassword, 10);
-            const passwordUpdate: passwordUpdate | false = await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
+        if (userIdSignData?.user_id == null || userIdSignData?.user_id == undefined) {
 
-            if (passwordUpdate) {
-                if (typeof passwordUpdate !== 'undefined') {
-                    await randomPasswordsmtpSender(
-                        userEmail,
-                        passwordUpdate
-                    );
-                    return res.status(200).json({
-                        message: "OK",
-                        code: 200
-                    });
-                }
-
-            } else {
-                return res.status(502).json({
-                    code: 502,
-                    message: "DB Server Error"
-                });
-            }
-        } else {
-            return res.status(502).json({
-                code: 502,
-                message: "DB Server Error"
-            });
+            return new ErrorResponse(404, "Id can't find").sendResponse(res);
 
         }
 
+        const randomPassword = randomPasswordFunction();
+        const encryptedPassword = await bcrypt.hash(randomPassword, 10)
+        const passwordUpdate = await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
+
+        await randomPasswordsmtpSender(
+            userEmail,
+            passwordUpdate
+        );
+
+        return new SuccessResponse(200, "OK").sendResponse(res);
     } catch (error) {
-        return res.status(500).json({
-            code: 500,
-            message: "Server Error"
-        });
+        console.error(error);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
@@ -396,30 +374,21 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
  *          2. 아이디 사용 가능
  *          3. 아이디 중복
  */
-export const checkIdentifier = async (req: Request<any, any, any, checkIdentifierRequestDto>, res: Response<checkIdentifierResponseDto>) => {
+export const checkIdentifier = async (req: Request<any, any, any, checkIdentifierRequestDto>, res: Response) => {
     try {
 
         const checkIdentifier = req.query.checkIdentifier;
-        const identifierData = await UserService.selectIdentifier(checkIdentifier);
+        const identifierData = await UserService.userIdentifier(checkIdentifier);
 
         if (identifierData == null) {
 
-            return res.status(200).json({
-                message: "아이디 사용 가능",
-                code: 200
-            });
+            return new SuccessResponse(200, "아이디 사용 가능").sendResponse(res);
 
         }
-        return res.status(400).json({
-            message: "아이디 중복",
-            code: 400
-        });
+        return new ErrorResponse(400, "아이디 중복").sendResponse(res);
 
     } catch (error) {
-        return res.status(500).json({
-            code: 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
@@ -435,52 +404,40 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
         const kakaoAccessToken = req.headers.access;
 
-        if (kakaoAccessToken !== undefined && typeof kakaoAccessToken == 'string') {
-            const userData = await axios({
-                method: 'get',
-                url: 'https://kapi.kakao.com/v2/user/me',
-                headers: {
-                    Authorization: `Bearer ${kakaoAccessToken}`
-                }
-            });
-
-            const userEmail = userData.data.kakao_account.email;
-            const userNickname = userData.data.properties.nickname;
-            const userCheck = await UserService.selectIdentifier(userEmail);
-
-
-            if (userCheck == null) {
-                await UserService.kakaoSignUp(userEmail, userNickname);
+        const userData = await axios({
+            method: 'get',
+            url: 'https://kapi.kakao.com/v2/user/me',
+            headers: {
+                Authorization: `Bearer ${kakaoAccessToken}`
             }
+        });
 
-            const userId = await UserService.selectIdentifier(userEmail);
+        const userEmail = userData.data.kakao_account.email;
+        const userNickname = userData.data.properties.nickname;
+        const userCheck = await UserService.userIdentifier(userEmail);
 
-
-            if (userId) {
-                const accessToken = "Bearer " + jwt.sign(String(userId.user_id), userId.role);
-                const refreshToken = "Bearer " + jwt.refresh();
-
-                await redisClient.connect();
-                await redisClient.v4.set(String(userId.user_id), refreshToken);
-                await redisClient.disconnect();
-
-                return res.status(200).json({
-                    code: 200,
-                    message: "Ok",
-                    data: {
-                        accessToken,
-                        refreshToken
-                    },
-                    role: userId.role
-                });
-            }
+        if (userCheck == null) {
+            await UserService.kakaoSignUp(userEmail, userNickname);
         }
+
+        const userId = await UserService.userIdentifier(userEmail);
+
+        const accessToken = "Bearer " + jwt.sign(String(userId?.user_id), userId!.role);
+        const refreshToken = "Bearer " + jwt.refresh();
+
+        await redisClient.connect();
+        await redisClient.v4.set(String(userId?.user_id), refreshToken);
+        await redisClient.disconnect();
+
+        return new SuccessResponse(200,"OK",{
+            accessToken,
+            refreshToken,
+            role: userId?.role
+        }).sendResponse(res);
+
     } catch (error) {
         await redisClient.disconnect();
-        return res.status(500).json({
-            code: 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 

@@ -17,9 +17,6 @@ export interface UserReissueTokenResponseDto {
     refreshToken: string;
 }
 
-export interface refreshResultDB {
-    state: boolean;
-}
 
 export interface decoded{
     message: string;
@@ -54,10 +51,6 @@ export interface userPasswordFindRequestDto {
     userEmail  : string;
 }
 
-export interface userIdentifierDB {
-    user_id: number;
-}
-
 export type passwordUpdate = string;
 
 
@@ -65,20 +58,11 @@ export interface checkIdentifierRequestDto {
     checkIdentifier : string;
 }
 
-export interface checkIdentifierResponseDto {
-    message : string;
-    code : number;
-}
-
 
 export interface kakaoLogInResponseDto {
-    message : string;
-    code : number;
-    data? : {
         accessToken : string,
-        refreshToken : string
-    }
-    role? : string;
+        refreshToken : string,
+        role : string   
 }
 
 

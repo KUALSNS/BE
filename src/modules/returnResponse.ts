@@ -13,7 +13,7 @@ class ErrorResponse {
 }
 
 class SuccessResponse {
-    constructor(private code: number, private message: string, private data: unknown) {}
+    constructor(private code: number, private message: string, private data?: unknown) {}
 
     sendResponse(res: Response): Response {
         return res.status(this.code).json({

@@ -163,19 +163,16 @@ const userId = async (userEmail: string) => {
  */
 const userIdentifier = async (userIdentifier: string) => {
   try {
-    const userIdDB = await prisma.users.findMany({
+    const userIdDB = await prisma.users.findUnique({
       where: {
         identifier: userIdentifier
-      },
-      select: {
-        user_id: true
       }
     });
     return userIdDB;
 
   } catch (error) {
     console.log(error);
-    return false;
+    throw new Error(`Failed ${path.resolve(__dirname)} userIdentifier function`);
   }
 }
 
@@ -205,31 +202,31 @@ const updatePassword = async (userIdentifier: string, userEmail: string, encrypt
 
   } catch (error) {
     console.log(error);
-    return false;
+    throw new Error(`Failed ${path.resolve(__dirname)} updatePassword function`);
   }
 }
 
-/**
- * 
- * @param userIdentifier 유저 아이디
- * @returns 유저 정보
- */
-const selectIdentifier = async (userIdentifier: string) => {
-  try {
+// /**
+//  * 
+//  * @param userIdentifier 유저 아이디
+//  * @returns 유저 정보
+//  */
+// const selectIdentifier = async (userIdentifier: string) => {
+//   try {
 
-    const identifier = await prisma.users.findUnique({
-      where: {
-        identifier: userIdentifier
-      }
-    })
+//     const identifier = await prisma.users.findUnique({
+//       where: {
+//         identifier: userIdentifier
+//       }
+//     })
 
-    return identifier
+//     return identifier
 
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
-}
+//   } catch (error) {
+//     console.log(error);
+//     return false;
+//   }
+// }
 
 /**
  * 
@@ -264,5 +261,5 @@ const kakaoSignUp = async (kakaoEmail: string, kakaoNickname: string) => {
 
 
 
-export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier, selectIdentifier, kakaoSignUp }
+export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier,  kakaoSignUp }
 
