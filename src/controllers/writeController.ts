@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as WriteService from '../services/writeService';
-import { newChallengeRequestDto, newChallengeResponseDto } from '../interfaces/writeDTO';
+import { newChallengeRequestDto, newChallengeResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
 /**
@@ -101,77 +101,81 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
 };
 
 
-export const writeChallenge = async (req: any, res: Response) => {
+export const writeChallenge = async (req: any, res: Response<writeChallengeResponseDto>) => {
     try {
         const writeChallenge = await WriteService.writeChallengeData(req.decoded.id);
-        const challengeCategoryDB = writeChallenge?.challengeArray;
+        const challengeArray = [];
         const challengingArray = [];
         const challengeChalIdyArray = [];
+        let writeTemplate;
+        let temporaryChallenge: { title: string | null; writing: string; }[] | undefined;
 
-        if (writeChallenge?.challengeArray[0] == undefined) {
-            return res.status(404).json({
-                "code": 404,
-                "message": "오늘은 더 이상 진행할 챌린지가 없습니다",
-            });
-        }
-        for (var i = 0; i < challengeCategoryDB!.length; i++) {
-            const challengeMap = challengeCategoryDB!.map((e) => {
-                return { "title": e.challenges, "chal_id": e.chal_id, "category": e.challenges.category.name };
-            });
-            challengingArray.push({ "challengeName": challengeMap[i].title.title, "category": challengeMap[i].category });
-            challengeChalIdyArray.push(challengeMap[i].chal_id);
+        for (const challengeCategory of [writeChallenge.challengeCategoryDBFirst, writeChallenge.challengeCategoryDBSecond]) {
+            for (const challenge of challengeCategory) {
+                if (challenge.user_challenge_templetes[0] || challengeArray.indexOf(challenge) === -1) {
+                    challengeArray.push(challenge);
+                }
+            }
         }
 
-        if (writeChallenge?.challengeArray[0].user_challenge_templetes[0] == undefined) {  // 값이 없다면
-            var writeTemplate: any = await WriteService.writeTemplateData(challengeChalIdyArray[0]);
+        if (challengeArray[0] == undefined) {
+            return new ErrorResponse(404, "오늘은 더 이상 진행할 챌린지가 없습니다").sendResponse(res);
+        }
+
+        for (const e of challengeArray) {
+            challengingArray.push({ "challengeName": e.challenges.title, "category": e.challenges.category.name });
+            challengeChalIdyArray.push(e.chal_id);
+        }
+
+        console.log(challengeChalIdyArray)
+
+
+        if (challengeArray[0].user_challenge_templetes[0] == undefined) {                    // 값이 없다면
+            writeTemplate = await WriteService.writeTemplateData(challengeChalIdyArray[0]);
+            console.log(writeTemplate)
+            temporaryChallenge = [];
         }
         else {
-            var writeTemplate: any =
-                await WriteService.writeTemplateData(challengeChalIdyArray[0],
-                    writeChallenge?.challengeArray[0].user_challenge_templetes[0].uctem_id);
-
+            writeTemplate = await WriteService.writeTemplateData(challengeChalIdyArray[0], challengeArray[0].user_challenge_templetes[0].uctem_id);
+            temporaryChallenge = writeTemplate!.temporaryChallengeDB?.map((e) => {
+                return {
+                    "title": e.title,
+                    "writing": e.writing
+                }
+            })
         }
-        const template = writeTemplate?.challengeTemplateDB;
-        const category = writeTemplate?.categoryDB;
-        const temporaryChallenge = writeTemplate.temporaryChallenge;
+   
+        const category = writeTemplate.categoryDB;
         let templateCertain: boolean;
 
-        const templates = template.map((e: any) => {
+        const templates = writeTemplate.challengeTemplateDB.map((e) => {
             return { "templateTitle": e.title, "templateContent": e.content, "category": e.challenges.category.name, "image": e.challenges.category.emogi }
         });
 
-        console.log(temporaryChallenge[0]);
-
-
-        if (temporaryChallenge[0] == undefined) {
+        if (temporaryChallenge![0] == undefined) {
             templateCertain = false;
         }
         else {
             templateCertain = true;
-
         }
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            "data": {
-                templateCertain,
-                temporaryChallenge,
-                challengingArray,
-                templateData: {
-                    challengeName: challengingArray[0].challengeName,
-                    challengeCategory: category[0].category.name,
-                    templates
-                }
+
+        return new SuccessResponse(200, "OK", {
+            templateCertain,
+            temporaryChallenge,
+            challengingArray,
+            templateData: {
+                challengeName: challengingArray[0].challengeName,
+                challengeCategory: category[0].category.name,
+                templates
             }
-        });
+        }).sendResponse(res);
+
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            "message": "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
+
 
 export const insertTemporaryChallenge = async (req: any, res: Response) => {
     try {
@@ -226,31 +230,31 @@ export const insertChallengeComplete = async (req: any, res: Response) => {
     }
 };
 
-export const selectTemplate = async (req: any, res: Response) => {
-    try {
-        const challengeName = req.params.challengeName;
-        const data = await WriteService.selectTemplateData(challengeName, req.decoded.id);
+// export const selectTemplate = async (req: any, res: Response) => {
+//     try {
+//         const challengeName = req.params.challengeName;
+//         const data = await WriteService.selectTemplateData(challengeName, req.decoded.id);
 
-        if (data) {
-            return res.status(200).json({
-                "code": 200,
-                "message": "Ok",
-                data
-            });
+//         if (data) {
+//             return res.status(200).json({
+//                 "code": 200,
+//                 "message": "Ok",
+//                 data
+//             });
 
-        }
-        return res.status(404).json({
-            "code": 404,
-            "message": "not found"
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            "message": "Server Error"
-        });
-    }
-};
+//         }
+//         return res.status(404).json({
+//             "code": 404,
+//             "message": "not found"
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({
+//             "code": 500,
+//             "message": "Server Error"
+//         });
+//     }
+// };
 
 
 
