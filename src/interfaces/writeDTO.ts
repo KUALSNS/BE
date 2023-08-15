@@ -3,6 +3,10 @@ export type newChallengeRequestDto = {
     name: string;
 };
 
+export type selectTemplateRequestDto = {
+    challengeName: string;
+};
+
 interface challengingArray {
     challengeName: string;
     category: string;
@@ -21,23 +25,20 @@ interface templates {
 }
 
 export interface newChallengeResponseDto {
-    code: number;
-    message: string;
-    data?: {
-        challengingArray: challengingArray[];
-        templateData: {
-            challengeName: challengeName;
-            challengeCategory: challengeCategory;
-            templates: templates[];
-        }
+
+    challengingArray: challengingArray[];
+    templateData: {
+        challengeName: challengeName;
+        challengeCategory: challengeCategory;
+        templates: templates[];
     }
+
 }
 
 interface temporaryChallenge {
     title: string | null;
     writing: string;
-}[]
-
+}[];
 
 interface challengingArray {
     challengeNames: {
@@ -47,8 +48,7 @@ interface challengingArray {
         };
     };
     category: string;
-}[]
-
+}[];
 
 interface templateData {
     challengeName: {
@@ -64,11 +64,41 @@ interface templateData {
         category: string;
         image: string;
     }[];
-}
+};
 
 export interface writeChallengeResponseDto {
     templateCertain: boolean;
     temporaryChallenge: temporaryChallenge[];
-    challengingArray : challengingArray[];
-    templateData : templateData;
+    challengingArray: challengingArray[];
+    templateData: templateData;
 }
+
+export type ChallengeCategoryDB = {
+    chal_id: number;
+    challenges: {
+        title: string;
+        category: {
+            name: string;
+        };
+    };
+    user_challenge_templetes: {
+        uctem_id: number;
+    }[];
+};
+
+export type ChallengeIdCategory =  {
+    chal_id: number;
+    category: {
+        name: string;
+        emogi: string;
+    };
+}[]
+
+export type ChallengeId = {
+    uchal_id: number;
+}[]
+
+
+
+
+
