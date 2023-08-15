@@ -595,6 +595,7 @@ const selectTemplateData = async (
     challengeIdDB: ChallengeId
 }> => {
     try {
+
         const [templateNameDB, challengeIdDB] = await Promise.all([
             prisma.templates.findMany({
                 where: {

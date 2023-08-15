@@ -86,7 +86,7 @@ export type ChallengeCategoryDB = {
     }[];
 };
 
-export type ChallengeIdCategory =  {
+export type ChallengeIdCategory = {
     chal_id: number;
     category: {
         name: string;
@@ -97,6 +97,35 @@ export type ChallengeIdCategory =  {
 export type ChallengeId = {
     uchal_id: number;
 }[]
+
+
+export interface selectTemplateResponseDto {
+    templateCertain: boolean;
+    temporaryChallenge: {
+        title: string | null;
+        writing: string;
+        userChallenge: string;
+    }[];
+    challengingArray: {
+        challengeName: string;
+        category: string;
+    }[];
+    templateData: {
+        challengeName: string;
+        challengeCategory: string;
+        templates: {
+            templateTitle: string;
+            templateContent: string;
+            category: string | undefined;
+            image: string | undefined;
+        }[];
+    }
+}
+
+
+
+
+
 
 
 
