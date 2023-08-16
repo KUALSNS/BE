@@ -14,12 +14,12 @@ const prisma = new PrismaClient();
  * @returns 1. 유저에 대한 아이디, 권한, 비밀번호
  *          2. 오류 시 false반환
  */
-const userIdentifierSign = async (userIdentifier: string) => {
+const userInformationSelectData = async (userIdentifier: string) => {
   try {
     const connection = await mysql.createConnection(DATA_SOURCES.development);
     await connection.connect();
 
-    const userSelect = `select user_id, role, password from users where identifier = '${String(userIdentifier)}'; `;
+    const userSelect = `select * from users where identifier = '${String(userIdentifier)}'; `;
     const userSelectResult = await connection.query(userSelect);
     await connection.end();
 
@@ -136,7 +136,7 @@ const userSignup = async (
  * @returns 1. 유저 아이디 반환
  *          2. 실패 시 false 반환
  */
-const userId = async (userEmail: string) => {
+const userIdentifierData = async (userEmail: string) => {
   try {
     const userIdDB = await prisma.users.findMany({
       where: {
@@ -154,27 +154,6 @@ const userId = async (userEmail: string) => {
   }
 }
 
-/**
- * 아이디 조회 함수
- * @param userIdentifier 유저 아이디
- * @returns 1. 유저 id
- *          2. 실패 시 false 반환
- */
-const userIdentifier = async (userIdentifier: string) => {
-  try {
-    const userIdDB = await prisma.users.findUnique({
-      where: {
-        identifier: userIdentifier
-      }
-    });
-    return userIdDB;
-
-  } catch (error) {
-    console.log(error);
-    throw new Error(`Failed ${__dirname} userIdentifier function`);
-  }
-}
-
 
 /**
  * 임시 비밀 번호 업데이트 함수
@@ -185,7 +164,7 @@ const userIdentifier = async (userIdentifier: string) => {
  * @returns   1. 랜덤 비밀 번호
  *            2. 실패 시 false 반환
  */
-const updatePassword = async (userIdentifier: string, userEmail: string, encryptedPassword: string, randomPassword: string) => {
+const updatePasswordData = async (userIdentifier: string, userEmail: string, encryptedPassword: string) => {
   try {
 
     await prisma.users.updateMany({
@@ -197,7 +176,7 @@ const updatePassword = async (userIdentifier: string, userEmail: string, encrypt
         password: encryptedPassword
       }
     });
-    return randomPassword;
+    return ;
 
   } catch (error) {
     console.log(error);
@@ -239,5 +218,5 @@ const kakaoSignUp = async (kakaoEmail: string, kakaoNickname: string) => {
 
 
 
-export { userIdentifierSign, userSignup, userId, updatePassword, userIdentifier,  kakaoSignUp }
+export { userInformationSelectData, userSignup, userIdentifierData, updatePasswordData,  kakaoSignUp }
 

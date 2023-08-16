@@ -148,7 +148,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
     try {
 
         const { userIdentifier, userPassword } = req.body;
-        const data = await UserService.userIdentifierSign(userIdentifier);
+        const data = await UserService.userInformationSelectData(userIdentifier);
 
         if (data == null || data == undefined) {
             return new ErrorResponse(404, "Id can't find").sendResponse(res);
@@ -304,7 +304,7 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
 
         if (redisCode == parseInt(<string>code)) {
 
-            const data = await UserService.userId(email);
+            const data = await UserService.userIdentifierData(email);
 
             if (data[0] == undefined) {
                 return new ErrorResponse(404, "email can't find").sendResponse(res);
@@ -341,21 +341,25 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
     try {
 
         const { identifier, userEmail } = req.body;
-        const userIdSignData = await UserService.userIdentifier(identifier);
+        const userIdSignData = await UserService.userInformationSelectData(identifier);
 
         if (userIdSignData?.user_id == null || userIdSignData?.user_id == undefined) {
 
             return new ErrorResponse(404, "Id can't find").sendResponse(res);
 
         }
+        if(userEmail !== userIdSignData.email){
+            return new ErrorResponse(405, "이메일이 옳바르지 않습니다.").sendResponse(res);
+
+        }
 
         const randomPassword = randomPasswordFunction();
         const encryptedPassword = await bcrypt.hash(randomPassword, 10)
-        const passwordUpdate = await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
+        const passwordUpdate = await UserService.updatePasswordData(identifier, userEmail, encryptedPassword);
 
         randomPasswordsmtpSender(
             userEmail,
-            passwordUpdate
+            randomPassword
         );
 
         return new SuccessResponse(200, "OK").sendResponse(res);
@@ -378,7 +382,7 @@ export const checkIdentifier = async (req: Request<any, any, any, checkIdentifie
     try {
 
         const checkIdentifier = req.query.checkIdentifier;
-        const identifierData = await UserService.userIdentifier(checkIdentifier);
+        const identifierData = await UserService.userInformationSelectData(checkIdentifier);
 
         if (identifierData == null) {
 
@@ -414,13 +418,13 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
         const userEmail = userData.data.kakao_account.email;
         const userNickname = userData.data.properties.nickname;
-        const userCheck = await UserService.userIdentifier(userEmail);
+        const userCheck = await UserService.userInformationSelectData(userEmail);
 
         if (userCheck == null) {
             await UserService.kakaoSignUp(userEmail, userNickname);
         }
 
-        const userId = await UserService.userIdentifier(userEmail);
+        const userId = await UserService.userInformationSelectData(userEmail);
 
         const accessToken = "Bearer " + jwt.sign(String(userId?.user_id), userId!.role);
         const refreshToken = "Bearer " + jwt.refresh();

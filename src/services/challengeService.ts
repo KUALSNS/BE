@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
  * @returns  1. 카테고리와 챌린지 데이터 반환
  *           2. 오류 시 false 반환
  */
-const beforeMainData = async () => {
+const allChallengeCategoryData = async () => {
   try {
   
     const [categoryDB, challengesDB] = await Promise.all([
@@ -91,34 +91,10 @@ const challengeSearchData = async (challengeSearch: string) => {
  * @returns 1.  카테고리, 챌린지 데이터, 유저의 챌린지 개수, 챌린지별 달성률, 쿠폰 사용 유무 반환
  *          2. 오류 시 false 반환 
  */
-const afterMainData = async (user_id: number) => {
+const userChallengingData = async (user_id: number) => {
   try {
   
-    const [categoryDB, challengesDB, userDB, userChallengeCountDB] = await Promise.all([
-      prisma.category.findMany({
-        where: {
-          type: "챌린지"
-        },
-        select: {
-          name: true,
-        }
-      }),
-      prisma.challenges.findMany({
-        select: {
-          title: true,
-          category: {
-            select: {
-              name: true,
-              emogi: true
-            }
-          }
-        },
-        orderBy: {
-          category: {
-            name: 'asc'
-          }
-        }
-      }),
+    const [ userDB, userChallengeCountDB] = await Promise.all([
       prisma.users.findMany({
         where: {
           user_id: user_id
@@ -149,10 +125,9 @@ const afterMainData = async (user_id: number) => {
         }
       })
     ]);
-    console.log(categoryDB);
     prisma.$disconnect();
     return {
-      categoryDB, challengesDB, userDB, userChallengeCountDB    
+       userDB, userChallengeCountDB    
     };
   } catch (error) {
     console.log(error);
@@ -164,5 +139,5 @@ const afterMainData = async (user_id: number) => {
 
 
 export {
-  beforeMainData, challengeSearchData, afterMainData,
+  allChallengeCategoryData, challengeSearchData, userChallengingData,
 }

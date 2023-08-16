@@ -19,7 +19,7 @@ import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
  */
 export const beforeMain = async (req: Request, res: Response<beforeMainResponseDto>) => {
     try {
-        const data = await ChallengeController.beforeMainData();
+        const data = await ChallengeController.allChallengeCategoryData();
 
         if (!data) {
             return new ErrorResponse(400, "값을 찾을 수 없습니다.").sendResponse(res);
@@ -85,18 +85,22 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
     try {
 
         const user_id = req.decoded?.id;
-        const data = await ChallengeController.afterMainData(user_id);
 
-        const nickname = data.userDB[0].nickname;
-        const coopen = data.userDB[0].coopon;
+        const [allChallengeCategoryData, userChallengingData] = await Promise.all([
+            ChallengeController.allChallengeCategoryData(),
+            ChallengeController.userChallengingData(user_id)
+        ])
 
-        const userChallengeArray = data.userChallengeCountDB.map((e) => ({
+        const nickname = userChallengingData.userDB[0].nickname;
+        const coopen = userChallengingData.userDB[0].coopon;
+
+        const userChallengeArray = userChallengingData.userChallengeCountDB.map((e) => ({
             challenges: e.challenges.title,
             achievement: Math.round(e.user_challenge_templetes.length * 3.3)
         }));
 
-        const category = data.categoryDB.map((e) => e.name);
-        const challengesArray = data.challengesDB.map((e) => ({
+        const category = allChallengeCategoryData.categoryDB.map((e) => e.name);
+        const challengesArray = allChallengeCategoryData.challengesDB.map((e) => ({
             ...e,
             title: e.title,
             category: e.category.name,
