@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth';
 import { TemplateDTO } from '../interfaces/DTO';
 import mysql from 'mysql2/promise';
-import path from 'path';
 import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
 import { ChallengeCategoryDB, ChallengeId, ChallengeIdCategory } from '../interfaces/writeDTO';
 const prisma = new PrismaClient();
@@ -43,7 +42,7 @@ const newChallengeData = async (user_id: number) => {
     } catch (error) {
         prisma.$disconnect();
         console.log(error);
-        throw new Error(`Failed ${path.resolve(__dirname)} newChallengeData function`);
+        throw new Error(`Failed ${__dirname} newChallengeData function`);
     }
 };
 
@@ -76,7 +75,7 @@ const selectChallenge = async (challenge: string) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} selectChallenge function`);
+        throw new Error(`Failed ${__dirname} selectChallenge function`);
     }
 };
 
@@ -106,7 +105,7 @@ const startChallenge = async (user_id: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} startChallenge function`);
+        throw new Error(`Failed ${__dirname} startChallenge function`);
     }
 };
 
@@ -135,7 +134,7 @@ const userChallengeSelect = async (userId: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} userChallengeSelect function`);
+        throw new Error(`Failed ${__dirname} userChallengeSelect function`);
     }
 };
 
@@ -235,11 +234,15 @@ const newChallengeResult = async (user_id: number, challenge_id: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} newChallengeResult function`);
+        throw new Error(`Failed ${__dirname} newChallengeResult function`);
     }
 };
 
-
+/**
+ * 진행 중인 오늘 진행해야할 챌린지 데이터 조회 함수
+ * @param user_id 유저 id
+ * @returns 
+ */
 const writeChallengeData = async (user_id: number) => {
     try {
         const koreanDate = getKoreanDateISOString();
@@ -310,10 +313,16 @@ const writeChallengeData = async (user_id: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} writeChallengeData function`);
+        throw new Error(`Failed ${__dirname} writeChallengeData function`);
     }
 };
 
+/**
+ * 유저 챌린지 템플릿에 여부에 따라 해당 챌린지 템플릿, 카테고리, 유저가 쓴 템플릿 조회 함수
+ * @param chal_id   챌린지 id
+ * @param uctem_id  유저 챌린지 템플릿 id
+ * @returns 
+ */
 const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
     try {
 
@@ -415,10 +424,18 @@ const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} writeTemplateData function`);
+        throw new Error(`Failed ${__dirname} writeTemplateData function`);
     }
 };
 
+/**
+ * 챌린지 템플릿 내용 업데이트 함수
+ * @param complete           챌린지 템플릿 완료 여부 
+ * @param userChallengeId    유저 챌린지 id
+ * @param challengeTitle     템플릿 제목
+ * @param challengeContent   템플릿 내용
+ * @returns 
+ */
 const updateChallengeTemplateData = async (
     complete: boolean,
     userChallengeId: number,
@@ -446,10 +463,53 @@ const updateChallengeTemplateData = async (
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} updateChallengeTemplateData function`);
+        throw new Error(`Failed ${__dirname} updateChallengeTemplateData function`);
+    }
+};
+/**
+ *  템플릿 수정 함수( 오늘 챌린지 완료 여부 x)
+ * @param userChallengeId    유저 챌린지 id
+ * @param challengeTitle     템플릿 제목
+ * @param challengeContent   템플릿 내용
+ * @returns 
+ */
+const updatePlannerChallengeTemplateData = async (
+    userChallengeId: number,
+    challengeTitle: string,
+    challengeContent: string
+) => {
+    try {
+        const koreanDate = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDate)
+        await prisma.user_challenge_templetes.updateMany({
+            where: {
+                uchal_id: userChallengeId,
+                created_at: koreanTime
+
+            },
+            data: {
+                title: challengeTitle,
+                writing: challengeContent,
+            }
+        });
+
+        prisma.$disconnect();
+        return;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} updatePlannerChallengeTemplateData function`);
     }
 };
 
+/**
+ * 오늘 챌린지 템플릿 추가 함수 
+ * @param complete           챌린지 템플릿 완료 여부 
+ * @param userChallengeId    유저 챌린지 id
+ * @param challengeTitle     템플릿 제목
+ * @param challengeContent   템플릿 내용
+ * @returns 
+ */
 const insertChallengeTemplateData = async (
     complete: boolean,
     userChallengeId: number,
@@ -475,11 +535,15 @@ const insertChallengeTemplateData = async (
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} insertChallengeCompleteData function`);
+        throw new Error(`Failed ${__dirname} insertChallengeCompleteData function`);
     }
 };
 
-
+/**
+ * 오늘 진행할 챌린지 중 챌린지 템플릿이 있는지 조회 함수
+ * @param userChallengeId 유저 챌린지 id
+ * @returns 
+ */
 const selectTodayChallengeTemplateData = async (userChallengeId: number) => {
     try {
 
@@ -501,11 +565,17 @@ const selectTodayChallengeTemplateData = async (userChallengeId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} selectTodayChallengeTemplateData function`);
+        throw new Error(`Failed ${__dirname} selectTodayChallengeTemplateData function`);
     }
 };
 
 
+/**
+ * 유저가 진행 중인 챌린지 조회 함수
+ * @param user_id      유저 id
+ * @param challengeId  챌린지 id
+ * @returns 
+ */
 const getUserChallengeId = async (
     user_id: number,
     challengeId: number
@@ -527,10 +597,16 @@ const getUserChallengeId = async (
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} getUserChallengeId function`);
+        throw new Error(`Failed ${__dirname} getUserChallengeId function`);
     }
 };
 
+/**
+ * 챌린지 템플릿 정보와 유저가 진행 중인 유저 챌린지 id 조회 함수
+ * @param challengeIdCategory 챌린지 id 카테고리 정보
+ * @param user_id  유저 id
+ * @returns 
+ */
 const selectTemplateData = async (
     challengeIdCategory: ChallengeIdCategory,
     user_id: number,
@@ -566,11 +642,15 @@ const selectTemplateData = async (
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} selectTemplateData function`);
+        throw new Error(`Failed ${__dirname} selectTemplateData function`);
     }
 };
 
-
+/**
+ * 유저가 진행 중인, 오늘 진행해야할 챌린지 조회 함수
+ * @param challengeId 챌린지 id
+ * @returns 
+ */
 const challengingData = async (challengeId: number) => {
     try {
 
@@ -604,15 +684,9 @@ const challengingData = async (challengeId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${path.resolve(__dirname)} challengingData function`);
+        throw new Error(`Failed ${__dirname} challengingData function`);
     }
 };
-
-
-
-
-
-
 
 
 
@@ -624,6 +698,6 @@ export {
     newChallengeData, selectChallenge, newChallengeResult, startChallenge,
     writeChallengeData, writeTemplateData, updateChallengeTemplateData,
     insertChallengeTemplateData, challengingData, selectTemplateData, userChallengeSelect,
-    getUserChallengeId, selectTodayChallengeTemplateData
+    getUserChallengeId, selectTodayChallengeTemplateData, updatePlannerChallengeTemplateData
 }
 

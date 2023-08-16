@@ -255,7 +255,13 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
     }
 };
 
-
+/**
+ * 챌린지 임시저장 함수
+ * @param req 챌린지 이름, 템플릿 제목, 템플릿 내용
+ * @param res 
+ * @returns   1. 서버오류(500)
+ *            2. 완료(200)
+ */
 export const insertTemporaryChallenge = async (req: Request<any, any, insertChallengeRequestDto>, res: Response) => {
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
@@ -267,7 +273,7 @@ export const insertTemporaryChallenge = async (req: Request<any, any, insertChal
         const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId!.uchal_id);
         const complete = false;
 
-        console.log(userChallengeTemplateId )
+        console.log(userChallengeTemplateId)
 
         if (userChallengeTemplateId === null) {
             await WriteService.insertChallengeTemplateData(
@@ -293,6 +299,13 @@ export const insertTemporaryChallenge = async (req: Request<any, any, insertChal
     }
 };
 
+/**
+ * 챌린지 쓰기 함수
+ * @param req  챌린지 이름, 템플릿 제목, 템플릿 내용
+ * @param res 
+ * @returns   1. 서버오류(500)
+ *            2. 완료(200)
+ */
 export const insertChallengeComplete = async (req: Request<any, any, insertChallengeRequestDto>, res: Response) => {
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
@@ -304,7 +317,7 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
         const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId!.uchal_id);
         const complete = true;
 
-        console.log(userChallengeTemplateId )
+        console.log(userChallengeTemplateId)
 
         if (userChallengeTemplateId === null) {
             await WriteService.insertChallengeTemplateData(
@@ -321,9 +334,6 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
                 challengeContent
             );
         }
-
-
-
         return new SuccessResponse(200, "OK").sendResponse(res);
 
     } catch (error) {
@@ -332,6 +342,39 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
     }
 };
 
+/**
+ *  글 플래너 페이지에서 템플릿 내용 수정 시 호출 함수
+ * @param req  챌린지 이름, 템플릿 제목, 템플릿 내용
+ * @param res 
+ * @returns   1. 서버오류(500)
+ *            2. 완료(200)
+ */
+export const plannerTemporaryChallenge = async (req: Request<any, any, insertChallengeRequestDto>, res: Response) => {
+    try {
+        const { challengeName, challengeTitle, challengeContent } = req.body;
+
+        const challengeId = await WriteService.selectChallenge(challengeName);
+
+        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id, challengeId[0].chal_id);
+
+        await WriteService.updatePlannerChallengeTemplateData(
+            userChallengeId!.uchal_id,
+            challengeTitle,
+            challengeContent
+        );
+    
+        return new SuccessResponse(200, "OK").sendResponse(res);
+
+} catch (error) {
+    console.error(error);
+    return new ErrorResponse(500, "Server Error").sendResponse(res);
+}
+};
+
+
+/**
+ * 유저가 오늘 써야할 챌린지 목록을 추출해주는 함수
+ */
 function challengeRelativeMapping(challengeCategoryDBFirst: ChallengeCategoryDB[], challengeCategoryDBSecond: ChallengeCategoryDB[]) {
 
     const challengeArray = [];
