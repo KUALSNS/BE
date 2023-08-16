@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as WriteService from '../services/writeService';
-import { ChallengeCategoryDB, insertChallengeCompleteRequestDto, newChallengeRequestDto, newChallengeResponseDto, selectTemplateRequestDto, selectTemplateResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
+import { ChallengeCategoryDB, insertChallengeRequestDto, newChallengeRequestDto, newChallengeResponseDto, selectTemplateRequestDto, selectTemplateResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
 /**
@@ -256,50 +256,79 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
 };
 
 
-export const insertTemporaryChallenge = async (req: any, res: Response) => {
-    try {
-        const { challengeName, templateName, challengeTitle, challengeContent } = req.body;
-
-        const data =
-            await WriteService.insertTemporaryChallengeData(req.decoded.id,
-                challengeName,
-                templateName,
-                challengeTitle,
-                challengeContent
-            );
-        if (data) {
-            return res.status(200).json({
-                "code": 200,
-                "message": "Ok"
-            });
-        }
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            "message": "Server Error"
-        });
-    }
-};
-
-export const insertChallengeComplete = async (req: Request<any, any, insertChallengeCompleteRequestDto>, res: Response) => {
+export const insertTemporaryChallenge = async (req: Request<any, any, insertChallengeRequestDto>, res: Response) => {
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
 
         const challengeId = await WriteService.selectChallenge(challengeName);
 
-        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id,challengeId[0].chal_id);
+        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id, challengeId[0].chal_id);
 
-        await WriteService.insertChallengeCompleteData(
-            userChallengeId!.uchal_id,
-            challengeTitle,
-            challengeContent
-        );
+        const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId!.uchal_id);
+        const complete = false;
+
+        console.log(userChallengeTemplateId )
+
+        if (userChallengeTemplateId === null) {
+            await WriteService.insertChallengeTemplateData(
+                complete,
+                userChallengeId!.uchal_id,
+                challengeTitle,
+                challengeContent
+            );
+        } else {
+            await WriteService.updateChallengeTemplateData(
+                complete,
+                userChallengeId!.uchal_id,
+                challengeTitle,
+                challengeContent
+            );
+        }
+
         return new SuccessResponse(200, "OK").sendResponse(res);
 
     } catch (error) {
         console.error(error);
-        return new ErrorResponse(500,"Server Error").sendResponse(res);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
+    }
+};
+
+export const insertChallengeComplete = async (req: Request<any, any, insertChallengeRequestDto>, res: Response) => {
+    try {
+        const { challengeName, challengeTitle, challengeContent } = req.body;
+
+        const challengeId = await WriteService.selectChallenge(challengeName);
+
+        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id, challengeId[0].chal_id);
+
+        const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId!.uchal_id);
+        const complete = true;
+
+        console.log(userChallengeTemplateId )
+
+        if (userChallengeTemplateId === null) {
+            await WriteService.insertChallengeTemplateData(
+                complete,
+                userChallengeId!.uchal_id,
+                challengeTitle,
+                challengeContent
+            );
+        } else {
+            await WriteService.updateChallengeTemplateData(
+                complete,
+                userChallengeId!.uchal_id,
+                challengeTitle,
+                challengeContent
+            );
+        }
+
+
+
+        return new SuccessResponse(200, "OK").sendResponse(res);
+
+    } catch (error) {
+        console.error(error);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 

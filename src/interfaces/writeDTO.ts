@@ -123,7 +123,7 @@ export interface selectTemplateResponseDto {
 }
 
 
-export interface insertChallengeCompleteRequestDto {
+export interface insertChallengeRequestDto {
     challengeName: string;
     challengeTitle: string;
     challengeContent: string;
