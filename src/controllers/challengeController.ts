@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { Request, Response } from 'express';
 import * as ChallengeController from '../services/challengeService';
-import { afterMainResponseDTO, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO';
+import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
 
@@ -81,7 +81,7 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
  *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
  *           3. 서버 오류 반환
  */
-export const afterMain = async (req: Request, res: Response<afterMainResponseDTO>) => {
+export const afterMain = async (req: Request, res: Response<afterMainResponseDto>) => {
     try {
 
         const user_id = req.decoded?.id;

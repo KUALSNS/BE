@@ -52,12 +52,12 @@ const newChallengeData = async (user_id: number) => {
  * @param newChallenge 챌린지 이름
  * @returns  해당 챌린지의 id
  */
-const selectChallenge = async (newChallenge: string) => {
+const selectChallenge = async (challenge: string) => {
     try {
 
         const chalId = await prisma.challenges.findMany({
             where: {
-                title: newChallenge
+                title: challenge
             },
             select: {
                 chal_id: true,
@@ -506,84 +506,56 @@ const insertTemporaryChallengeData = async (
 };
 
 const insertChallengeCompleteData = async (
-    user_id: number,
-    challengeName: string,
+    userChallengeId: number,
     challengeTitle: string,
     challengeContent: string
 ) => {
     try {
-        const koreanDateISOString = getKoreanDateISOString();
-        const koreanTime = new Date(koreanDateISOString)
-        console.log(koreanTime);
+        const koreanDate = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDate)
 
-        const challengeIdDB = await Promise.all([
-            prisma.challenges.findMany({
-                where: {
-                    title: challengeName
-                },
-                select: {
-                    chal_id: true
-                }
-            }),
+        await prisma.user_challenge_templetes.create({
+            data: {
+                uchal_id: userChallengeId,
+                title: challengeTitle,
+                writing: challengeContent,
+                complete: true,
+                finish_at: koreanTime
+            }
+        });
 
-        ]);
+        prisma.$disconnect();
+        return;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${path.resolve(__dirname)} insertChallengeCompleteData function`);
+    }
+};
 
+
+const getUserChallengeId = async (
+    user_id: number,
+    challengeId: number
+) => {
+    try {
         const userChallengeDB =
-            await prisma.user_challenges.findMany({
+            await prisma.user_challenges.findFirst({
                 where: {
                     user_id: user_id,
+                    chal_id: challengeId
                 },
                 select: {
                     uchal_id: true
                 }
             });
 
-        const challengeSignDB = await prisma.user_challenge_templetes.findMany({
-            where: {
-                uchal_id: userChallengeDB[0].uchal_id,
-                created_at: koreanTime,
-            },
-            select: {
-                uctem_id: true
-            }
-        });
-        console.log(!challengeSignDB)
-
-        if (challengeSignDB[0] == undefined) {
-            console.log(1);
-            await prisma.user_challenge_templetes.create({
-                data: {
-                    uchal_id: userChallengeDB[0].uchal_id,
-                    //              tem_id: templateIdDB[0].tem_id,
-                    title: challengeTitle,
-                    writing: challengeContent,
-                    complete: true,
-                    finish_at: koreanTime
-                }
-            });
-
-        } else {
-            await prisma.user_challenge_templetes.updateMany({
-                where: {
-                    uchal_id: userChallengeDB[0].uchal_id,
-                    //                tem_id: templateIdDB[0].tem_id,
-                    created_at: koreanTime,
-                },
-                data: {
-                    title: challengeTitle,
-                    writing: challengeContent,
-                    complete: true,
-                    finish_at: koreanTime
-                }
-            });
-
-        }
         prisma.$disconnect();
-        return true;
+        return userChallengeDB;
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        return false;
+        throw new Error(`Failed ${path.resolve(__dirname)} getUserChallengeId function`);
     }
 };
 
@@ -679,5 +651,7 @@ const challengingData = async (challengeId: number) => {
 export {
     newChallengeData, selectChallenge, newChallengeResult, startChallenge,
     writeChallengeData, writeTemplateData, insertTemporaryChallengeData,
-    insertChallengeCompleteData, challengingData, selectTemplateData, userChallengeSelect
+    insertChallengeCompleteData, challengingData, selectTemplateData, userChallengeSelect,
+    getUserChallengeId
 }
+

@@ -1,4 +1,4 @@
-import exp from "constants";
+
 
 interface beforeMainCategoryDB {
   name: string;
@@ -62,7 +62,7 @@ interface afterMainUserChallengeCount {
   }[];
 };
 
-export interface afterMainResponseDTO {
+export interface afterMainResponseDto {
   categoryDB : afterMainCategory[];
   challengesDB : afterMainChallenges[];
   userDB : afterMainUser[];

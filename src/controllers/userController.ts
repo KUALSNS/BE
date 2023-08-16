@@ -353,7 +353,7 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
         const encryptedPassword = await bcrypt.hash(randomPassword, 10)
         const passwordUpdate = await UserService.updatePassword(identifier, userEmail, encryptedPassword, randomPassword);
 
-        await randomPasswordsmtpSender(
+        randomPasswordsmtpSender(
             userEmail,
             passwordUpdate
         );
@@ -429,7 +429,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
         await redisClient.disconnect();
 
-        return new SuccessResponse(200,"OK",{
+        return new SuccessResponse(200, "OK", {
             accessToken,
             refreshToken,
             role: userId?.role

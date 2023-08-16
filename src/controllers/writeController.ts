@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import * as WriteService from '../services/writeService';
-import { ChallengeCategoryDB, newChallengeRequestDto, newChallengeResponseDto, selectTemplateRequestDto, selectTemplateResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
+import { ChallengeCategoryDB, insertChallengeCompleteRequestDto, newChallengeRequestDto, newChallengeResponseDto, selectTemplateRequestDto, selectTemplateResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
 /**
@@ -131,7 +131,6 @@ export const writeChallenge = async (req: Request, res: Response<writeChallengeR
 
         if (challengeArray[0].user_challenge_templetes[0] == undefined) {                    // 값이 없다면
             writeTemplate = await WriteService.writeTemplateData(challengeChalIdyArray[0]);
-            console.log(writeTemplate)
             temporaryChallenge = [];
         }
         else {
@@ -188,8 +187,8 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
         const writeChallenge = await WriteService.writeChallengeData(req.decoded?.id);
 
         const challengeArrayData = challengeRelativeMapping(writeChallenge.challengeCategoryDBFirst, writeChallenge.challengeCategoryDBSecond);
-        
-        const challengeIdCategoryData = await WriteService.selectChallenge(challengeName); 
+
+        const challengeIdCategoryData = await WriteService.selectChallenge(challengeName);
 
         const templateAndChallengeIddData = await WriteService.selectTemplateData(challengeIdCategoryData, req.decoded?.id);
 
@@ -243,7 +242,7 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
         const challengeCategory = challengeIdCategoryData[0].category.name;
         const templateData = { "challengeName": challengeName, "challengeCategory": challengeCategory, "templates": templates };
 
-        return new SuccessResponse(200, "OK",{
+        return new SuccessResponse(200, "OK", {
             templateCertain,
             temporaryChallenge,
             challengingArray,
@@ -252,7 +251,7 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
 
     } catch (error) {
         console.error(error);
-        return new ErrorResponse(500,"Server Error").sendResponse(res);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
@@ -283,34 +282,26 @@ export const insertTemporaryChallenge = async (req: any, res: Response) => {
     }
 };
 
-export const insertChallengeComplete = async (req: Request, res: Response) => {
+export const insertChallengeComplete = async (req: Request<any, any, insertChallengeCompleteRequestDto>, res: Response) => {
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
 
-        const data =
-            await WriteService.insertChallengeCompleteData(
-                req.decoded?.id,
-                challengeName,
-                challengeTitle,
-                challengeContent
-            );
-        if (data) {
-            return res.status(200).json({
-                "code": 200,
-                "message": "Ok"
-            });
-        }
+        const challengeId = await WriteService.selectChallenge(challengeName);
+
+        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id,challengeId[0].chal_id);
+
+        await WriteService.insertChallengeCompleteData(
+            userChallengeId!.uchal_id,
+            challengeTitle,
+            challengeContent
+        );
+        return new SuccessResponse(200, "OK").sendResponse(res);
+
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            "message": "Server Error"
-        });
+        return new ErrorResponse(500,"Server Error").sendResponse(res);
     }
 };
-
-
-// 수정해라
 
 function challengeRelativeMapping(challengeCategoryDBFirst: ChallengeCategoryDB[], challengeCategoryDBSecond: ChallengeCategoryDB[]) {
 
