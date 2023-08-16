@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth'
 import mysql from 'mysql2/promise'
-import path from 'path'
 const prisma = new PrismaClient()
 
 /**
@@ -47,7 +46,7 @@ const beforeMainData = async () => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${path.resolve(__dirname)} beforeMainData function`);
+    throw new Error(`Failed ${__dirname} beforeMainData function`);
   }
 }
 
@@ -82,7 +81,7 @@ const challengeSearchData = async (challengeSearch: string) => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${path.resolve(__dirname)} challengeSearchData function`);
+    throw new Error(`Failed ${__dirname} challengeSearchData function`);
   }
 };
 
@@ -158,7 +157,7 @@ const afterMainData = async (user_id: number) => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${path.resolve(__dirname)} afterMainData function`);
+    throw new Error(`Failed ${__dirname} afterMainData function`);
   }
 }
 

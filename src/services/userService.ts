@@ -4,7 +4,6 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { randomPasswordFunction } from '../modules/randomPassword';
-import path from 'path';
 const prisma = new PrismaClient();
 
 
@@ -30,7 +29,7 @@ const userIdentifierSign = async (userIdentifier: string) => {
     return userElement;
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${path.resolve(__dirname)} userIdentifierSign function`);
+    throw new Error(`Failed ${__dirname} userIdentifierSign function`);
   }
 }
 
@@ -151,7 +150,7 @@ const userId = async (userEmail: string) => {
 
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${path.resolve(__dirname)} userId function`);
+    throw new Error(`Failed ${__dirname} userId function`);
   }
 }
 
@@ -172,7 +171,7 @@ const userIdentifier = async (userIdentifier: string) => {
 
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${path.resolve(__dirname)} userIdentifier function`);
+    throw new Error(`Failed ${__dirname} userIdentifier function`);
   }
 }
 
@@ -202,31 +201,10 @@ const updatePassword = async (userIdentifier: string, userEmail: string, encrypt
 
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${path.resolve(__dirname)} updatePassword function`);
+    throw new Error(`Failed ${__dirname} updatePassword function`);
   }
 }
 
-// /**
-//  * 
-//  * @param userIdentifier 유저 아이디
-//  * @returns 유저 정보
-//  */
-// const selectIdentifier = async (userIdentifier: string) => {
-//   try {
-
-//     const identifier = await prisma.users.findUnique({
-//       where: {
-//         identifier: userIdentifier
-//       }
-//     })
-
-//     return identifier
-
-//   } catch (error) {
-//     console.log(error);
-//     return false;
-//   }
-// }
 
 /**
  * 
