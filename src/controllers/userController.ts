@@ -421,7 +421,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         const userCheck = await UserService.userInformationSelectData(userEmail);
 
         if (userCheck == null) {
-            await UserService.kakaoSignUp(userEmail, userNickname);
+            await UserService.kakaoSignUpData(userEmail, userNickname);
         }
 
         const userId = await UserService.userInformationSelectData(userEmail);

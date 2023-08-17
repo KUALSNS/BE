@@ -21,15 +21,16 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
     try {
 
         const newChallenge = req.params.name;
-        const newChallengeData = await WriteService.newChallengeData(req.decoded?.id);
+        const newChallengeData = await WriteService.userCooponChallengingCountData(req.decoded?.id);
+        console.log(newChallengeData)
         const challengesCount = newChallengeData?.challengesCountDB._count.uchal_id;
-        const chalIdData = await WriteService.selectChallenge(newChallenge);
+        const chalIdData = await WriteService.selectChallengeData(newChallenge);
 
         if (chalIdData == undefined) {
             return
         }
 
-        const challengePossible = await WriteService.userChallengeSelect(req.decoded?.id, chalIdData[0].chal_id)
+        const challengePossible = await WriteService.userChallengeSelectData(req.decoded?.id, chalIdData[0].chal_id)
 
         if (challengePossible?.uchal_id === undefined) {
 
@@ -39,9 +40,9 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
                 }
             }
 
-            await WriteService.startChallenge(req.decoded?.id, chalIdData[0].chal_id);
+            await WriteService.startChallengeData(req.decoded?.id, chalIdData[0].chal_id);
 
-            const data = await WriteService.newChallengeResult(req.decoded?.id, chalIdData[0].chal_id);
+            const data = await WriteService.templateAndTodayChallengeData(req.decoded?.id, chalIdData[0].chal_id);
             const relativeChallengeArray = [];
             const challengTemplate = data?.challengTemplateDB.map((e) => {
                 const transformedTemplates = e.templates.map((template) => ({
@@ -53,6 +54,7 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
 
                 return transformedTemplates;
             }).flat();
+            
 
             for (var i = 0; i < data!.relativeChallengeDBFirst.length; i++) {
                 if (!data?.relativeChallengeDBFirst[i].user_challenge_templetes[0]) {
@@ -111,14 +113,14 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
  */
 export const writeChallenge = async (req: Request, res: Response<writeChallengeResponseDto>) => {
     try {
-        const writeChallenge = await WriteService.writeChallengeData(req.decoded?.id);
+        const writeChallenge = await WriteService.templateAndTodayChallengeData(req.decoded?.id);
 
         const challengingArray = [];
         const challengeChalIdyArray = [];
         let writeTemplate;
         let temporaryChallenge: { title: string | null; writing: string; }[] | undefined;
-
-        const challengeArray = challengeRelativeMapping(writeChallenge.challengeCategoryDBFirst, writeChallenge.challengeCategoryDBSecond);
+     
+        const challengeArray = challengeRelativeMapping(writeChallenge.relativeChallengeDBFirst, writeChallenge.relativeChallengeDBSecond);
 
         if (challengeArray[0] == undefined) {
             return new ErrorResponse(404, "오늘은 더 이상 진행할 챌린지가 없습니다").sendResponse(res);
@@ -142,7 +144,7 @@ export const writeChallenge = async (req: Request, res: Response<writeChallengeR
                 }
             })
         }
-
+ 
         const category = writeTemplate.categoryDB;
         let templateCertain: boolean;
 
@@ -184,13 +186,13 @@ export const writeChallenge = async (req: Request, res: Response<writeChallengeR
 export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res: Response<selectTemplateResponseDto>) => {
     try {
         const challengeName = req.params.challengeName;
-        const writeChallenge = await WriteService.writeChallengeData(req.decoded?.id);
+        const writeChallenge = await WriteService.templateAndTodayChallengeData(req.decoded?.id);
 
-        const challengeArrayData = challengeRelativeMapping(writeChallenge.challengeCategoryDBFirst, writeChallenge.challengeCategoryDBSecond);
+        const challengeArrayData = challengeRelativeMapping(writeChallenge.relativeChallengeDBFirst, writeChallenge.relativeChallengeDBSecond);
 
-        const challengeIdCategoryData = await WriteService.selectChallenge(challengeName);
+        const challengeIdCategoryData = await WriteService.selectChallengeData(challengeName);
 
-        const templateAndChallengeIddData = await WriteService.selectTemplateData(challengeIdCategoryData, req.decoded?.id);
+        const templateAndChallengeIddData = await WriteService.selectTemplateData(challengeIdCategoryData[0].chal_id, req.decoded?.id);
 
         const challengingData = await WriteService.challengingData(templateAndChallengeIddData.challengeIdDB[0].uchal_id);
 
@@ -210,15 +212,15 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
             ...userChallenging.filter(item => item.challengeName !== challengeName)
         ];
 
-        for (var i = 0; i < templateAndChallengeIddData.templateNameDB.length; i++) {
+        for (var i = 0; i < templateAndChallengeIddData.templateDB.length; i++) {
             var category = challengeIdCategoryData.map((e) => {
                 return { "category": e.category.name, "image": e.category.emogi };
             });
-            templateAndChallengeIddData.templateNameDB[i].category = category[0].category;
-            templateAndChallengeIddData.templateNameDB[i].image = category[0].image;
+            templateAndChallengeIddData.templateDB[i].category = category[0].category;
+            templateAndChallengeIddData.templateDB[i].image = category[0].image;
         }
 
-        const templates = templateAndChallengeIddData.templateNameDB.map((e) => {
+        const templates = templateAndChallengeIddData.templateDB.map((e) => {
             return { "templateTitle": e.title, "templateContent": e.content, "category": e.category, "image": e.image };
 
         });
@@ -266,9 +268,9 @@ export const insertTemporaryChallenge = async (req: Request<any, any, insertChal
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
 
-        const challengeId = await WriteService.selectChallenge(challengeName);
+        const challengeId = await WriteService.selectChallengeData(challengeName);
 
-        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id, challengeId[0].chal_id);
+        const userChallengeId = await WriteService.userChallengeSelectData(req.decoded?.id, challengeId[0].chal_id);
 
         const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId!.uchal_id);
         const complete = false;
@@ -283,7 +285,7 @@ export const insertTemporaryChallenge = async (req: Request<any, any, insertChal
                 challengeContent
             );
         } else {
-            await WriteService.updateChallengeTemplateData(
+            await WriteService.updateTimeChallengeTemplateData(
                 complete,
                 userChallengeId!.uchal_id,
                 challengeTitle,
@@ -310,9 +312,9 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
 
-        const challengeId = await WriteService.selectChallenge(challengeName);
+        const challengeId = await WriteService.selectChallengeData(challengeName);
 
-        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id, challengeId[0].chal_id);
+        const userChallengeId = await WriteService.userChallengeSelectData(req.decoded?.id, challengeId[0].chal_id);
 
         const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId!.uchal_id);
         const complete = true;
@@ -327,7 +329,7 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
                 challengeContent
             );
         } else {
-            await WriteService.updateChallengeTemplateData(
+            await WriteService.updateTimeChallengeTemplateData(
                 complete,
                 userChallengeId!.uchal_id,
                 challengeTitle,
@@ -353,11 +355,11 @@ export const plannerTemporaryChallenge = async (req: Request<any, any, insertCha
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
 
-        const challengeId = await WriteService.selectChallenge(challengeName);
+        const challengeId = await WriteService.selectChallengeData(challengeName);
 
-        const userChallengeId = await WriteService.getUserChallengeId(req.decoded?.id, challengeId[0].chal_id);
+        const userChallengeId = await WriteService.userChallengeSelectData(req.decoded?.id, challengeId[0].chal_id);
 
-        await WriteService.updatePlannerChallengeTemplateData(
+        await WriteService.updateNoTimeChallengeTemplateData(
             userChallengeId!.uchal_id,
             challengeTitle,
             challengeContent

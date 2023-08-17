@@ -109,6 +109,7 @@ const userChallengingData = async (user_id: number) => {
           user_id: user_id
         },
         select: {
+          
           challenges: {
             select: {
               title: true,

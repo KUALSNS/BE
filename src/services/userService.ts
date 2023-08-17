@@ -191,7 +191,7 @@ const updatePasswordData = async (userIdentifier: string, userEmail: string, enc
  * @param kakaoNickname  카카오 닉네임
  * @returns 
  */
-const kakaoSignUp = async (kakaoEmail: string, kakaoNickname: string) => {
+const kakaoSignUpData = async (kakaoEmail: string, kakaoNickname: string) => {
   try {
 
     await prisma.users.create({
@@ -218,5 +218,5 @@ const kakaoSignUp = async (kakaoEmail: string, kakaoNickname: string) => {
 
 
 
-export { userInformationSelectData, userSignup, userIdentifierData, updatePasswordData,  kakaoSignUp }
+export { userInformationSelectData, userSignup, userIdentifierData, updatePasswordData,  kakaoSignUpData }
 
