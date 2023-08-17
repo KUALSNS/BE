@@ -304,6 +304,8 @@ const writeChallengeData = async (user_id: number) => {
             }
         }
 
+        console.log(challengeArray)
+
         prisma.$disconnect();
         return { challengeArray }
     } catch (error) {
@@ -620,7 +622,7 @@ const selectTemplateData = async (
         console.log(koreanTime);
 
         const challenge = await writeChallengeData(user_id);
-        console.log(challenge?.challengeArray);
+   
         const challengeArray = challenge?.challengeArray;
 
         for (var i = 0; i < challengeArray!.length; i++) {
@@ -637,6 +639,7 @@ const selectTemplateData = async (
             ...userChallenging.filter(item => item.challengeName === challengeName),
             ...userChallenging.filter(item => item.challengeName !== challengeName)
         ];
+        console.log(userChallenging);
         console.log(challengingArray)
 
 
