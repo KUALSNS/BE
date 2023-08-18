@@ -62,35 +62,32 @@ const verify = (token: string) => {
 const refreshVerify = async (token: string, userId: number) => {
   try {
     await redisClient.connect();
-    console.log(1);
     const data: string = await redisClient.v4.get(String(userId));
-    console.log(data);
-    if (typeof data === 'string') {
-      if (token === data.split('Bearer ')[1]) {
-        console.log(2);
-        jwt.verify(data.split('Bearer ')[1], secret);
-        console.log(3);
-        await redisClient.disconnect();
-        return { state: true };
-      } else {
-        console.log(4);
-        await redisClient.disconnect();
-        return { state: false };
-      }
+
+    if (token === data.split('Bearer ')[1]) {
+
+      jwt.verify(data.split('Bearer ')[1], secret);
+
+      await redisClient.disconnect();
+      return { state: true };
     }
+    await redisClient.disconnect();
+    return { state: false };
+
+
   } catch (err) {
     await redisClient.disconnect();
     return { state: false };
   }
 };
 
-const verifyToken = (req : any, res : Response, next : NextFunction) => {
+const verifyToken = (req: any, res: Response, next: NextFunction) => {
   try {
-    const token : string = req.header("access") as string;
+    const token: string = req.header("access") as string;
     const organized_token = token.substr(7);
-    req.decoded = jwt.verify(organized_token,secret);
+    req.decoded = jwt.verify(organized_token, secret);
     return next();
-  } catch (error : any) {
+  } catch (error: any) {
     if (error.name === 'TokenExpiredError') { // 유효기간 초과
       return res.status(419).json({
         code: 419,

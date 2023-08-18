@@ -189,7 +189,6 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         const accessToken = (req.headers.access as string).split('Bearer ')[1];
         const authResult = jwt.verify(accessToken);
         const decoded = jwt.decode(accessToken);
-        console.log(decoded)
 
         const refreshToken = (req.headers.refresh as string).split('Bearer ')[1];
 
@@ -197,9 +196,9 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
         const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
         await redisClient.connect();
         if (authResult.state === false) {
-            if (typeof refreshResult != 'undefined') {
+       
                 if (refreshResult.state === false) {
-                    console.log(decoded!.id);
+                
                     await redisClient.disconnect();
                     return res.status(419).json({
                         code: 419,
@@ -219,7 +218,7 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
                         },
                     });
                 }
-            }
+            
         }
         else {
             await redisClient.disconnect();
