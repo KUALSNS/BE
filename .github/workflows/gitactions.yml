@@ -42,6 +42,7 @@ jobs:
             sudo touch /etc/nginx/green.flag
             sudo rm /etc/nginx/blue.flag
 
+
             docker stop blue 
             docker rm blue 
             docker rmi ${{ secrets.DOCKER_USERNAME }}/blue:1.0
