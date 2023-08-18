@@ -17,7 +17,7 @@ export const userProfile = async (req: Request, res: Response) => {
 
       //get data from JWT token
     const accessToken = (req.headers.access as string).split('Bearer ')[1];
-    const authResult = await jwt.verify(accessToken);
+    const authResult = jwt.verify(accessToken);
     const decoded = jwt.decode(accessToken);
     console.log(decoded);
     if (authResult.state) {
