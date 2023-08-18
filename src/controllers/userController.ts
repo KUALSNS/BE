@@ -7,18 +7,14 @@ import * as jwt from '../middleware/auth';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
-declare var process: {
-    env: {
-        SALTROUNDS: string
-        REDIS_USERNAME: string
-        REDIS_PASSWORD: string
-        REDIS_HOST: string
-        REDIS_PORT: number
-    }
-}
 
+
+// const redisClient = redis.createClient({
+//     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
+//     legacyMode: true
+// });
 const redisClient = redis.createClient({
-    url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
+    url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
     legacyMode: true
 });
 
