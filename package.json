@@ -14,10 +14,7 @@
     "test": "jest --silent --runInBand --detectOpenHandles --verbose --forceExit"
   },
   "dependencies": {
-    "@prisma/client": "^3.13.0",
-    "@types/helmet": "^4.0.0",
-    "@types/morgan": "^1.9.4",
-    "@types/nodemailer": "^6.4.7",
+
     "aws-sdk": "^2.1377.0",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
@@ -39,6 +36,10 @@
     "slack-node": "^0.1.8"
   },
   "devDependencies": {
+    "@prisma/client": "^3.13.0",
+    "@types/helmet": "^4.0.0",
+    "@types/morgan": "^1.9.4",
+    "@types/nodemailer": "^6.4.7",
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
     "@types/bcrypt": "^5.0.0",
