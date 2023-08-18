@@ -12,7 +12,9 @@ export async function getPlannerData(req: any, res: Response, next: NextFunction
         const startDate = req.query.startDate as string;
         const finishDate = req.query.finishDate as string;
 
-        const completedChallengesDate = await plannerService.getCompletedChallenges(req.decode.id, startDate, finishDate);
+        const completedChallengesDate = await plannerService.getCompletedChallenges(req.decoded.id, startDate, finishDate);
+
+        console.log(completedChallengesDate)
         // if error occurs, return 500 error
         if (!completedChallengesDate) {
             return res.status(500).json({
@@ -42,7 +44,7 @@ export async function getUserStatistics(req: any, res: Response, next: NextFunct
        
 
         const { period } = req.query;
-        const userStatistics = await plannerService.getUserStatistics(req.decode.id,<string>period);
+        const userStatistics = await plannerService.getUserStatistics(req.decoded.id,<string>period);
 
         return res.status(200).json({
             "code": 200,
@@ -65,7 +67,7 @@ export async function getUserStatistics(req: any, res: Response, next: NextFunct
 export async function getUserChallengeHistory(req: any, res: Response, next: NextFunction) {
     try {
 
-        const userChallengeHistory = await plannerService.getUserChallengeHistory(req.decode.id);
+        const userChallengeHistory = await plannerService.getUserChallengeHistory(req.decoded.id);
         // 사용자 기록이 없다면 가능한 챌린지들 보여주기
 
         return res.status(200).json({
