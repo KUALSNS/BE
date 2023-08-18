@@ -3,7 +3,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { Request, Response } from 'express';
-import * as ChallengeController from '../services/challengeService';
+import * as ChallengeService from '../services/challengeService';
 import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
@@ -19,16 +19,19 @@ import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
  */
 export const beforeMain = async (req: Request, res: Response<beforeMainResponseDto>) => {
     try {
-        const data = await ChallengeController.allChallengeCategoryData();
+        const [categoryDB, challengesDB] = await Promise.all([
+            ChallengeService.allCategoryData(),
+            ChallengeService.allChallengeData()
+        ])
 
-        if (!data) {
+        if (!categoryDB || !challengesDB) {
             return new ErrorResponse(400, "값을 찾을 수 없습니다.").sendResponse(res);
         }
 
-        const category = data.categoryDB.map((e) => {
+        const category = categoryDB.map((e) => {
             return e.name
         });
-        const challenges = data.challengesDB.map((e) => ({
+        const challenges = challengesDB.map((e) => ({
             ...e,
             title: e.title,
             category: e.category.name,
@@ -55,7 +58,7 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
 
         const categorySearch = req.query.categorySearch;
         const SearchWord = categorySearch.replace(/ /g, "");
-        const data = await ChallengeController.challengeSearchData(SearchWord);
+        const data = await ChallengeService.challengeSearchData(SearchWord);
 
         if (data != undefined) {
             const challenges = data.map((item) => ({
@@ -86,21 +89,24 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
 
         const user_id = req.decoded?.id;
 
-        const [allChallengeCategoryData, userChallengingData] = await Promise.all([
-            ChallengeController.allChallengeCategoryData(),
-            ChallengeController.userChallengingData(user_id)
+        const [categoryDB, challengesDB, userDB, userChallengingDB] = await Promise.all([
+            ChallengeService.allCategoryData(),
+            ChallengeService.allChallengeData(),
+            ChallengeService.userCooponAndNicknameData(user_id),
+            ChallengeService.userChallengingData(user_id)
+
         ])
 
-        const nickname = userChallengingData.userDB[0].nickname;
-        const coopen = userChallengingData.userDB[0].coopon;
+        const nickname = userDB[0].nickname;
+        const coopen = userDB[0].coopon;
 
-        const userChallengeArray = userChallengingData.userChallengeCountDB.map((e) => ({
+        const userChallengeArray = userChallengingDB.map((e) => ({
             challenges: e.challenges.title,
             achievement: Math.round(e.user_challenge_templetes.length * 3.3)
         }));
 
-        const category = allChallengeCategoryData.categoryDB.map((e) => e.name);
-        const challengesArray = allChallengeCategoryData.challengesDB.map((e) => ({
+        const category = categoryDB.map((e) => e.name);
+        const challengesArray = challengesDB.map((e) => ({
             ...e,
             title: e.title,
             category: e.category.name,

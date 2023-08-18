@@ -13,16 +13,6 @@ import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword';
 import axios from 'axios';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
-declare var process: {
-    env: {
-        SALTROUNDS: string
-        REDIS_USERNAME: string
-        REDIS_PASSWORD: string
-        REDIS_HOST: string
-        REDIS_PORT: number
-    }
-}
-
 const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
     legacyMode: true

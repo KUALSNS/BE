@@ -3,20 +3,17 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService';
 
-const prisma = new PrismaClient();
+
+
 
 // controller function which give data to router, it receives userid, startdate, finishdate and returns user's completed challenges within the specified date range
 export async function getPlannerData(req: Request, res: Response, next: NextFunction) {
     try {
-        const accessToken = (req.headers.access as string).split('Bearer ')[1];
-        const authResult = await jwt.verify(accessToken);
-        const decoded = jwt.decode(accessToken);
-        const userId = decoded!.id;
 
         const startDate = req.query.startDate as string;
         const finishDate = req.query.finishDate as string;
 
-        const completedChallengesDate = await plannerService.getCompletedChallenges(userId, startDate, finishDate);
+        const completedChallengesDate = await plannerService.getCompletedChallenges(req.decoded?.id, startDate, finishDate);
         // if error occurs, return 500 error
         if (!completedChallengesDate) {
             return res.status(500).json({
@@ -43,14 +40,10 @@ export async function getPlannerData(req: Request, res: Response, next: NextFunc
 // getUserStatistics data controller which returns the number of challenges solved by the user in a month or week use period
 export async function getUserStatistics(req: Request, res: Response, next: NextFunction) {
     try {
-        //아래 부분은 미들웨어로 빼야함
-        const accessToken = (req.headers.access as string).split('Bearer ')[1];
-        const authResult = await jwt.verify(accessToken);
-        const decoded = jwt.decode(accessToken);
-        const userId = decoded!.id;
+    
 
         const { period } = req.query;
-        const userStatistics = await plannerService.getUserStatistics(userId,<string>period);
+        const userStatistics = await plannerService.getUserStatistics(req.decoded?.id,<string>period);
 
         return res.status(200).json({
             "code": 200,
@@ -72,13 +65,9 @@ export async function getUserStatistics(req: Request, res: Response, next: NextF
 // getuserhistory data controller
 export async function getUserChallengeHistory(req: Request, res: Response, next: NextFunction) {
     try {
-        //아래 부분은 미들웨어로 빼야함
-        const accessToken = (req.headers.access as string).split('Bearer ')[1];
-        const authResult = await jwt.verify(accessToken);
-        const decoded = jwt.decode(accessToken);
-        const userId = decoded!.id;
 
-        const userChallengeHistory = await plannerService.getUserChallengeHistory(userId);
+
+        const userChallengeHistory = await plannerService.getUserChallengeHistory(req.decoded?.id);
         // 사용자 기록이 없다면 가능한 챌린지들 보여주기
 
         return res.status(200).json({

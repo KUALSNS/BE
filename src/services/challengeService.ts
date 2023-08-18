@@ -4,23 +4,40 @@ import mysql from 'mysql2/promise'
 const prisma = new PrismaClient()
 
 /**
- * 로그인 이전 메인 페이지 DB함수
- * @returns  1. 카테고리와 챌린지 데이터 반환
- *           2. 오류 시 false 반환
+ * 모든 카테고리 데이터 반환 함수
+ * @returns  1. 모든 카테고리 데이터 반환
  */
-const allChallengeCategoryData = async () => {
+const allCategoryData = async () => {
   try {
   
-    const [categoryDB, challengesDB] = await Promise.all([
-      prisma.category.findMany({
+    const categoryDB = await prisma.category.findMany({
         where: {
           type: "챌린지"
         },
         select: {
           name: true,
         }
-      }),
-      prisma.challenges.findMany({
+      })
+  
+    prisma.$disconnect();
+    return categoryDB 
+ 
+  } catch (error) {
+    console.log(error);
+    prisma.$disconnect();
+    throw new Error(`Failed ${__dirname} allCategoryData function`);
+  }
+}
+
+
+/**
+ * 모든 챌린지 데이터 반환 함수
+ * @returns  1. 모든 챌린지 데이터 반환
+ */
+const allChallengeData = async () => {
+  try {
+  
+    const  challengesDB = await prisma.challenges.findMany({
         select: {
           title: true,
           category: {
@@ -36,20 +53,16 @@ const allChallengeCategoryData = async () => {
           }
         }
       })
-    ])
  
     prisma.$disconnect();
-    return {
-      categoryDB, 
-      challengesDB
-    }
+    return challengesDB
+  
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${__dirname} beforeMainData function`);
+    throw new Error(`Failed ${__dirname} allChallengeData function`);
   }
 }
-
 /**
  * 
  * @param challengeSearch 검색 단어
@@ -88,23 +101,42 @@ const challengeSearchData = async (challengeSearch: string) => {
 /**
  * 
  * @param user_id 유저 아이디 
- * @returns 1.  카테고리, 챌린지 데이터, 유저의 챌린지 개수, 챌린지별 달성률, 쿠폰 사용 유무 반환
- *          2. 오류 시 false 반환 
+ * @returns   쿠폰 사용 유무, 닉네임
+
  */
-const userChallengingData = async (user_id: number) => {
+const userCooponAndNicknameData = async (userId: number) => {
   try {
   
-    const [ userDB, userChallengeCountDB] = await Promise.all([
-      prisma.users.findMany({
+    const  userDB = await prisma.users.findMany({
         where: {
-          user_id: user_id
+          user_id: userId
         },
         select: {
           nickname: true,
           coopon: true
         }
-      }),
-      prisma.user_challenges.findMany({
+      })
+  
+    prisma.$disconnect();
+    return userDB   
+ 
+  } catch (error) {
+    console.log(error);
+    prisma.$disconnect();
+    throw new Error(`Failed ${__dirname} userCooponAndNicknameData function`);
+  }
+}
+
+/**
+ * 
+ * @param user_id 유저 아이디 
+ * @returns 유저가 진행 중인 챌린지 이름과 템플릿 이름
+
+ */
+const userChallengingData = async (user_id: number) => {
+  try {
+  
+    const userChallengingDB = await prisma.user_challenges.findMany({
         where: {
           user_id: user_id
         },
@@ -125,20 +157,20 @@ const userChallengingData = async (user_id: number) => {
           }
         }
       })
-    ]);
+   
     prisma.$disconnect();
-    return {
-       userDB, userChallengeCountDB    
-    };
+    return userChallengingDB
+   
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${__dirname} afterMainData function`);
+    throw new Error(`Failed ${__dirname} userChallengingData function`);
   }
 }
 
 
 
 export {
-  allChallengeCategoryData, challengeSearchData, userChallengingData,
+  allChallengeData, allCategoryData, challengeSearchData, userChallengingData, userCooponAndNicknameData
 }
+

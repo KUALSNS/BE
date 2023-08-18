@@ -3,7 +3,6 @@ import { DATA_SOURCES } from '../config/auth';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler';
-import { randomPasswordFunction } from '../modules/randomPassword';
 const prisma = new PrismaClient();
 
 
@@ -29,7 +28,7 @@ const userInformationSelectData = async (userIdentifier: string) => {
     return userElement;
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${__dirname} userIdentifierSign function`);
+    throw new Error(`Failed ${__dirname} userInformationSelectData function`);
   }
 }
 
@@ -150,7 +149,7 @@ const userIdentifierData = async (userEmail: string) => {
 
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${__dirname} userId function`);
+    throw new Error(`Failed ${__dirname} userIdentifierData function`);
   }
 }
 
@@ -180,7 +179,7 @@ const updatePasswordData = async (userIdentifier: string, userEmail: string, enc
 
   } catch (error) {
     console.log(error);
-    throw new Error(`Failed ${__dirname} updatePassword function`);
+    throw new Error(`Failed ${__dirname} updatePasswordData function`);
   }
 }
 
@@ -207,6 +206,7 @@ const kakaoSignUpData = async (kakaoEmail: string, kakaoNickname: string) => {
     return; 
   } catch (error) {
     console.log(error);
+    throw new Error(`Failed ${__dirname} kakaoSignUpData function`);
   }
 }
 

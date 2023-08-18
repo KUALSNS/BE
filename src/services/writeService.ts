@@ -8,44 +8,32 @@ const prisma = new PrismaClient();
 
 
 /**
- * 유저의 쿠폰 여부와 유저의 챌린지 수 조회 함수
+ * 유저의 챌린지 수 조회 함수
  * @param user_id  유저 아이디
- * @returns 유저의 쿠폰 여부와 유저의 챌린지 수
+ * @returns 유저의 챌린지 수
  */
-const userCooponChallengingCountData = async (user_id: number) => {
+const userChallengingCountData = async (user_id: number) => {
     try {
-        const [userCooponDB, challengesCountDB] = await Promise.all([
-            prisma.users.findUnique({
-                where: {
-                    user_id: user_id
-                },
-                select: {
-                    coopon: true
-                }
-            }),
-            prisma.user_challenges.aggregate({
-                where: {
-                    user_id: user_id,
-                    complete: null
-                },
-                _count: {
-                    uchal_id: true
-                }
-            }),
-        ]);
+        const challengesCountDB = await prisma.user_challenges.aggregate({
+            where: {
+                user_id: user_id,
+                complete: null
+            },
+            _count: {
+                uchal_id: true
+            }
+        });
 
         prisma.$disconnect();
-        return {
-            userCooponDB,
-            challengesCountDB,
-        }
-
+        return challengesCountDB;
     } catch (error) {
         prisma.$disconnect();
         console.log(error);
         throw new Error(`Failed ${__dirname} newChallengeData function`);
     }
 };
+
+
 
 /**
  * 챌린지 이름에 따른 챌린지 id 조회 함수
@@ -106,7 +94,7 @@ const startChallengeData = async (user_id: number, chalId: number) => {
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} startChallenge function`);
+        throw new Error(`Failed ${__dirname} startChallengeData function`);
     }
 };
 
@@ -119,7 +107,7 @@ const startChallengeData = async (user_id: number, chalId: number) => {
 const userChallengeSelectData = async (userId: number, chalId: number) => {
     try {
 
-        const result = await prisma.user_challenges.findMany({
+        const userChallengeIdDB = await prisma.user_challenges.findMany({
             where: {
                 chal_id: chalId,
                 user_id: userId
@@ -127,10 +115,10 @@ const userChallengeSelectData = async (userId: number, chalId: number) => {
             select: {
                 uchal_id: true
             }
-        })
+        });
 
         prisma.$disconnect();
-        return result[0];
+        return userChallengeIdDB;
 
     } catch (error) {
         console.log(error);
@@ -140,175 +128,246 @@ const userChallengeSelectData = async (userId: number, chalId: number) => {
 };
 
 /**
- * 챌린지 시작 시 글쓰기 랜더링 시 필요한 데이터 조회 함수(진행 중인 오늘 진행해야할 챌린지 데이터 조회 함수)
- * @param user_id       유저 id
  * @param challenge_id  챌린지 id
- * @returns  챌린지 템플릿, 유저의 진행 챌린지 데이터
+ * @returns  챌린지 템플릿 데이터
  */
-const templateAndTodayChallengeData = async (userId: number, challengeId?: number) => {
+const templateData = async (challengeId: number) => {
     try {
-        const koreanDateISOString = getKoreanDateISOString();
-        const koreanTime = new Date(koreanDateISOString)
-        console.log(koreanTime);
 
-        const [challengTemplateDB, relativeChallengeDBFirst, relativeChallengeDBSecond] = await Promise.all([
-            prisma.challenges.findMany({
-                where: {
-                    chal_id: challengeId
-                },
-                select: {
-                    title: true,
-                    category: {
-                        select: {
-                            name: true,
-                            emogi: true
-                        },
+        const challengTemplateDB = await prisma.challenges.findMany({
+            where: {
+                chal_id: challengeId
+            },
+            select: {
+                title: true,
+                category: {
+                    select: {
+                        name: true,
+                        emogi: true
                     },
-                    templates: {
-                        select: {
-                            title: true,
-                            content: true
-                        }
+                },
+                templates: {
+                    select: {
+                        title: true,
+                        content: true
                     }
                 }
-            }),
-            prisma.user_challenges.findMany({
-                where: {
-                    user_id: userId
-                },
-                select: {
-                    chal_id: true,
-                    challenges: {
-                        select: {
-                            title: true,
-                            category: {
-                                select: {
-                                    name: true
-                                }
-                            }
-                        }
-                    },
-                    user_challenge_templetes: {
-                        where: {
-                            created_at: koreanTime,
-                            NOT: {
-                                complete: true,
-                            }
-                        },
-                        select: {
-                            uctem_id: true
-                        }
-                    }
-                }
-            }),
-            prisma.user_challenges.findMany({
-                where: {
-                    user_id: userId
-                },
-                select: {
-                    chal_id: true,
-                    challenges: {
-                        select: {
-                            title: true,
-                            category: {
-                                select: {
-                                    name: true
-                                }
-                            }
-                        }
-                    },
-                    user_challenge_templetes: {
-                        where: {
-                            created_at: koreanTime,
-                        },
-                        select: {
-                            uctem_id: true
-                        }
-                    }
-                }
-            }),
-        ]);
+            }
+        });
+
         prisma.$disconnect();
-        return {
-            challengTemplateDB,
-            relativeChallengeDBFirst,
-            relativeChallengeDBSecond
-        };
+        return challengTemplateDB;
+
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} newChallengeResult function`);
+        throw new Error(`Failed ${__dirname} templateData function`);
     }
 };
 
+
+
 /**
- * 유저 챌린지 템플릿에 여부에 따라 해당 챌린지 템플릿, 카테고리, 유저가 쓴 템플릿 조회 함수
- * @param chal_id   챌린지 id
+ * @param user_id       유저 id
+ * @returns 유저가 진행 중인 챌린지의 데이터, 오늘 완료하지 못한 템플릿  
+ */
+const userChallengeAndTodayTemplateNotCompleteData = async (userId: number) => {
+    try {
+        const koreanDate = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDate);
+
+        const templateNotCompleteDB = await prisma.user_challenges.findMany({
+            where: {
+                user_id: userId
+            },
+            select: {
+                chal_id: true,
+                challenges: {
+                    select: {
+                        title: true,
+                        category: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                },
+                user_challenge_templetes: {
+                    where: {
+                        created_at: koreanTime,
+                        NOT: {
+                            complete: true,
+                        }
+                    },
+                    select: {
+                        uctem_id: true
+                    }
+                }
+            }
+        });
+
+        prisma.$disconnect();
+        return templateNotCompleteDB;
+
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} userChallengeAndTodayTemplateNotCompleteData function`);
+    }
+};
+
+
+
+/**
+ * @param user_id       유저 id
+ * @returns  유저가 진행 중인 챌린지의 데이터, 오늘 완료한 템플릿  
+ */
+const userChallengeAndTodayTemplateCompleteData = async (userId: number) => {
+    try {
+        const koreanDate = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDate);
+
+        const templateCompleteDB = await prisma.user_challenges.findMany({
+            where: {
+                user_id: userId
+            },
+            select: {
+                chal_id: true,
+                challenges: {
+                    select: {
+                        title: true,
+                        category: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                },
+                user_challenge_templetes: {
+                    where: {
+                        created_at: koreanTime,
+                    },
+                    select: {
+                        uctem_id: true
+                    }
+                }
+            }
+        });
+
+        prisma.$disconnect();
+        return templateCompleteDB;
+
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} userChallengeAndTodayTemplateCompleteData  function`);
+    }
+};
+
+
+
+
+/**
  * @param uctem_id  유저 챌린지 템플릿 id
  * @returns 
  */
-const writeTemplateData = async (chal_id: number, uctem_id?: number) => {
+const templateAndUserChallengeData = async (uctem_id: number) => {
     try {
 
-        const [challengeTemplateDB, categoryDB, temporaryChallengeDB] = await Promise.all([
-            prisma.templates.findMany({
-                where: {
-                    chal_id: chal_id
-                },
-                select: {
-                    title: true,
-                    content: true,
-                    challenges: {
-                        select: {
-                            category: {
-                                select: {
-                                    name: true,
-                                    emogi: true
-                                }
+        const templateAndUserChallengeDB = await prisma.user_challenge_templetes.findMany({
+            where: {
+                uctem_id: uctem_id
+            },
+            select: {
+                title: true,
+                writing: true,
+                user_challenges: {
+                    select: {
+                        challenges: {
+                            select: {
+                                title: true
                             }
                         }
                     }
                 }
-            }),
-            prisma.challenges.findMany({
-                where: {
-                    chal_id: chal_id
-                },
-                select: {
-                    category: {
-                        select: {
-                            name: true
-                        }
-                    }
-                }
-            }),
-            prisma.user_challenge_templetes.findMany({
-                where: {
-                    uctem_id: uctem_id
-                },
-                select: {
-                    title: true,
-                    writing: true,
-                    user_challenges: {
-                        select: {
-                            challenges: {
-                                select: {
-                                    title: true
-                                }
-                            }
-                        }
-                    }
-                }
-            }),
-        ]);
+            }
+        });
 
         prisma.$disconnect();
-        return { challengeTemplateDB, categoryDB, temporaryChallengeDB };
+        return templateAndUserChallengeDB;
 
     } catch (error) {
         console.log(error);
         prisma.$disconnect();
         throw new Error(`Failed ${__dirname} writeTemplateData function`);
+    }
+};
+
+/**
+ * @param chal_id   챌린지 id
+ * @returns  챌린지에 따른 템플릿 데이터
+ */
+const templateAndCategoryData = async (chal_id: number) => {
+    try {
+
+        const templateAndCategoryDB = await prisma.templates.findMany({
+            where: {
+                chal_id: chal_id
+            },
+            select: {
+                title: true,
+                content: true,
+                challenges: {
+                    select: {
+                        category: {
+                            select: {
+                                name: true,
+                                emogi: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        prisma.$disconnect();
+        return templateAndCategoryDB;
+
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} templateCategoryData function`);
+    }
+};
+
+/**
+ * @param chal_id   챌린지 id
+ * @param uctem_id  유저 챌린지 템플릿 id
+ * @returns 
+ */
+const categoryNameData = async (chal_id: number) => {
+    try {
+
+        const categoryNameDB = await prisma.challenges.findMany({
+            where: {
+                chal_id: chal_id
+            },
+            select: {
+                category: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+
+        prisma.$disconnect();
+        return categoryNameDB;
+
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} categoryNameData function`);
     }
 };
 
@@ -350,6 +409,30 @@ const updateTimeChallengeTemplateData = async (
         throw new Error(`Failed ${__dirname} updateChallengeTemplateData function`);
     }
 };
+
+const specialTemplateData = async (challengeId: number) => {
+    try {
+
+        const templateDB : TemplateDTO[] = await prisma.templates.findMany({
+                where: {
+                    chal_id: challengeId,
+                },
+                select: {
+                    title: true,
+                    content: true
+                }
+            });
+        
+
+        prisma.$disconnect();
+        return templateDB;
+    } catch (error) {
+        console.log(error);
+        prisma.$disconnect();
+        throw new Error(`Failed ${__dirname} specialTemplateData function`);
+    }
+};
+
 /**
  *  템플릿 수정 함수( 오늘 챌린지 완료 여부 x)
  * @param userChallengeId    유저 챌린지 id
@@ -458,44 +541,7 @@ const selectTodayChallengeTemplateData = async (userChallengeId: number) => {
  * @param user_id  유저 id
  * @returns 
  */
-const selectTemplateData = async (
-    challengeId: number,
-    user_id: number,
-): Promise<{
-    templateDB: TemplateDTO[];
-    challengeIdDB: ChallengeId
-}> => {
-    try {
 
-        const [templateDB, challengeIdDB] = await Promise.all([
-            prisma.templates.findMany({
-                where: {
-                    chal_id: challengeId,
-                },
-                select: {
-                    title: true,
-                    content: true
-                }
-            }),
-            prisma.user_challenges.findMany({
-                where: {
-                    chal_id: challengeId,
-                    user_id: user_id
-                },
-                select: {
-                    uchal_id: true
-                }
-            })
-        ]);
-
-        prisma.$disconnect();
-        return { templateDB, challengeIdDB };
-    } catch (error) {
-        console.log(error);
-        prisma.$disconnect();
-        throw new Error(`Failed ${__dirname} selectTemplateData function`);
-    }
-};
 
 /**
  * 유저가 진행 중인, 오늘 진행해야할 챌린지 조회 함수
@@ -546,8 +592,9 @@ const challengingData = async (userChallengeId: number) => {
 
 
 export {
-    userCooponChallengingCountData, selectChallengeData, templateAndTodayChallengeData, startChallengeData,
-    writeTemplateData, updateTimeChallengeTemplateData,
-    insertChallengeTemplateData, challengingData, selectTemplateData, userChallengeSelectData,
+    userChallengingCountData, selectChallengeData, templateData, userChallengeAndTodayTemplateNotCompleteData,
+    userChallengeAndTodayTemplateCompleteData, startChallengeData, templateAndUserChallengeData,
+    templateAndCategoryData, categoryNameData, updateTimeChallengeTemplateData, specialTemplateData,
+    insertChallengeTemplateData, challengingData, userChallengeSelectData,
     selectTodayChallengeTemplateData, updateNoTimeChallengeTemplateData
 }
