@@ -1,15 +1,32 @@
 ### 💻 기술 스택
 
 ---
-**Front-End** : <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=React&logoColor=black"/><img alt="Vite" src = "https://img.shields.io/badge/vite-%23646CFF.svg?style=flat-square&logo=vite&logoColor=white"/><img src="https://img.shields.io/badge/Axios-8b00ff?style=flat-square&logo=Axios&logoColor=black"/>
-
-**Back-End** : 
+🔑**Front-End**🔑 : 
 </br>
 Lanuage && Framework 
 </br>&nbsp;
-   <img src="https://img.shields.io/badge/node.js-339933?style=flat-the-badge&logo=node.js&logoColor=white"> 
-   <img src="https://img.shields.io/badge/express-000000?style=flat-the-badge&logo=express&logoColor=white"> 
-   <img src="https://img.shields.io/badge/typescript-3178C6?style=flat-the-badge&logo=typescript&logoColor=white"> 
+   <img src="https://img.shields.io/badge/javascript-F7DF1E?style=flat-the-badge&logo=javascript&logoColor=white"> 
+   <img src="https://img.shields.io/badge/react-61DAFB?style=flat-the-badge&logo=react&logoColor=white"> 
+</br>
+Communication Method
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/axios-5A29E4?style=flat-the-badge&logo=axios&logoColor=white"> 
+</br>
+State Management 
+</br>&nbsp;
+<img src="https://img.shields.io/badge/recoil-f26b00?style=flat-the-badge&logo=relay&logoColor=white"> 
+</br>
+Build Tool 
+</br>&nbsp;
+<img src="https://img.shields.io/badge/vite-646CFF?style=flat-the-badge&logo=vite&logoColor=white"> 
+</br></br>
+🔓**Back-End**🔓 : 
+</br>
+Lanuage && Framework 
+</br>&nbsp;
+ <img src="https://img.shields.io/badge/typescript-3178C6?style=flat-the-badge&logo=typescript&logoColor=white"> 
+ <img src="https://img.shields.io/badge/node.js-339933?style=flat-the-badge&logo=node.js&logoColor=white"> 
+ <img src="https://img.shields.io/badge/express-000000?style=flat-the-badge&logo=express&logoColor=white"> 
 </br>
 Infra
 </br>&nbsp;
@@ -267,7 +284,12 @@ To Reviewers
 | feature\_/#  | 이슈 별 기능 구현 브랜치 |
 |   fix\_/#    |  이슈 별 픽스 브랜치   |
 
+## 📃 API Documentation
+
+[API명세서](https://documenter.getpostman.com/view/23289358/2s93eSZvMC)
+
 ## ⚙️ Software Architecture
 
 ---
-![Architecture](https://user-images.githubusercontent.com/37439067/231813229-3c364744-3da4-46eb-8bfb-9f584adae10e.JPG)
+![Architecture](https://github.com/KUALSNS/BE/assets/37439067/cd0733d3-629c-40d2-b115-1f0835adb8f7)
+

@@ -1,5 +1,7 @@
 
 import Slack from 'slack-node';
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 require('dotenv').config();
 const webhookUrl = process.env.SLACK_URL!;
 const slack = new Slack();

@@ -1,151 +1,135 @@
+
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 require('dotenv').config();
-import { NextFunction, Request, Response } from 'express';
-import * as ChallengeController from '../services/challengeService';
+import { Request, Response } from 'express';
+import * as ChallengeService from '../services/challengeService';
+import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
 
 
-
-export const beforeMain = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * 로그인 이전 메인 화면 함수
+ * @param req 
+ * @param res  
+ * @param next 
+ * @returns  1. 카테고리와 챌린지 데이터 반환
+ *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
+ *           3. 서버 오류 반환
+ */
+export const beforeMain = async (req: Request, res: Response<beforeMainResponseDto>) => {
     try {
-        const data = await ChallengeController.beforeMainData();
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            data
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
-    }
-};
+        const [categoryDB, challengesDB] = await Promise.all([
+            ChallengeService.allCategoryData(),
+            ChallengeService.allChallengeData()
+        ])
 
-export const wholeCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const challenges = await ChallengeController.wholeCategoryData();
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            data: {
-                challenges
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
-    }
-};
-
-export const oneCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const oneCategory = req.params.category;
-        const challenges = await ChallengeController.oneCategoryData(oneCategory);
-        if (challenges) {
-            return res.status(200).json({
-                "code": 200,
-                "message": "Ok",
-                data: {
-                    challenges
-                }
-            });
-        } else {
-            return res.status(404).json({
-                "code": 404,
-                "message": "not found"
-            });
+        if (!categoryDB || !challengesDB) {
+            return new ErrorResponse(400, "값을 찾을 수 없습니다.").sendResponse(res);
         }
+
+        const category = categoryDB.map((e) => {
+            return e.name
+        });
+        const challenges = challengesDB.map((e) => ({
+            ...e,
+            title: e.title,
+            category: e.category.name,
+            image: e.category.emogi
+        }));
+        return new SuccessResponse(200, "OK", { category, challenges }).sendResponse(res)
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
-export const manyCategory = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * 메인 화면에서의 카테고리 검색 함수
+ * @param req  검색할  카테고리
+ * @param res 
+ * @param next 
+ * @returns  1. 검색 결과 반환
+ *           2. 검색 결과가 없을 시 클라이언트 오류 반환
+ *           3. 서버 오류 반환
+ */
+export const challengeSearch = async (req: Request<any, any, any, categorySearchRequestDto>, res: Response<challengeSearchResponseDto>) => {
     try {
-        const manyCategory: string[] | string = req.query.category as string[] | string;
-        const challenges = await ChallengeController.manyCategoryData(manyCategory);
-        if (challenges!) {
-            return res.status(200).json({
-                "code": 200,
-                "message": "Ok",
-                data: {
-                    challenges
-                }
-            });
-        } else {
-            return res.status(404).json({
-                "code": 404,
-                "message": "not found"
-            });
+
+        const categorySearch = req.query.categorySearch;
+        const SearchWord = categorySearch.replace(/ /g, "");
+        const data = await ChallengeService.challengeSearchData(SearchWord);
+
+        if (data != undefined) {
+            const challenges = data.map((item) => ({
+                ...item,
+                category: item.category.name
+            }));
+
+            return new SuccessResponse(200, "OK", challenges).sendResponse(res);
         }
+        return new ErrorResponse(400, "값을 찾을 수 없습니다.").sendResponse(res);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
 
-
-export const challengeSearch = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const categorySearch: string = req.query.categorySearch as string;
-        const challenges = await ChallengeController.challengeSearchData(categorySearch);
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            data: {
-                challenges
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
-    }
-};
-
-export const afterMain = async (req: any, res: Response, next: NextFunction) => {
+/**
+ * 로그인 후 메인 화면 함수
+ * @param req 미들웨어를 통한 유저 id
+ * @param res 
+ * @param next 
+ * @returns  1.  카테고리, 챌린지 데이터, 유저의 챌린지 개수, 챌린지별 달성률, 쿠폰 사용 유무 반환
+ *           2. 반환 데이터가 없을 시 클라이언트 오류 반환
+ *           3. 서버 오류 반환
+ */
+export const afterMain = async (req: Request, res: Response<afterMainResponseDto>) => {
     try {
 
-        const data = await ChallengeController.afterMainData(req.decoded.id);
+        const user_id = req.decoded?.id;
 
-        const nickname = data?.nickname;
-        const coopen = data?.coopon;
-        const userChallengeSu = data?.userChallengeSu;
-        const userChallengeArray = data?.userChallengeArray
-        const category = data?.category;
-        const challengesArray = data?.challengesArray;
-        const challengeCertain = data?.challengeCertain;
+        const [categoryDB, challengesDB, userDB, userChallengingDB] = await Promise.all([
+            ChallengeService.allCategoryData(),
+            ChallengeService.allChallengeData(),
+            ChallengeService.userCooponAndNicknameData(user_id),
+            ChallengeService.userChallengingData(user_id)
 
-        return res.status(200).json({
-            "code": 200,
-            "message": "Ok",
-            "data": {
-                nickname,
-                coopen,
-                challengeCertain,
-                userChallengeSu,
-                userChallengeArray,
-                category,
-                challengesArray
-            }
-        });
+        ])
+
+        const nickname = userDB[0].nickname;
+        const coopen = userDB[0].coopon;
+
+        const userChallengeArray = userChallengingDB.map((e) => ({
+            challenges: e.challenges.title,
+            achievement: Math.round(e.user_challenge_templetes.length * 3.3)
+        }));
+
+        const category = categoryDB.map((e) => e.name);
+        const challengesArray = challengesDB.map((e) => ({
+            ...e,
+            title: e.title,
+            category: e.category.name,
+            image: e.category.emogi
+        }));
+        let challengeCertain: boolean;
+        const userChallengeSu = userChallengeArray.length;
+
+        if (userChallengeSu == 0) {
+            challengeCertain = false;
+        } else {
+            challengeCertain = true;
+        }
+        return new SuccessResponse(200, "OK",{ nickname,
+            coopen,
+            challengeCertain,
+            userChallengeSu,
+            userChallengeArray,
+            category,
+            challengesArray}).sendResponse(res);
+
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            "code": 500,
-            "message": "Server Error"
-        });
+        return new ErrorResponse(500,"Server Error").sendResponse(res);
     }
 };
