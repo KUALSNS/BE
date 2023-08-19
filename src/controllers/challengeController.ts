@@ -3,9 +3,9 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { Request, Response } from 'express';
-import * as ChallengeService from '../services/challengeService';
-import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO';
-import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
+import * as ChallengeService from '../services/challengeService.js';
+import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO.js';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 
 
 /**

@@ -1,6 +1,6 @@
 import express from 'express';
-import * as PlannerController from '../controllers/plannerController'
-import {verifyToken} from "../middleware/auth";
+import * as PlannerController from '../controllers/plannerController.js'
+import {verifyToken} from "../middleware/auth.js";
 const router = express.Router();
 
 

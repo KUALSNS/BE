@@ -3,11 +3,11 @@ const require = createRequire(import.meta.url)
 
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import * as WriteService from '../services/writeService';
-import * as ChallengeService from '../services/challengeService';
+import * as WriteService from '../services/writeService.js';
+import * as ChallengeService from '../services/challengeService.js';
 import { ChallengeCategoryDB, insertChallengeRequestDto, newChallengeRequestDto, newChallengeResponseDto, selectTemplateRequestDto, selectTemplateResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
-import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
-import { TemplateDTO } from '../interfaces/DTO';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
+import { TemplateDTO } from '../interfaces/DTO.js';
 
 /**
  * 새 챌린지 시작 

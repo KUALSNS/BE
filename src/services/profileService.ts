@@ -1,4 +1,4 @@
-import { serviceReturnForm } from '../modules/responseHandler';
+import { serviceReturnForm } from '../modules/responseHandler.js';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from "bcrypt";
 
@@ -160,7 +160,7 @@ const updatePassword = async (oldPassword: string, newPassword: string, user_id:
     await prisma.users.findUnique({
         where: { user_id: user_id }
     })
-        .then(async (data) => {
+        .then(async (data : any) => {
         if (data) {
             const compare = await bcrypt.compare(oldPassword, data.password);
 

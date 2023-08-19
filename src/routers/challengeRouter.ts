@@ -1,6 +1,6 @@
 import express from 'express';
-import * as ChallengeController from '../controllers/challengeController'
-import { verifyToken } from '../middleware/auth';
+import * as ChallengeController from '../controllers/challengeController.js'
+import { verifyToken } from '../middleware/auth.js';
 
 
 

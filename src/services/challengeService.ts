@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { DATA_SOURCES } from '../config/auth'
+import { DATA_SOURCES } from '../config/auth.js'
 import mysql from 'mysql2/promise'
 const prisma = new PrismaClient()
 

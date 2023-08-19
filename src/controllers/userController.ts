@@ -3,17 +3,17 @@ const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import { checkIdentifierRequestDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, UserIdResponseDto, userIdFindRequestDto, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto } from '../interfaces/userDTO';
-import *  as UserService from '../services/userService';
+import *  as UserService from '../services/userService.js';
 import bcrypt from 'bcrypt';
-import * as jwt from '../modules/jwtModules';
+import * as jwt from '../modules/jwtModules.js';
 import * as redis from 'redis';
-import { serviceReturnForm } from '../modules/responseHandler';
-import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
+import { serviceReturnForm } from '../modules/responseHandler.js';
+import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler.js';
 
 import { RowDataPacket } from 'mysql2/promise';
-import { randomPasswordFunction } from '../modules/randomPassword';
+import { randomPasswordFunction } from '../modules/randomPassword.js';
 import axios from 'axios';
-import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 
 const redisClient = redis.createClient({
     url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,

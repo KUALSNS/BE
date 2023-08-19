@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client'
-import { DATA_SOURCES } from '../config/auth';
-import { TemplateDTO } from '../interfaces/DTO';
+import { DATA_SOURCES } from '../config/auth.js';
+import { TemplateDTO } from '../interfaces/DTO.js';
 import mysql from 'mysql2/promise';
-import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime';
-import { ChallengeCategoryDB, ChallengeId, ChallengeIdCategory } from '../interfaces/writeDTO';
+import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime.js';
+import { ChallengeCategoryDB, ChallengeId, ChallengeIdCategory } from '../interfaces/writeDTO.js';
 const prisma = new PrismaClient();
 
 
@@ -205,8 +205,6 @@ const userChallengeAndTodayTemplateNotCompleteData = async (userId: number) => {
                 }
             }
         });
-
-        console.log(challengeArray)
 
         prisma.$disconnect();
         return templateNotCompleteDB;

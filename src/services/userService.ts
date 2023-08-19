@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client'
-import { DATA_SOURCES } from '../config/auth';
+import { DATA_SOURCES } from '../config/auth.js';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
-import { serviceReturnForm } from '../modules/responseHandler';
+import { serviceReturnForm } from '../modules/responseHandler.js';
 const prisma = new PrismaClient();
 
 
