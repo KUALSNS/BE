@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "tsc && pm2-runtime dist/index.js -i 0",
+    "start": "nodemon",
     "build": "tsc && node dist",
     "prepare": "husky install",
     "lint": "./node_modules/.bin/eslint .",
@@ -12,12 +14,9 @@
     "test": "jest --silent --runInBand --detectOpenHandles --verbose --forceExit"
   },
   "dependencies": {
-    "@prisma/client": "^3.13.0",
-    "@types/helmet": "^4.0.0",
-    "@types/morgan": "^1.9.4",
-    "@types/nodemailer": "^6.4.7",
+
     "aws-sdk": "^2.1377.0",
-    "axios": "^1.2.2",
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
@@ -35,9 +34,12 @@
     "prisma": "^3.8.0",
     "redis": "^4.6.6",
     "slack-node": "^0.1.8"
-
   },
   "devDependencies": {
+    "@prisma/client": "^3.13.0",
+    "@types/helmet": "^4.0.0",
+    "@types/morgan": "^1.9.4",
+    "@types/nodemailer": "^6.4.7",
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
     "@types/bcrypt": "^5.0.0",
@@ -58,7 +60,8 @@
     "husky": "^8.0.0",
     "multer-s3": "^3.0.1",
     "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "ts-node": "^10.8.0",
+    "ts-node-dev": "^2.0.0-0",
+    "typescript": "4.6.4"
   }
 }

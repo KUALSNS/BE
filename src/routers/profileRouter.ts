@@ -19,4 +19,4 @@ router.patch('/email', verifyToken, ProfileController.emailUpdate);
 // coupon activation router
 router.post('/coupon', verifyToken, ProfileController.couponActivation);
 
-export = router
+export default router
