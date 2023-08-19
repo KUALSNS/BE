@@ -9,10 +9,12 @@ import * as jwt from '../modules/jwtModules';
 import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler';
 import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
+
 import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword';
 import axios from 'axios';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
+
 const redisClient = redis.createClient({
     url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
     legacyMode: true
@@ -180,10 +182,13 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
 export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
         await redisClient.connect();
+
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
 
+
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
+
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
@@ -200,9 +205,11 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
                 if (refreshResult?.state === false) {
                     console.log(decoded!.id);
+
                     await redisClient.disconnect();
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
+
 
                 const newAccessToken = jwt.sign(String(decoded?.id), decoded?.role);
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
@@ -212,6 +219,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                     refreshToken: userRefreshToken
                 }).sendResponse(res);
             }
+
             await redisClient.disconnect();
             return new ErrorResponse(400, "access token is not expired!").sendResponse(res)
         }

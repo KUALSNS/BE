@@ -1,6 +1,8 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express'
+
 import { TokenError } from '../interfaces/error';
+
 
 
 
@@ -20,6 +22,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     const tokenError = error as TokenError;
     if (tokenError.name === 'TokenExpiredError') { // 유효기간 초과
+
       return res.status(419).json({
         code: 419,
         message: '토큰이 만료되었습니다',

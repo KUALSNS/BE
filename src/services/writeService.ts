@@ -206,6 +206,8 @@ const userChallengeAndTodayTemplateNotCompleteData = async (userId: number) => {
             }
         });
 
+        console.log(challengeArray)
+
         prisma.$disconnect();
         return templateNotCompleteDB;
 
@@ -286,6 +288,7 @@ const templateAndUserChallengeData = async (uctem_id: number) => {
                         challenges: {
                             select: {
                                 title: true
+
                             }
                         }
                     }
@@ -312,7 +315,7 @@ const templateAndCategoryData = async (chal_id: number) => {
 
         const templateAndCategoryDB = await prisma.templates.findMany({
             where: {
-                chal_id: chal_id
+               chal_id: chal_id
             },
             select: {
                 title: true,
@@ -386,12 +389,14 @@ const updateTimeChallengeTemplateData = async (
     challengeContent: string
 ) => {
     try {
+
         const koreanDate = getKoreanDateISOString();
         const koreanTime = new Date(koreanDate)
         await prisma.user_challenge_templetes.updateMany({
             where: {
                 uchal_id: userChallengeId,
                 created_at: koreanTime
+
 
             },
             data: {
@@ -400,7 +405,6 @@ const updateTimeChallengeTemplateData = async (
                 complete: complete
             }
         });
-
         prisma.$disconnect();
         return;
     } catch (error) {
@@ -409,6 +413,7 @@ const updateTimeChallengeTemplateData = async (
         throw new Error(`Failed ${__dirname} updateChallengeTemplateData function`);
     }
 };
+
 
 const specialTemplateData = async (challengeId: number) => {
     try {
@@ -452,14 +457,12 @@ const updateNoTimeChallengeTemplateData = async (
             where: {
                 uchal_id: userChallengeId,
                 created_at: koreanTime
-
             },
             data: {
                 title: challengeTitle,
                 writing: challengeContent,
             }
         });
-
         prisma.$disconnect();
         return;
     } catch (error) {
@@ -572,7 +575,6 @@ const challengingData = async (userChallengeId: number) => {
                         }
                     }
                 }
-
             }
         });
 

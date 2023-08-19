@@ -75,6 +75,7 @@ model user_challenges {
   @@index([user_id], map: "user_idForeignKey2")
 }
 
+
 model users {
   user_id         Int               @id @default(autoincrement())
   role            String            @db.VarChar(20)
@@ -89,4 +90,7 @@ model users {
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   user_challenges user_challenges[]
+
+
+
 }
