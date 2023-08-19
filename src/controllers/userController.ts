@@ -194,6 +194,8 @@ export const userReissueToken = async (req: Request, res: Response, next: NextFu
 
         await redisClient.disconnect();
         const refreshResult = await jwt.refreshVerify(refreshToken, decoded!.id);
+
+        console.log(refreshResult.state)
         await redisClient.connect();
         if (authResult.state === false) {
        
