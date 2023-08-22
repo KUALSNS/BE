@@ -1,5 +1,6 @@
+import { type } from "os";
 
-    
+
 
 export interface userLoginRequestDto {
     userIdentifier: string;
@@ -18,7 +19,7 @@ export interface UserReissueTokenResponseDto {
 }
 
 
-export interface decoded{
+export interface decoded {
     message: string;
     id: string;
     role: string;
@@ -32,9 +33,9 @@ export interface userSignupDto {
     phoneNumber: string;
 }
 
-export interface  userIdFindRequestDto {
-    email : string;
-    code : string;
+export interface userIdFindRequestDto {
+    email: string;
+    code: string;
 }
 
 
@@ -47,22 +48,36 @@ export type redisCode = number;
 
 
 export interface userPasswordFindRequestDto {
-    identifier : string;
-    userEmail  : string;
+    identifier: string;
+    userEmail: string;
 }
 
 export type passwordUpdate = string;
 
 
 export interface checkIdentifierRequestDto {
-    checkIdentifier : string;
+    checkIdentifier: string;
 }
 
 
 export interface kakaoLogInResponseDto {
-        accessToken : string,
-        refreshToken : string,
-        role : string   
+    accessToken: string,
+    refreshToken: string,
+    role: string
+}
+
+
+export interface signUpRequestDto {
+    email: string;
+    password: string;
+    nickname: string;
+    identifier: string;
+    phoneNumber: string;
+}
+
+
+export interface sendEmailRequestDto  {
+    email : string
 }
 
 

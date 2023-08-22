@@ -83,7 +83,6 @@ export const randomPasswordsmtpSender = async (email: string, randomPassword: st
       }
     }
   }
-
 }
 
 
