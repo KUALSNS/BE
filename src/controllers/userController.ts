@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import { checkIdentifierRequestDto, kakaoLogInResponseDto, passwordUpdate, redisCode, UserIdResponseDto, userIdFindRequestDto, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto, signUpRequestDto, sendEmailRequestDto } from '../interfaces/userDTO';
+import { checkIdentifierRequestDto, kakaoLogInResponseDto, passwordUpdate, redisCode, UserIdResponseDto, userIdFindRequestDto, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto, signUpRequestDto, sendEmailRequestDto, sendEmailReponseDto } from '../interfaces/userDTO';
 import *  as UserService from '../services/userService.js';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules.js';
@@ -51,13 +51,15 @@ export const verifyEmail = async (req: Request, res: Response) => {
  * @access Public
  */
 //회원 가입용 이메일 코드 요청
-export const sendEmail = async (req: Request<any,any,sendEmailRequestDto>, res: Response) =>  {
+export const sendEmail = async (req: Request<any,any,sendEmailRequestDto>, res: Response<sendEmailReponseDto>) =>  {
     try {
         const emailToSend = req.body.email;
 
         const userIdDB = await UserService.userIdentifierData(emailToSend);
+
+        console.log(userIdDB)
         
-        if(!userIdDB == null){
+        if(!(userIdDB[0] === undefined)){
             return new ErrorResponse(400, "메일이 중복됩니다.").sendResponse(res);
         }
    

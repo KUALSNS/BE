@@ -81,5 +81,9 @@ export interface sendEmailRequestDto  {
 }
 
 
-
+export interface sendEmailReponseDto  {
+    status : number;
+    message : string;
+    responseData : Object;
+}
 
