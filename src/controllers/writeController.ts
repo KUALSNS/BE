@@ -24,7 +24,7 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
 
         const newChallenge = req.params.name;
         const [userDB, challengesCountDB] = await Promise.all([
-            ChallengeService.userCooponAndNicknameData(req.decoded?.id),
+            ChallengeService.userCooponAndNicknameAndIdentifierData(req.decoded?.id),
             WriteService.userChallengingCountData(req.decoded?.id)
         ]);
 
