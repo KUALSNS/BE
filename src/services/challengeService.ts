@@ -104,7 +104,7 @@ const challengeSearchData = async (challengeSearch: string) => {
  * @returns   쿠폰 사용 유무, 닉네임
 
  */
-const userCooponAndNicknameData = async (userId: number) => {
+const userCooponAndNicknameAndIdentifierData = async (userId: number) => {
   try {
   
     const  userDB = await prisma.users.findMany({
@@ -173,6 +173,6 @@ const userChallengingData = async (user_id: number) => {
 
 
 export {
-  allChallengeData, allCategoryData, challengeSearchData, userChallengingData, userCooponAndNicknameData
+  allChallengeData, allCategoryData, challengeSearchData, userChallengingData, userCooponAndNicknameAndIdentifierData 
 }
 

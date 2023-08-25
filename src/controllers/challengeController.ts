@@ -92,13 +92,14 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
         const [categoryDB, challengesDB, userDB, userChallengingDB] = await Promise.all([
             ChallengeService.allCategoryData(),
             ChallengeService.allChallengeData(),
-            ChallengeService.userCooponAndNicknameData(user_id),
+            ChallengeService.userCooponAndNicknameAndIdentifierData(user_id),
             ChallengeService.userChallengingData(user_id)
 
         ])
 
         const nickname = userDB[0].nickname;
         const coopen = userDB[0].coopon;
+        const identifier = userDB[0].identifier;
 
         const userChallengeArray = userChallengingDB.map((e) => ({
             challenges: e.challenges.title,
@@ -120,8 +121,10 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
         } else {
             challengeCertain = true;
         }
-        return new SuccessResponse(200, "OK",{ nickname,
+        return new SuccessResponse(200, "OK",{ 
+            nickname,
             coopen,
+            identifier,
             challengeCertain,
             userChallengeSu,
             userChallengeArray,
