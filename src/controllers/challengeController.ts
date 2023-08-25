@@ -101,6 +101,8 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
         const coopen = userDB[0].coopon;
         const identifier = userDB[0].identifier;
 
+        
+
         const userChallengeArray = userChallengingDB.map((e) => ({
             challenges: e.challenges.title,
             achievement: Math.round(e.user_challenge_templetes.length * 3.3)
