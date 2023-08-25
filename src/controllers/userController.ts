@@ -459,7 +459,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
         const userId = await UserService.userInformationSelectData(userEmail);
 
-        const accessToken = "Bearer " + jwt.sign(String(userId?.user_id), userId!.role);
+        const accessToken = "Bearer " + jwt.sign(userId?.user_id, userId!.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
         await redisClient.connect();
