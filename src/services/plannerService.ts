@@ -225,7 +225,7 @@ export async function getUserChallengeHistory(userId: number) {
                 if (userChallenge.user_challenge_templetes.length != 0) {
                     if (userChallenge.complete) {
                         finishedChallenges.push(userChallenge);
-                    } else if (userChallenge.user_challenge_templetes[0].complete) {
+                    } else if (userChallenge.complete == false) {
                         ongoingChallenges.push(userChallenge);
                     } else {
                         temporarilySavedChallenges.push(userChallenge);
