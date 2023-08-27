@@ -1,8 +1,8 @@
 import express from 'express';
-import * as ProfileController  from '../controllers/profileController'
+import * as ProfileController  from '../controllers/profileController.js'
 const router = express.Router()
-import {passwordUpdate, profileUpdate, userChallengeStatistics} from '../controllers/profileController';
-import { verifyToken } from '../middleware/auth';
+import {passwordUpdate, profileUpdate, userChallengeStatistics} from '../controllers/profileController.js';
+import { verifyToken } from '../middleware/auth.js';
 import cors from 'cors';
 
 router.use(cors({
@@ -19,4 +19,4 @@ router.patch('/email', verifyToken, ProfileController.emailUpdate);
 // coupon activation router
 router.post('/coupon', verifyToken, ProfileController.couponActivation);
 
-export = router
+export default router

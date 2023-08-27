@@ -1,12 +1,14 @@
 import express from 'express';
-import * as PlannerController from '../controllers/plannerController'
-import {verifyToken} from "../middleware/auth";
+import * as PlannerController from '../controllers/plannerController.js'
+import {verifyToken} from "../middleware/auth.js";
 const router = express.Router();
 
 
-router.get('/calendar',PlannerController.getPlannerData);
-router.get('/history',PlannerController.getUserChallengeHistory);
-router.get('/statistic',PlannerController.getUserStatistics);
+
+router.get('/calendar',verifyToken,PlannerController.getPlannerData);
+router.get('/history',verifyToken,PlannerController.getUserChallengeHistory);
+router.get('/statistic',verifyToken,PlannerController.getUserStatistics);
 
 
-export = router
+
+export default router

@@ -2,7 +2,7 @@ name:  Tarae Nodejs(TypeScript) CI with NPM and CD with Docker & AWS EC2
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -14,12 +14,7 @@ jobs:
     # 소스코드 다운로드
     - name: Checkout code
       uses: actions/checkout@v3
-    # Nodejs 세팅
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18.6.0'
-        cache: 'npm'
+
     - run: npm ci
     # ENV SDK 세팅
     - name: Setting env file
@@ -30,9 +25,12 @@ jobs:
  
     - name: Build Docker Image For Node.js
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/blue:1.0 -f blue.Dockerfile .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/green:1.0 -f green.Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/blue:1.0
+          docker push ${{ secrets.DOCKER_USERNAME }}/green:1.0
+         
     # 서버에서 Docker 이미지 실행
     - name: EC2 Docker Run
       uses: appleboy/ssh-action@v0.1.6
@@ -41,6 +39,14 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0
-          docker run -d -p 80:3000 --name Tarae ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:1.0 
-      
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/blue:1.0
+            docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:1.0
+
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/green:1.0
+            docker run -d -p 3001:3000 --name green ${{ secrets.DOCKER_USERNAME }}/green:1.0
+           
+
+        
+           

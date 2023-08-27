@@ -1,13 +1,12 @@
 import * as redis from 'redis';
-
-//const { smtpTransport } = require("../config/email");
-
-import { smtpTransport } from "../config/email";
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+import { smtpTransport } from "../config/email.js";
 require('dotenv').config();
 const env = process.env;
 
 const redisClient = redis.createClient({
-  url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
+  url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
   legacyMode: true
 });
 
@@ -84,8 +83,6 @@ export const randomPasswordsmtpSender = async (email: string, randomPassword: st
       }
     }
   }
-
 }
 
 
-exports.smtpSender = smtpSender;

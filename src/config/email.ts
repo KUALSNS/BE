@@ -1,4 +1,6 @@
 //import nodemailer = require('nodemailer');
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 import nodemailer from 'nodemailer';
 require('dotenv').config();
 
