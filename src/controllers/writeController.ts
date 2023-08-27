@@ -31,7 +31,11 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
         const challengesCount = challengesCountDB._count.uchal_id;
         const chalIdData = await WriteService.selectChallengeData(newChallenge);
 
-        const challengePossible = await WriteService.userChallengeSelectData(req.decoded?.id, chalIdData[0].chal_id)
+        
+
+        const challengePossible = await WriteService.userChallengeSelectData(req.decoded?.id, chalIdData[0].chal_id);
+
+      
 
         if (challengePossible[0]?.uchal_id === undefined) {
 
@@ -343,7 +347,11 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
 
         const challengeId = await WriteService.selectChallengeData(challengeName);
 
+        console.log(challengeId);
+
         const userChallengeId = await WriteService.userChallengeSelectData(req.decoded?.id, challengeId[0].chal_id);
+
+     //   console.log(userChallengeId);
 
         const userChallengeTemplateId = await WriteService.selectTodayChallengeTemplateData(userChallengeId[0]!.uchal_id);
         const complete = true;

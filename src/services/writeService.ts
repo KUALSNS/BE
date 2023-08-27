@@ -110,7 +110,8 @@ const userChallengeSelectData = async (userId: number, chalId: number) => {
         const userChallengeIdDB = await prisma.user_challenges.findMany({
             where: {
                 chal_id: chalId,
-                user_id: userId
+                user_id: userId,
+                complete: null
             },
             select: {
                 uchal_id: true
@@ -178,7 +179,8 @@ const userChallengeAndTodayTemplateNotCompleteData = async (userId: number) => {
 
         const templateNotCompleteDB = await prisma.user_challenges.findMany({
             where: {
-                user_id: userId
+                user_id: userId,
+                complete: null
             },
             select: {
                 chal_id: true,
@@ -229,7 +231,8 @@ const userChallengeAndTodayTemplateCompleteData = async (userId: number) => {
 
         const templateCompleteDB = await prisma.user_challenges.findMany({
             where: {
-                user_id: userId
+                user_id: userId,
+                complete: null
             },
             select: {
                 chal_id: true,

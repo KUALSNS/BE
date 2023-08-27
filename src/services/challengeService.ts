@@ -140,6 +140,7 @@ const userChallengingData = async (user_id: number) => {
     const userChallengingDB = await prisma.user_challenges.findMany({
         where: {
           user_id: user_id,
+          complete : null
          
         },
         select: {
@@ -150,13 +151,12 @@ const userChallengingData = async (user_id: number) => {
             }
           },
           user_challenge_templetes: {
-            where: {
-              complete: true
-            },
             select: {
               title: true
             }
           }
+
+
         }
       })
    
