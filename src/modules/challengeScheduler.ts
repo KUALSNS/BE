@@ -5,7 +5,7 @@ import mysql from 'mysql2/promise';
 
 export const challengeScheduler =  () => {
  
-    schedule.scheduleJob('0 7 19 * * *', async function () {      
+    schedule.scheduleJob('0 0 15 * * *', async function () {       // UTC시간 기준 9시간 차이로 새벽 12시 의미
         const connection = await mysql.createConnection(DATA_SOURCES.development);
         await connection.connect();
     
