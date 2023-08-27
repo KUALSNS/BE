@@ -5,11 +5,11 @@ import mysql from 'mysql2/promise';
 
 export const challengeScheduler =  () => {
  
-    schedule.scheduleJob('00 00 00 * * *', async function () {      
+    schedule.scheduleJob('0 0 2 * * *', async function () {      
         const connection = await mysql.createConnection(DATA_SOURCES.development);
         await connection.connect();
     
-        const challengeSelect = `UPDATE user_challenges SET complete = 1 WHERE finish_at = CURDATE(); `;
+        const challengeSelect = `UPDATE user_challenges SET complete = 1 WHERE DATE_ADD(finish_at, INTERVAL 1 DAY) = CURDATE(); `;
         await connection.query(challengeSelect);
         await connection.end();
       

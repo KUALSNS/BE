@@ -17,7 +17,7 @@ const userChallengingCountData = async (user_id: number) => {
         const challengesCountDB = await prisma.user_challenges.aggregate({
             where: {
                 user_id: user_id,
-                complete: null
+                complete: false
             },
             _count: {
                 uchal_id: true
@@ -111,7 +111,7 @@ const userChallengeSelectData = async (userId: number, chalId: number) => {
             where: {
                 chal_id: chalId,
                 user_id: userId,
-                complete: null
+                complete: false
             },
             select: {
                 uchal_id: true
@@ -180,7 +180,7 @@ const userChallengeAndTodayTemplateNotCompleteData = async (userId: number) => {
         const templateNotCompleteDB = await prisma.user_challenges.findMany({
             where: {
                 user_id: userId,
-                complete: null
+                complete: false
             },
             select: {
                 chal_id: true,
@@ -232,7 +232,7 @@ const userChallengeAndTodayTemplateCompleteData = async (userId: number) => {
         const templateCompleteDB = await prisma.user_challenges.findMany({
             where: {
                 user_id: userId,
-                complete: null
+                complete: false
             },
             select: {
                 chal_id: true,
