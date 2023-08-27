@@ -5,7 +5,7 @@ import mysql from 'mysql2/promise';
 
 export const challengeScheduler =  () => {
  
-    schedule.scheduleJob('0 57 * * * *', async function () {      
+    schedule.scheduleJob('0 7 19 * * *', async function () {      
         const connection = await mysql.createConnection(DATA_SOURCES.development);
         await connection.connect();
     
