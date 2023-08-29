@@ -216,7 +216,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
  */
 export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
-        await redisClient.connect();
+     
 
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
@@ -231,11 +231,11 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
 
-            await redisClient.disconnect();
+            await redisClient.connect();
 
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
-            await redisClient.connect();
+          
             if (authResult.state === false) {
 
                 if (refreshResult?.state === false) {
