@@ -9,7 +9,7 @@ const redisClient = redis.createClient({
 });
 
 
-const sign = (userId: string, userRole: string) => {
+const sign = (userId: number, userRole: string) => {
   const payload = {
     id: userId,
     role: userRole,

@@ -246,7 +246,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                 }
 
 
-                const newAccessToken = jwt.sign(String(decoded?.id), decoded?.role);
+                const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
                 await redisClient.disconnect();
                 return new SuccessResponse(200, "OK", {
@@ -459,7 +459,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
         const userId = await UserService.userInformationSelectData(userEmail);
 
-        const accessToken = "Bearer " + jwt.sign(String(userId?.user_id), String(userId!.role));
+        const accessToken = "Bearer " + jwt.sign(userId?.user_id, userId!.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
         await redisClient.connect();
