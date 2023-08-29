@@ -5,7 +5,11 @@ import mysql from 'mysql2/promise';
 import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime.js';
 import { ChallengeCategoryDB, ChallengeId, ChallengeIdCategory } from '../interfaces/writeDTO.js';
 const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * 유저의 챌린지 수 조회 함수

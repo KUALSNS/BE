@@ -1,10 +1,14 @@
 import {PrismaClient, user_challenges} from '@prisma/client';
 import { Request, Response } from 'express';
 const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // 나누기, 프리즈마 부분
-export async function getCompletedChallenges(userId: any, startDate: string, finishDate: string) {
+export async function getCompletedChallenges(userId: number, startDate: string, finishDate: string) {
     try {
         const user = await prisma.users.findUnique({
             where: { user_id: userId },

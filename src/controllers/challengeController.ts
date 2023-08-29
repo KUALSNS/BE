@@ -87,7 +87,7 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
 export const afterMain = async (req: Request, res: Response<afterMainResponseDto>) => {
     try {
 
-        const user_id = req.decoded?.id;
+        const user_id : number = req.decoded?.id;
 
         const [categoryDB, challengesDB, userDB, userChallengingDB] = await Promise.all([
             ChallengeService.allCategoryData(),
