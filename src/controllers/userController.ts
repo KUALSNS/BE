@@ -227,11 +227,11 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
-
+            console.log("bofore1")
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
 
-
+            console.log("bofore2")
 
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 

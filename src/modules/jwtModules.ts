@@ -28,8 +28,8 @@ const refresh = () => {
 }
 const decode = (token: string) => {
   try {
-    const decoded = jwt.decode(token, { complete: true }) as JwtPayload;
-    console.log(decoded);
+    const decoded = jwt.decode(token) as JwtPayload;
+  
     return {
       message: "Ok",
       id: decoded.payload.id,
@@ -59,6 +59,7 @@ const verify = (token: string) => {
 };
 
 const refreshVerify = async (token: string, userId: number) => {
+   console.log(10);
   try {
     await redisClient.connect();
     console.log(0);
