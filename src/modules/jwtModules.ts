@@ -34,8 +34,8 @@ const decode = (token: string) => {
   
     return {
       message: "Ok",
-      id: decoded.payload.id,
-      role: decoded.payload.role,
+      id: decoded.id,
+      role: decoded.role,
     }
   }
   catch (err) {
