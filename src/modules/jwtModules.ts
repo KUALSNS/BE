@@ -16,7 +16,7 @@ const sign = (userId: number, userRole: string) => {
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '15m',
+    expiresIn: '2m',
   });
 }
 
