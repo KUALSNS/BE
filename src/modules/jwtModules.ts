@@ -59,28 +59,28 @@ const verify = (token: string) => {
 };
 
 const refreshVerify = async (token: string, userId: number) => {
-  await redisClient.connect();
-  console.log(userId);
+  //await redisClient.connect();
+//  console.log(userId);
   try {
     
     const data: string = await redisClient.v4.get(String(userId));
     console.log(data);
 
     if (token === data.split('Bearer ')[1]) {
-      console.log(2);
+    //  console.log(2);
       jwt.verify(data.split('Bearer ')[1], secret);
-      console.log(3);
-      await redisClient.disconnect();
+     // console.log(3);
+     // await redisClient.disconnect();
       console.log(4)
       return { state: true };
     }
 
-    await redisClient.disconnect();
+  //  await redisClient.disconnect();
     return { state: false };
 
 
   } catch (err) {
-    await redisClient.disconnect();
+  //  await redisClient.disconnect();
     return { state: false };
   }
 };
