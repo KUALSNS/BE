@@ -230,10 +230,9 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
       
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
-          //  await redisClient.connect();
+     
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
-            console.log("after1")
             if (authResult.state === false) {
 
                 console.log("after2")
