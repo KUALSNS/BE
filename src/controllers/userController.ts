@@ -239,13 +239,13 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
                 if (refreshResult?.state === false) {
                     console.log("after3")
-                    await redisClient.disconnect();
+        
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
 
 
                 const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
-            //    await redisClient.connect();
+                await redisClient.connect();
 
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
 
@@ -256,7 +256,6 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                 }).sendResponse(res);
             }
 
-            await redisClient.disconnect();
             return new ErrorResponse(400, "access token is not expired!").sendResponse(res)
         }
 
