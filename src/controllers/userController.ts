@@ -468,6 +468,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         await redisClient.connect();
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
         await redisClient.disconnect();
+        
 
         return new SuccessResponse(200, "OK", {
             accessToken,
