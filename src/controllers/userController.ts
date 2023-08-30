@@ -236,10 +236,13 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
 
+            console.log("after1")
             if (authResult.state === false) {
 
-                if (refreshResult?.state === false) {
+                console.log("after2")
 
+                if (refreshResult?.state === false) {
+                    console.log("after3")
 
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
