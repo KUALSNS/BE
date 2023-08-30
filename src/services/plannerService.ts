@@ -62,7 +62,7 @@ async function getMonthStatistics(userId: number) {
     const ongoingChallengesCount = await prisma.user_challenges.count({
           where: {
               user_id: userId,
-              complete: null,
+              complete: false,
           },
       },
     );
@@ -83,7 +83,7 @@ async function getMonthStatistics(userId: number) {
         lastMonth: lastMonthCount,
         comparisonWord: comparisonWord,
         ongoing: ongoingChallengesCount,
-        missed: 27 - thisMonthCount,
+        missed: 30 - thisMonthCount,
     };
 }
 export function getDateRangeStartingSunday() {
