@@ -231,7 +231,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
 
-            console.log("bofore2")
+            console.log(decoded)
 
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
@@ -468,7 +468,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         await redisClient.connect();
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
         await redisClient.disconnect();
-        
+
 
         return new SuccessResponse(200, "OK", {
             accessToken,

@@ -29,6 +29,8 @@ const refresh = () => {
 const decode = (token: string) => {
   try {
     const decoded = jwt.decode(token) as JwtPayload;
+
+    console.log(decoded);
   
     return {
       message: "Ok",
