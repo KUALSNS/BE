@@ -254,4 +254,36 @@ export async function getUserChallengeHistory(userId: number) {
 }
 
 
+export const  getUserChallengeDB = async (userId: number) => {
+    try {
+
+        const userChallenge = await prisma.user_challenges.findMany({
+            select :{
+                complete:true,
+                start_at:true,
+                finish_at:true,
+                challenges :{
+                    select:{
+                        title:true,
+                        category:{
+                            select:{
+                                name:true
+                            }
+                        }
+                    }
+                }
+            },
+            where:{
+                user_id: userId
+            }
+        })
+     
+        return userChallenge;
+    } catch (error) {
+        console.error('Error retrieving user challenge history:', error);
+        throw error;
+    }
+}
+
+
 

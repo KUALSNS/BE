@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService.js';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 
 
 
@@ -13,7 +14,7 @@ export async function getPlannerData(req: any, res: Response, next: NextFunction
 
         const startDate = req.query.startDate as string;
         const finishDate = req.query.finishDate as string;
-        const userId : number = req.decoded?.id;
+        const userId: number = req.decoded?.id;
 
         const completedChallengesDate = await plannerService.getCompletedChallenges(userId, startDate, finishDate);
 
@@ -44,11 +45,11 @@ export async function getPlannerData(req: any, res: Response, next: NextFunction
 export async function getUserStatistics(req: any, res: Response, next: NextFunction) {
     try {
 
-    
+
 
         const { period } = req.query;
-        const userId : number = req.decoded?.id;
-        const userStatistics = await plannerService.getUserStatistics(userId,<string>period);
+        const userId: number = req.decoded?.id;
+        const userStatistics = await plannerService.getUserStatistics(userId, <string>period);
 
 
         return res.status(200).json({
@@ -72,8 +73,8 @@ export async function getUserStatistics(req: any, res: Response, next: NextFunct
 export async function getUserChallengeHistory(req: any, res: Response, next: NextFunction) {
     try {
 
-        
-        const userId : number = req.decoded?.id;
+
+        const userId: number = req.decoded?.id;
         const userChallengeHistory = await plannerService.getUserChallengeHistory(userId);
 
         // 사용자 기록이 없다면 가능한 챌린지들 보여주기
@@ -94,3 +95,48 @@ export async function getUserChallengeHistory(req: any, res: Response, next: Nex
     }
 }
 
+export async function getUserChallenge(req: Request, res: Response, next: NextFunction) {
+    try {
+
+
+        const userId: number = req.decoded?.id;
+        const onGoingChallenge: { complete: boolean | null; start_at: string; finish_at: string; challengeTitle: string; categoryName: string; }[] = [];
+        const finishChallenge: { complete: boolean | null; start_at: string; finish_at: string; challengeTitle: string; categoryName: string; }[] = [];
+        const userChallenge = await plannerService.getUserChallengeDB(userId);
+
+        if (!userChallenge) {
+            return new ErrorResponse(403, "진행 중인 챌린지가 없습니다.").sendResponse(res);
+        }
+
+        userChallenge.forEach((e) => {
+            const transformedValue = {
+                complete: e.complete,
+                start_at: e.start_at.toISOString().slice(0, 10),
+                finish_at: e.finish_at!.toISOString().slice(0, 10),
+                challengeTitle: e.challenges.title,
+                categoryName: e.challenges.category.name
+
+            };
+
+            if (e.complete) {
+               finishChallenge.push(transformedValue);
+            } else {
+                onGoingChallenge.push(transformedValue);
+            }
+        });
+
+        console.log(onGoingChallenge);
+        console.log(finishChallenge);
+
+        return new SuccessResponse(200, "OK", {
+            onGoingChallenge,
+            finishChallenge
+        }).sendResponse(res);
+
+
+
+    } catch (error) {
+        console.error(error);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
+    }
+}
