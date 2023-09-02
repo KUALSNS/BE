@@ -5,7 +5,11 @@ import mysql from 'mysql2/promise';
 import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from '../modules/koreanTime.js';
 import { ChallengeCategoryDB, ChallengeId, ChallengeIdCategory } from '../interfaces/writeDTO.js';
 const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * 유저의 챌린지 수 조회 함수
@@ -17,7 +21,7 @@ const userChallengingCountData = async (user_id: number) => {
         const challengesCountDB = await prisma.user_challenges.aggregate({
             where: {
                 user_id: user_id,
-                complete: null
+                complete: false
             },
             _count: {
                 uchal_id: true
@@ -111,7 +115,7 @@ const userChallengeSelectData = async (userId: number, chalId: number) => {
             where: {
                 chal_id: chalId,
                 user_id: userId,
-                complete: null
+                complete: false
             },
             select: {
                 uchal_id: true
@@ -180,7 +184,7 @@ const userChallengeAndTodayTemplateNotCompleteData = async (userId: number) => {
         const templateNotCompleteDB = await prisma.user_challenges.findMany({
             where: {
                 user_id: userId,
-                complete: null
+                complete: false
             },
             select: {
                 chal_id: true,
@@ -232,7 +236,7 @@ const userChallengeAndTodayTemplateCompleteData = async (userId: number) => {
         const templateCompleteDB = await prisma.user_challenges.findMany({
             where: {
                 user_id: userId,
-                complete: null
+                complete: false
             },
             select: {
                 chal_id: true,

@@ -21,6 +21,9 @@ const koreanDateISOString = getKoreanDateISOString();
 const koreanTime = new Date(koreanDateISOString);
 console.log(koreanTime);
 
+var currentDate = new Date();
+console.log(currentDate);
+
 // const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
 // const koreanTime2 = new Date(koreanDateISOString2);
 // console.log(koreanTime2);

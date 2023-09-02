@@ -1,7 +1,11 @@
 import { serviceReturnForm } from '../modules/responseHandler.js';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from "bcrypt";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const prisma = new PrismaClient();
 
 const getProfile = async (userId: number) => {

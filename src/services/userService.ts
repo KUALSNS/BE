@@ -4,7 +4,11 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import { serviceReturnForm } from '../modules/responseHandler.js';
 const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 /**

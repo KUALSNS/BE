@@ -23,9 +23,10 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
     try {
 
         const newChallenge = req.params.name;
+        const userId = req.decoded?.id;
         const [userDB, challengesCountDB] = await Promise.all([
-            ChallengeService.userCooponAndNicknameAndIdentifierData(req.decoded?.id),
-            WriteService.userChallengingCountData(req.decoded?.id)
+            ChallengeService.userCooponAndNicknameAndIdentifierData(userId),
+            WriteService.userChallengingCountData(userId)
         ]);
 
         const challengesCount = challengesCountDB._count.uchal_id;
@@ -33,7 +34,7 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
 
         
 
-        const challengePossible = await WriteService.userChallengeSelectData(req.decoded?.id, chalIdData[0].chal_id);
+        const challengePossible = await WriteService.userChallengeSelectData(userId, chalIdData[0].chal_id);
 
       
 
@@ -124,9 +125,12 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
  */
 export const writeChallenge = async (req: Request, res: Response<writeChallengeResponseDto>) => {
     try {
+
+        const userId = req.decoded?.id;
+
         const [templateNotCompleteDB, templateCompleteDB] = await Promise.all([
-            WriteService.userChallengeAndTodayTemplateNotCompleteData(req.decoded?.id),
-            WriteService.userChallengeAndTodayTemplateCompleteData(req.decoded?.id)
+            WriteService.userChallengeAndTodayTemplateNotCompleteData(userId),
+            WriteService.userChallengeAndTodayTemplateCompleteData(userId)
         ]);
 
         const challengingArray = [];
@@ -210,9 +214,10 @@ export const writeChallenge = async (req: Request, res: Response<writeChallengeR
 export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res: Response<selectTemplateResponseDto>) => {
     try {
         const challengeName = req.params.challengeName;
+        const userId = req.decoded?.id;
         const [templateNotCompleteDB, templateCompleteDB] = await Promise.all([
-            WriteService.userChallengeAndTodayTemplateNotCompleteData(req.decoded?.id),
-            WriteService.userChallengeAndTodayTemplateCompleteData(req.decoded?.id)
+            WriteService.userChallengeAndTodayTemplateNotCompleteData(userId),
+            WriteService.userChallengeAndTodayTemplateCompleteData(userId)
         ]);
 
         const challengeArrayData = challengeRelativeMapping(templateNotCompleteDB, templateCompleteDB);
@@ -391,10 +396,11 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
 export const plannerTemporaryChallenge = async (req: Request<any, any, insertChallengeRequestDto>, res: Response) => {
     try {
         const { challengeName, challengeTitle, challengeContent } = req.body;
+        const userId = req.decoded?.id;
 
         const challengeId = await WriteService.selectChallengeData(challengeName);
 
-        const userChallengeId = await WriteService.userChallengeSelectData(req.decoded?.id, challengeId[0].chal_id);
+        const userChallengeId = await WriteService.userChallengeSelectData(userId, challengeId[0].chal_id);
 
         await WriteService.updateNoTimeChallengeTemplateData(
             userChallengeId[0]!.uchal_id,

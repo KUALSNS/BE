@@ -1,10 +1,14 @@
 import {PrismaClient, user_challenges} from '@prisma/client';
 import { Request, Response } from 'express';
 const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // 나누기, 프리즈마 부분
-export async function getCompletedChallenges(userId: any, startDate: string, finishDate: string) {
+export async function getCompletedChallenges(userId: number, startDate: string, finishDate: string) {
     try {
         const user = await prisma.users.findUnique({
             where: { user_id: userId },
@@ -58,7 +62,7 @@ async function getMonthStatistics(userId: number) {
     const ongoingChallengesCount = await prisma.user_challenges.count({
           where: {
               user_id: userId,
-              complete: null,
+              complete: false,
           },
       },
     );
@@ -79,7 +83,7 @@ async function getMonthStatistics(userId: number) {
         lastMonth: lastMonthCount,
         comparisonWord: comparisonWord,
         ongoing: ongoingChallengesCount,
-        missed: 27 - thisMonthCount,
+        missed: 30 - thisMonthCount,
     };
 }
 export function getDateRangeStartingSunday() {
@@ -225,7 +229,7 @@ export async function getUserChallengeHistory(userId: number) {
                 if (userChallenge.user_challenge_templetes.length != 0) {
                     if (userChallenge.complete) {
                         finishedChallenges.push(userChallenge);
-                    } else if (userChallenge.user_challenge_templetes[0].complete) {
+                    } else if (userChallenge.complete == false) {
                         ongoingChallenges.push(userChallenge);
                     } else {
                         temporarilySavedChallenges.push(userChallenge);

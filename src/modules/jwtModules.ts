@@ -9,7 +9,7 @@ const redisClient = redis.createClient({
 });
 
 
-const sign = (userId: string, userRole: string) => {
+const sign = (userId: number, userRole: string) => {
   const payload = {
     id: userId,
     role: userRole,
@@ -28,12 +28,12 @@ const refresh = () => {
 }
 const decode = (token: string) => {
   try {
-    const decoded = jwt.decode(token, { complete: true }) as JwtPayload;
-    console.log(decoded);
+    const decoded = jwt.decode(token) as JwtPayload;
+
     return {
       message: "Ok",
-      id: decoded.payload.id,
-      role: decoded.payload.role,
+      id: decoded.id,
+      role: decoded.role,
     }
   }
   catch (err) {
@@ -58,21 +58,30 @@ const verify = (token: string) => {
   }
 };
 
-const refreshVerify = async (token: string, userId: string) => {
+const refreshVerify = async (token: string, userId: number) => {
+
+  await redisClient.connect();
+
   try {
-    await redisClient.connect();
+
+
+    
     const data: string = await redisClient.v4.get(String(userId));
     console.log(data);
-    if (typeof data === 'string') {
-      if (token === data.split('Bearer ')[1]) {
-        jwt.verify(data.split('Bearer ')[1], secret);
-        await redisClient.disconnect();
-        return { state: true };
-      } else {
-        await redisClient.disconnect();
-        return { state: false };
-      }
+
+    if (token === data.split('Bearer ')[1]) {
+  
+      jwt.verify(data.split('Bearer ')[1], secret);
+   
+      await redisClient.disconnect();
+     
+      return { state: true };
     }
+
+    await redisClient.disconnect();
+    return { state: false };
+
+
   } catch (err) {
     await redisClient.disconnect();
     return { state: false };

@@ -51,31 +51,31 @@ export const verifyEmail = async (req: Request, res: Response) => {
  * @access Public
  */
 //회원 가입용 이메일 코드 요청
-export const sendEmail = async (req: Request<any,any,sendEmailRequestDto>, res: Response<sendEmailReponseDto>) =>  {
+export const sendEmail = async (req: Request<any, any, sendEmailRequestDto>, res: Response<sendEmailReponseDto>) => {
     try {
         const emailToSend = req.body.email;
 
         const userIdDB = await UserService.userIdentifierData(emailToSend);
 
         console.log(userIdDB)
-        
-        if(!(userIdDB[0] === undefined)){
+
+        if (!(userIdDB[0] === undefined)) {
             return new ErrorResponse(400, "메일이 중복됩니다.").sendResponse(res);
         }
-   
+
 
         const returnData: serviceReturnForm = await smtpSender(
             emailToSend
         );
         if (returnData.status == 200) {
-     
+
             const { status, message, responseData } = returnData;
             return new SuccessResponse(200, "OK", {
                 status,
                 message,
                 responseData,
             }).sendResponse(res);
-        } else{
+        } else {
             return new ErrorResponse(502, "메일 인증 실패").sendResponse(res);
         }
 
@@ -216,7 +216,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
  */
 export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
-        await redisClient.connect();
+
 
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
@@ -227,27 +227,28 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
-
+      
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
-
-            await redisClient.disconnect();
-
+     
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
-            await redisClient.connect();
             if (authResult.state === false) {
 
-                if (refreshResult?.state === false) {
-                    console.log(decoded!.id);
+                console.log("after2")
 
-                    await redisClient.disconnect();
+                if (refreshResult?.state === false) {
+                    console.log("after3")
+        
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
 
 
-                const newAccessToken = jwt.sign(String(decoded?.id), decoded?.role);
+                const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
+                await redisClient.connect();
+
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
+
                 await redisClient.disconnect();
                 return new SuccessResponse(200, "OK", {
                     accessToken: "Bearer " + newAccessToken,
@@ -255,16 +256,13 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                 }).sendResponse(res);
             }
 
-            await redisClient.disconnect();
             return new ErrorResponse(400, "access token is not expired!").sendResponse(res)
         }
 
-        await redisClient.disconnect();
         return new ErrorResponse(402, "헤더의 값을 알 수 없습니다.").sendResponse(res);
 
     } catch (error) {
         console.error(error);
-        await redisClient.disconnect();
         return new ErrorResponse(500, "Server Error").sendResponse(res);
 
     }
@@ -465,6 +463,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         await redisClient.connect();
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
         await redisClient.disconnect();
+
 
         return new SuccessResponse(200, "OK", {
             accessToken,

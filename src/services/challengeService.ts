@@ -1,7 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import { DATA_SOURCES } from '../config/auth.js'
 import mysql from 'mysql2/promise'
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * 모든 카테고리 데이터 반환 함수
@@ -25,7 +30,7 @@ const allCategoryData = async () => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${__dirname} allCategoryData function`);
+    throw new Error(`Failed ${ __dirname} allCategoryData function`);
   }
 }
 
@@ -140,7 +145,7 @@ const userChallengingData = async (user_id: number) => {
     const userChallengingDB = await prisma.user_challenges.findMany({
         where: {
           user_id: user_id,
-          complete : null
+          complete : false
          
         },
         select: {
