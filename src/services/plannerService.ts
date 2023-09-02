@@ -254,7 +254,12 @@ export async function getUserChallengeHistory(userId: number) {
 }
 
 
-export const  getUserChallengeDB = async (userId: number) => {
+/**
+ * 
+ * @param userId 
+ * @returns  유저가 참여한 챌린지 데이터 조회
+ */
+export const  getUserChallengeData = async (userId: number) => {
     try {
 
         const userChallenge = await prisma.user_challenges.findMany({
@@ -280,10 +285,46 @@ export const  getUserChallengeDB = async (userId: number) => {
      
         return userChallenge;
     } catch (error) {
-        console.error('Error retrieving user challenge history:', error);
-        throw error;
+        throw new Error(`Failed ${__dirname} getUserChallengeDB function`);
     }
 }
 
 
+/**
+ * 
+ * @param userId 
+ * @param challenge 
+ * @returns  유저가 진행 중인 챌린지의 템플릿 데이터 조회
+ */
+export const getUserChallengeTemplateData = async (userId: number, challenge : string) => {
+    try {
 
+        const userChallengeTemplate = await prisma.challenges.findMany({
+            select:{
+                user_challenges :{
+                    select:{
+                        user_challenge_templetes:{
+                            select:{
+                                title:true,
+                                writing:true,
+                                created_at:true
+                            }
+                        }
+                    },
+                    where:{
+                        user_id:userId
+                    }
+                }
+
+            },
+            where:{
+                title: challenge
+            }
+     
+        })
+     
+        return userChallengeTemplate;
+    } catch (error) {
+        throw new Error(`Failed ${__dirname} getUserChallengeTemplateData function`);
+    }
+}

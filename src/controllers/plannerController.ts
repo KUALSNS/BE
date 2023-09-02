@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
+import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto } from '../interfaces/plannerDTO';
 
 
 
@@ -95,20 +96,29 @@ export async function getUserChallengeHistory(req: any, res: Response, next: Nex
     }
 }
 
-export async function getUserChallenge(req: Request, res: Response, next: NextFunction) {
+/**
+ * 
+ * @param req 유저 id
+ * @param res 
+ * @param next 
+ * @returns  1. 참여한 챌린지가 없다.
+ *           2. 진행 중인, 종료한 챌린지 데이터
+ *           3. 서버 오류
+ */
+export const getUserChallenge = async (req: Request, res: Response<getUserChallengeResponseDto>, next: NextFunction) => {
     try {
 
 
         const userId: number = req.decoded?.id;
         const onGoingChallenge: { complete: boolean | null; start_at: string; finish_at: string; challengeTitle: string; categoryName: string; }[] = [];
         const finishChallenge: { complete: boolean | null; start_at: string; finish_at: string; challengeTitle: string; categoryName: string; }[] = [];
-        const userChallenge = await plannerService.getUserChallengeDB(userId);
+        const userChallengeDB = await plannerService.getUserChallengeData(userId);
 
-        if (!userChallenge) {
-            return new ErrorResponse(403, "진행 중인 챌린지가 없습니다.").sendResponse(res);
+        if (userChallengeDB[0] === undefined) {
+            return new ErrorResponse(403, "참여한 챌린지가 없습니다.").sendResponse(res);
         }
 
-        userChallenge.forEach((e) => {
+        userChallengeDB.forEach((e) => {
             const transformedValue = {
                 complete: e.complete,
                 start_at: e.start_at.toISOString().slice(0, 10),
@@ -119,14 +129,11 @@ export async function getUserChallenge(req: Request, res: Response, next: NextFu
             };
 
             if (e.complete) {
-               finishChallenge.push(transformedValue);
+                finishChallenge.push(transformedValue);
             } else {
                 onGoingChallenge.push(transformedValue);
             }
         });
-
-        console.log(onGoingChallenge);
-        console.log(finishChallenge);
 
         return new SuccessResponse(200, "OK", {
             onGoingChallenge,
@@ -134,6 +141,41 @@ export async function getUserChallenge(req: Request, res: Response, next: NextFu
         }).sendResponse(res);
 
 
+
+    } catch (error) {
+        console.error(error);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
+    }
+}
+
+
+/**
+ * 
+ * @param req 챌린지 이름, 유저 id
+ * @param res 
+ * @param next 
+ * @returns  1. 작성 템플릿이 없다.
+ *           2. 챌린지 템플릿 데이터
+ *           3. 서버 오류
+ */
+export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemplateRequestDto>, res: Response<getUserChallengeTemplateRequestDto>, next: NextFunction) => {
+    try {
+
+
+        const userId: number = req.decoded?.id;
+        const challenge = req.params.challenge;
+
+        const userChallengeTemplateDB = await plannerService.getUserChallengeTemplateData(userId, challenge);
+
+        if (userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes[0] === undefined) {
+            return new ErrorResponse(403, "작성 템플릿이 없습니다.").sendResponse(res);
+        }
+
+        const userChallengeTemplate = userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes;
+
+        return new SuccessResponse(200, "OK", {
+            userChallengeTemplate
+        }).sendResponse(res);
 
     } catch (error) {
         console.error(error);

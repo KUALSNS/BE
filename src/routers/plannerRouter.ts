@@ -9,6 +9,6 @@ router.get('/calendar',verifyToken,PlannerController.getPlannerData);
 router.get('/history',verifyToken,PlannerController.getUserChallengeHistory);
 router.get('/statistic',verifyToken,PlannerController.getUserStatistics);
 router.get('/user-challenge',verifyToken,PlannerController.getUserChallenge);
-
+router.get('/user-challenge-template/:challenge',verifyToken,PlannerController.getUserChallengeTemplate);
 
 export default router
