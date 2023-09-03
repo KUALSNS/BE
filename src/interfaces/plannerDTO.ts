@@ -1,13 +1,13 @@
 
 
 export type getUserChallengeTemplateRequestDto = {
-    challenge : string;
+    challenge: string;
 }
 
 
 
 
-export interface getUserChallengeTemplateResponseDto  {
+export interface getUserChallengeTemplateResponseDto {
     title: string;
     created_at: Date;
     writing: string;
@@ -22,3 +22,10 @@ export interface getUserChallengeResponseDto {
     categoryName: string;
 }[]
 
+export type userChallengeDto = {
+    complete: boolean | null;
+    start_at: string;
+    finish_at: string;
+    challengeTitle: string;
+    categoryName: string;
+}[]

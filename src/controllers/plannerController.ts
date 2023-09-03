@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
-import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto } from '../interfaces/plannerDTO';
+import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, userChallengeDto } from '../interfaces/plannerDTO';
 
 
 
@@ -110,8 +110,8 @@ export const getUserChallenge = async (req: Request, res: Response<getUserChalle
 
 
         const userId: number = req.decoded?.id;
-        const onGoingChallenge: { complete: boolean | null; start_at: string; finish_at: string; challengeTitle: string; categoryName: string; }[] = [];
-        const finishChallenge: { complete: boolean | null; start_at: string; finish_at: string; challengeTitle: string; categoryName: string; }[] = [];
+        const onGoingChallenge : userChallengeDto = [];
+        const finishChallenge : userChallengeDto = [];
         const userChallengeDB = await plannerService.getUserChallengeData(userId);
 
         if (userChallengeDB[0] === undefined) {
