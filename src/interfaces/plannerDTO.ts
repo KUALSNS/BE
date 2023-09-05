@@ -24,8 +24,7 @@ export interface getUserChallengeResponseDto {
 
 export type userChallengeDto = {
     complete: boolean | null;
-    start_at: string;
-    finish_at: string;
+    remain_day: number | null;
     challengeTitle: string;
     categoryName: string;
 }[]

@@ -4,6 +4,7 @@ import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, userChallengeDto } from '../interfaces/plannerDTO';
+import { getKoreanDateISOString } from '../modules/koreanTime';
 
 
 
@@ -113,19 +114,20 @@ export const getUserChallenge = async (req: Request, res: Response<getUserChalle
         const onGoingChallenge : userChallengeDto = [];
         const finishChallenge : userChallengeDto = [];
         const userChallengeDB = await plannerService.getUserChallengeData(userId);
+        const koreanDateISOString = getKoreanDateISOString();
+        const koreanTime = new Date(koreanDateISOString);
 
         if (userChallengeDB[0] === undefined) {
             return new ErrorResponse(403, "참여한 챌린지가 없습니다.").sendResponse(res);
         }
 
+
         userChallengeDB.forEach((e) => {
             const transformedValue = {
                 complete: e.complete,
-                start_at: e.start_at.toISOString().slice(0, 10),
-                finish_at: e.finish_at!.toISOString().slice(0, 10),
+                remain_day: e.finish_at ? Math.floor((new Date(e.finish_at).getTime() - koreanTime.getTime()) / (1000 * 3600 * 24)) + 1: null,
                 challengeTitle: e.challenges.title,
                 categoryName: e.challenges.category.name
-
             };
 
             if (e.complete) {
@@ -134,6 +136,7 @@ export const getUserChallenge = async (req: Request, res: Response<getUserChalle
                 onGoingChallenge.push(transformedValue);
             }
         });
+
 
         return new SuccessResponse(200, "OK", {
             onGoingChallenge,

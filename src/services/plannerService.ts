@@ -265,7 +265,7 @@ export const  getUserChallengeData = async (userId: number) => {
         const userChallenge = await prisma.user_challenges.findMany({
             select :{
                 complete:true,
-                start_at:true,
+     //           start_at:true,
                 finish_at:true,
                 challenges :{
                     select:{
