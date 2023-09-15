@@ -39,7 +39,6 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-
           sudo touch /etc/nginx/green.flag
           sudo rm /etc/nginx/blue.flag
 
