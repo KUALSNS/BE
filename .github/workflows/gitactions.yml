@@ -63,6 +63,9 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/green:1.0
             docker run -d -p 3001:3000 --name green ${{ secrets.DOCKER_USERNAME }}/green:1.0
 
+
+            docker stop localredis
+            docker rm localredis
             docker run --name localredis -d redis
 
            
