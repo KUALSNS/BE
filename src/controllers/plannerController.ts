@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
-import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, userChallengeDto } from '../interfaces/plannerDTO';
-import { getKoreanDateISOString } from '../modules/koreanTime';
+import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, userChallengeDto } from '../interfaces/plannerDTO.js';
+import { getKoreanDateISOString } from '../modules/koreanTime.js';
 
 
 
