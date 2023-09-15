@@ -40,6 +40,10 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
 
+          docker stop localredis
+          docker rm localredis
+          docker run --name localredis -d redis
+
           sudo touch /etc/nginx/green.flag
           sudo rm /etc/nginx/blue.flag
 
@@ -63,9 +67,7 @@ jobs:
           docker run -d -p 3001:3000 --name green ${{ secrets.DOCKER_USERNAME }}/green:1.0
 
 
-          docker stop localredis
-          docker rm localredis
-          docker run --name localredis -d redis
+
 
            
 
