@@ -1,7 +1,7 @@
 import * as redis from 'redis';
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
-import { smtpTransport } from "../config/email";
+import { smtpTransport } from "../config/email.js";
 require('dotenv').config();
 const env = process.env;
 
@@ -83,7 +83,6 @@ export const randomPasswordsmtpSender = async (email: string, randomPassword: st
       }
     }
   }
-
 }
 
 

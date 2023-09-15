@@ -1,10 +1,14 @@
 import {PrismaClient, user_challenges} from '@prisma/client';
 import { Request, Response } from 'express';
 const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // 나누기, 프리즈마 부분
-export async function getCompletedChallenges(userId: any, startDate: string, finishDate: string) {
+export async function getCompletedChallenges(userId: number, startDate: string, finishDate: string) {
     try {
         const user = await prisma.users.findUnique({
             where: { user_id: userId },
@@ -58,7 +62,7 @@ async function getMonthStatistics(userId: number) {
     const ongoingChallengesCount = await prisma.user_challenges.count({
           where: {
               user_id: userId,
-              complete: null,
+              complete: false,
           },
       },
     );
@@ -79,7 +83,7 @@ async function getMonthStatistics(userId: number) {
         lastMonth: lastMonthCount,
         comparisonWord: comparisonWord,
         ongoing: ongoingChallengesCount,
-        missed: 27 - thisMonthCount,
+        missed: 30 - thisMonthCount,
     };
 }
 export function getDateRangeStartingSunday() {
@@ -225,7 +229,7 @@ export async function getUserChallengeHistory(userId: number) {
                 if (userChallenge.user_challenge_templetes.length != 0) {
                     if (userChallenge.complete) {
                         finishedChallenges.push(userChallenge);
-                    } else if (userChallenge.user_challenge_templetes[0].complete) {
+                    } else if (userChallenge.complete == false) {
                         ongoingChallenges.push(userChallenge);
                     } else {
                         temporarilySavedChallenges.push(userChallenge);
@@ -250,4 +254,77 @@ export async function getUserChallengeHistory(userId: number) {
 }
 
 
+/**
+ * 
+ * @param userId 
+ * @returns  유저가 참여한 챌린지 데이터 조회
+ */
+export const  getUserChallengeData = async (userId: number) => {
+    try {
 
+        const userChallenge = await prisma.user_challenges.findMany({
+            select :{
+                complete:true,
+     //           start_at:true,
+                finish_at:true,
+                challenges :{
+                    select:{
+                        title:true,
+                        category:{
+                            select:{
+                                name:true
+                            }
+                        }
+                    }
+                }
+            },
+            where:{
+                user_id: userId
+            }
+        })
+     
+        return userChallenge;
+    } catch (error) {
+        throw new Error(`Failed ${__dirname} getUserChallengeDB function`);
+    }
+}
+
+
+/**
+ * 
+ * @param userId 
+ * @param challenge 
+ * @returns  유저가 진행 중인 챌린지의 템플릿 데이터 조회
+ */
+export const getUserChallengeTemplateData = async (userId: number, challenge : string) => {
+    try {
+
+        const userChallengeTemplate = await prisma.challenges.findMany({
+            select:{
+                user_challenges :{
+                    select:{
+                        user_challenge_templetes:{
+                            select:{
+                                title:true,
+                                writing:true,
+                                created_at:true
+                            }
+                        }
+                    },
+                    where:{
+                        user_id:userId
+                    }
+                }
+
+            },
+            where:{
+                title: challenge
+            }
+     
+        })
+     
+        return userChallengeTemplate;
+    } catch (error) {
+        throw new Error(`Failed ${__dirname} getUserChallengeTemplateData function`);
+    }
+}

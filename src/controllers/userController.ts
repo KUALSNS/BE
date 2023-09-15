@@ -2,18 +2,17 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import { checkIdentifierRequestDto, decoded, kakaoLogInResponseDto, passwordUpdate, redisCode, UserIdResponseDto, userIdFindRequestDto, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto } from '../interfaces/userDTO';
-import *  as UserService from '../services/userService';
+import { checkIdentifierRequestDto, kakaoLogInResponseDto, passwordUpdate, redisCode, UserIdResponseDto, userIdFindRequestDto, userLoginRequestDto, UserLoginResponseDto, userPasswordFindRequestDto, userSignupDto, UserReissueTokenResponseDto, signUpRequestDto, sendEmailRequestDto, sendEmailReponseDto } from '../interfaces/userDTO';
+import *  as UserService from '../services/userService.js';
 import bcrypt from 'bcrypt';
-import * as jwt from '../modules/jwtModules';
+import * as jwt from '../modules/jwtModules.js';
 import * as redis from 'redis';
-import { serviceReturnForm } from '../modules/responseHandler';
-import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler';
-
-import { RowDataPacket } from 'mysql2/promise';
-import { randomPasswordFunction } from '../modules/randomPassword';
+import { serviceReturnForm } from '../modules/responseHandler.js';
+import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler.js';
 import axios from 'axios';
-import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
+import { RowDataPacket } from 'mysql2/promise';
+import { randomPasswordFunction } from '../modules/randomPassword.js';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 
 const redisClient = redis.createClient({
     url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
@@ -52,79 +51,115 @@ export const verifyEmail = async (req: Request, res: Response) => {
  * @access Public
  */
 //회원 가입용 이메일 코드 요청
-export async function sendEmail(req: Request, res: Response) {
+export const sendEmail = async (req: Request<any, any, sendEmailRequestDto>, res: Response<sendEmailReponseDto>) => {
     try {
         const emailToSend = req.body.email;
-        console.log(emailToSend);
+
+        const userIdDB = await UserService.userIdentifierData(emailToSend);
+
+        console.log(userIdDB)
+
+        if (!(userIdDB[0] === undefined)) {
+            return new ErrorResponse(400, "메일이 중복됩니다.").sendResponse(res);
+        }
+
 
         const returnData: serviceReturnForm = await smtpSender(
             emailToSend
         );
         if (returnData.status == 200) {
-            // when successed
+
             const { status, message, responseData } = returnData;
-            res.status(status).send({
+            return new SuccessResponse(200, "OK", {
                 status,
                 message,
                 responseData,
-            });
+            }).sendResponse(res);
         } else {
-            // when failed
-            const { status, message } = returnData;
-            res.status(status).send({
-                status,
-                message,
-            });
+            return new ErrorResponse(502, "메일 인증 실패").sendResponse(res);
         }
+
     } catch (error) {
         console.log(error);
-        res.status(500).send({ status: 500, message: "Fail Send Email" });
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
-
-
 }
 
 
 
+// /**
+//  * @route Method /Route
+//  * @desc Function Description
+//  * @access Public
+//  */
+
+// export const userSignup = async (req: Request, res: Response) => {
+
+//     // * Validate user input
+//     if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
+//         res.status(400).send({ status: 400, message: "Fail SignUp" });
+//         return;
+//     }
+//     const { email, password, nickname, userId, phoneNumber } = req.body;
+
+//     const returnData: serviceReturnForm = await UserService.userSignup(
+//         email,
+//         password,
+//         nickname,
+//         userId,
+//         phoneNumber
+//     );
+//     if (returnData.status == 200) {
+//         // when successed
+//         const { status, message, responseData } = returnData;
+//         res.status(status).send({
+//             status,
+//             message,
+//             responseData,
+//         });
+//     } else {
+//         // when failed
+//         const { status, message } = returnData;
+//         res.status(status).send({
+//             status,
+//             message,
+//         });
+//     }
+// };
+
 /**
- * @route Method /Route
- * @desc Function Description
- * @access Public
+ * 
+ * @param req 이메일, 비밀번호, 닉네임, 아이디, 핸드폰 번호
+ * @param res  1. 완료(200)
+ *             2. 서버오류(500)
+ * @returns 
  */
+export const userSignup = async (req: Request<any, any, signUpRequestDto>, res: Response) => {
+    try {
 
-export const userSignup = async (req: Request, res: Response) => {
+        const { email, password, nickname, identifier, phoneNumber } = req.body;
 
-    // * Validate user input
-    if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
-        res.status(400).send({ status: 400, message: "Fail SignUp" });
-        return;
-    }
-    const { email, password, nickname, userId, phoneNumber } = req.body;
+        const encryptedPassword = await bcrypt.hash(password, 10);
 
-    const returnData: serviceReturnForm = await UserService.userSignup(
-        email,
-        password,
-        nickname,
-        userId,
-        phoneNumber
-    );
-    if (returnData.status == 200) {
-        // when successed
-        const { status, message, responseData } = returnData;
-        res.status(status).send({
-            status,
-            message,
-            responseData,
-        });
-    } else {
-        // when failed
-        const { status, message } = returnData;
-        res.status(status).send({
-            status,
-            message,
-        });
+        await UserService.userSignupData(
+            email,
+            encryptedPassword,
+            nickname,
+            identifier,
+            phoneNumber
+        );
+        return new SuccessResponse(200, "OK").sendResponse(res);
+
+    } catch (error) {
+        console.log(error);
+        return new ErrorResponse(500, "Server Error").sendResponse(res);
     }
 };
+
+
+
+
+
 
 
 /**
@@ -181,7 +216,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
  */
 export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
-        await redisClient.connect();
+
 
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
@@ -192,27 +227,28 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
-
+      
             const authResult = jwt.verify(accessToken);
             const decoded = jwt.decode(accessToken);
-
-            await redisClient.disconnect();
-
+     
             const refreshResult = await jwt.refreshVerify(refreshToken, decoded?.id);
 
-            await redisClient.connect();
             if (authResult.state === false) {
 
-                if (refreshResult?.state === false) {
-                    console.log(decoded!.id);
+                console.log("after2")
 
-                    await redisClient.disconnect();
+                if (refreshResult?.state === false) {
+                    console.log("after3")
+        
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
 
 
-                const newAccessToken = jwt.sign(String(decoded?.id), decoded?.role);
+                const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
+                await redisClient.connect();
+
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
+
                 await redisClient.disconnect();
                 return new SuccessResponse(200, "OK", {
                     accessToken: "Bearer " + newAccessToken,
@@ -220,16 +256,13 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                 }).sendResponse(res);
             }
 
-            await redisClient.disconnect();
             return new ErrorResponse(400, "access token is not expired!").sendResponse(res)
         }
 
-        await redisClient.disconnect();
         return new ErrorResponse(402, "헤더의 값을 알 수 없습니다.").sendResponse(res);
 
     } catch (error) {
         console.error(error);
-        await redisClient.disconnect();
         return new ErrorResponse(500, "Server Error").sendResponse(res);
 
     }
@@ -346,7 +379,7 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
             return new ErrorResponse(404, "Id can't find").sendResponse(res);
 
         }
-        if(userEmail !== userIdSignData.email){
+        if (userEmail !== userIdSignData.email) {
             return new ErrorResponse(405, "이메일이 옳바르지 않습니다.").sendResponse(res);
 
         }
@@ -424,12 +457,13 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
         const userId = await UserService.userInformationSelectData(userEmail);
 
-        const accessToken = "Bearer " + jwt.sign(String(userId?.user_id), userId!.role);
+        const accessToken = "Bearer " + jwt.sign(userId?.user_id, userId!.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
         await redisClient.connect();
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
         await redisClient.disconnect();
+
 
         return new SuccessResponse(200, "OK", {
             accessToken,

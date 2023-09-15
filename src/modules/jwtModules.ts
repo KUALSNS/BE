@@ -4,20 +4,19 @@ import * as redis from 'redis';
 
 const secret = process.env.JSONSECRET!;
 const redisClient = redis.createClient({
-  url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
+  url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
   legacyMode: true
 });
-;
 
 
-const sign = (userId: string, userRole: string) => {
+const sign = (userId: number, userRole: string) => {
   const payload = {
     id: userId,
     role: userRole,
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '5m',
+    expiresIn: '15m',
   });
 }
 
@@ -29,12 +28,12 @@ const refresh = () => {
 }
 const decode = (token: string) => {
   try {
-    const decoded = jwt.decode(token, { complete: true }) as JwtPayload;
-    console.log(decoded);
+    const decoded = jwt.decode(token) as JwtPayload;
+
     return {
       message: "Ok",
-      id: decoded.payload.id,
-      role: decoded.payload.role,
+      id: decoded.id,
+      role: decoded.role,
     }
   }
   catch (err) {
@@ -59,21 +58,30 @@ const verify = (token: string) => {
   }
 };
 
-const refreshVerify = async (token: string, userId: string) => {
+const refreshVerify = async (token: string, userId: number) => {
+
+  await redisClient.connect();
+
   try {
-    await redisClient.connect();
+
+
+    
     const data: string = await redisClient.v4.get(String(userId));
     console.log(data);
-    if (typeof data === 'string') {
-      if (token === data.split('Bearer ')[1]) {
-        jwt.verify(data.split('Bearer ')[1], secret);
-        await redisClient.disconnect();
-        return { state: true };
-      } else {
-        await redisClient.disconnect();
-        return { state: false };
-      }
+
+    if (token === data.split('Bearer ')[1]) {
+  
+      jwt.verify(data.split('Bearer ')[1], secret);
+   
+      await redisClient.disconnect();
+     
+      return { state: true };
     }
+
+    await redisClient.disconnect();
+    return { state: false };
+
+
   } catch (err) {
     await redisClient.disconnect();
     return { state: false };

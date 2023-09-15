@@ -1,7 +1,11 @@
-import { serviceReturnForm } from '../modules/responseHandler';
+import { serviceReturnForm } from '../modules/responseHandler.js';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from "bcrypt";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const prisma = new PrismaClient();
 
 const getProfile = async (userId: number) => {
@@ -160,7 +164,7 @@ const updatePassword = async (oldPassword: string, newPassword: string, user_id:
     await prisma.users.findUnique({
         where: { user_id: user_id }
     })
-        .then(async (data) => {
+        .then(async (data : any) => {
         if (data) {
             const compare = await bcrypt.compare(oldPassword, data.password);
 

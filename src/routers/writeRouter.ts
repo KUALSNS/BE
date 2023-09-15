@@ -1,6 +1,6 @@
 import express from 'express';
-import * as WriteController from '../controllers/writeController'
-import { verifyToken } from '../middleware/auth';
+import * as WriteController from '../controllers/writeController.js'
+import { verifyToken } from '../middleware/auth.js';
 
 
 

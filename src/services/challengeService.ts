@@ -1,7 +1,12 @@
 import { PrismaClient } from '@prisma/client'
-import { DATA_SOURCES } from '../config/auth'
+import { DATA_SOURCES } from '../config/auth.js'
 import mysql from 'mysql2/promise'
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * 모든 카테고리 데이터 반환 함수
@@ -25,7 +30,7 @@ const allCategoryData = async () => {
   } catch (error) {
     console.log(error);
     prisma.$disconnect();
-    throw new Error(`Failed ${__dirname} allCategoryData function`);
+    throw new Error(`Failed ${ __dirname} allCategoryData function`);
   }
 }
 
@@ -104,7 +109,7 @@ const challengeSearchData = async (challengeSearch: string) => {
  * @returns   쿠폰 사용 유무, 닉네임
 
  */
-const userCooponAndNicknameData = async (userId: number) => {
+const userCooponAndNicknameAndIdentifierData = async (userId: number) => {
   try {
   
     const  userDB = await prisma.users.findMany({
@@ -113,7 +118,8 @@ const userCooponAndNicknameData = async (userId: number) => {
         },
         select: {
           nickname: true,
-          coopon: true
+          coopon: true,
+          identifier: true
         }
       })
   
@@ -138,7 +144,9 @@ const userChallengingData = async (user_id: number) => {
   
     const userChallengingDB = await prisma.user_challenges.findMany({
         where: {
-          user_id: user_id
+          user_id: user_id,
+          complete : false
+         
         },
         select: {
           
@@ -148,13 +156,12 @@ const userChallengingData = async (user_id: number) => {
             }
           },
           user_challenge_templetes: {
-            where: {
-              complete: true
-            },
             select: {
               title: true
             }
           }
+
+
         }
       })
    
@@ -171,6 +178,6 @@ const userChallengingData = async (user_id: number) => {
 
 
 export {
-  allChallengeData, allCategoryData, challengeSearchData, userChallengingData, userCooponAndNicknameData
+  allChallengeData, allCategoryData, challengeSearchData, userChallengingData, userCooponAndNicknameAndIdentifierData 
 }
 

@@ -2,13 +2,14 @@ import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
-import { stream } from './modules/loggerHandler';
-import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from './modules/koreanTime';
-import challengeRouter from './routers/challengeRouter';
-import userRouter from './routers/userRouter'; 
-import profileRouter from './routers/profileRouter'
-import plannerRouter from './routers/plannerRouter'; 
-import writeRouter from './routers/writeRouter'; 
+import { stream } from './modules/loggerHandler.js';
+import { getKoreanDateISOString, getKoreanDateISOStringAdd9Hours } from './modules/koreanTime.js';
+import challengeRouter from './routers/challengeRouter.js';
+import userRouter from './routers/userRouter.js'; 
+import profileRouter from './routers/profileRouter.js'
+import plannerRouter from './routers/plannerRouter.js'; 
+import writeRouter from './routers/writeRouter.js'; 
+import { challengeScheduler } from './modules/challengeScheduler.js';
 
 
 dotenv.config();
@@ -20,9 +21,12 @@ const koreanDateISOString = getKoreanDateISOString();
 const koreanTime = new Date(koreanDateISOString);
 console.log(koreanTime);
 
-const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
-const koreanTime2 = new Date(koreanDateISOString2);
-console.log(koreanTime2);
+var currentDate = new Date();
+console.log(currentDate);
+
+// const koreanDateISOString2 = getKoreanDateISOStringAdd9Hours();
+// const koreanTime2 = new Date(koreanDateISOString2);
+// console.log(koreanTime2);
 
 app.use(morgan('combined', { stream }));
 app.use(cors({ credentials: true }));
@@ -49,6 +53,7 @@ app.listen(port, () => {
     ################################################
   `);
   console.info('Writon Server Start');
+  challengeScheduler();
 })
   .on('error', (err) => {
     console.error(err);

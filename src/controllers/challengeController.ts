@@ -3,9 +3,9 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 require('dotenv').config();
 import { Request, Response } from 'express';
-import * as ChallengeService from '../services/challengeService';
-import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO';
-import { ErrorResponse, SuccessResponse } from '../modules/returnResponse';
+import * as ChallengeService from '../services/challengeService.js';
+import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO.js';
+import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 
 
 /**
@@ -87,18 +87,21 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
 export const afterMain = async (req: Request, res: Response<afterMainResponseDto>) => {
     try {
 
-        const user_id = req.decoded?.id;
+        const user_id : number = req.decoded?.id;
 
         const [categoryDB, challengesDB, userDB, userChallengingDB] = await Promise.all([
             ChallengeService.allCategoryData(),
             ChallengeService.allChallengeData(),
-            ChallengeService.userCooponAndNicknameData(user_id),
+            ChallengeService.userCooponAndNicknameAndIdentifierData(user_id),
             ChallengeService.userChallengingData(user_id)
 
         ])
 
         const nickname = userDB[0].nickname;
         const coopen = userDB[0].coopon;
+        const identifier = userDB[0].identifier;
+
+        
 
         const userChallengeArray = userChallengingDB.map((e) => ({
             challenges: e.challenges.title,
@@ -120,8 +123,10 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
         } else {
             challengeCertain = true;
         }
-        return new SuccessResponse(200, "OK",{ nickname,
+        return new SuccessResponse(200, "OK",{ 
+            nickname,
             coopen,
+            identifier,
             challengeCertain,
             userChallengeSu,
             userChallengeArray,

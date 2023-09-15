@@ -1,10 +1,10 @@
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
-import { serviceReturnForm } from '../modules/responseHandler';
+import { serviceReturnForm } from '../modules/responseHandler.js';
 require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
-import *  as profileService from '../services/profileService';
-import * as jwt from '../modules/jwtModules';
+import *  as profileService from '../services/profileService.js';
+import * as jwt from '../modules/jwtModules.js';
 
 /**
  * @route Method /Route
