@@ -42,7 +42,6 @@ jobs:
 
           
 
-          docker run -d -p 3001:3000 --name green ${{ secrets.DOCKER_USERNAME }}/green:1.0
 
           sudo touch /etc/nginx/green.flag
           sudo rm /etc/nginx/blue.flag
@@ -54,6 +53,8 @@ jobs:
           sleep 20
           sudo touch /etc/nginx/blue.flag
           sudo rm /etc/nginx/green.flag
+          
+          docker run -d -p 3001:3000 --name green ${{ secrets.DOCKER_USERNAME }}/green:1.0
 
           sleep 20
 
@@ -63,9 +64,9 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/green:1.0
 
 
-          docker stop localredis
-          docker rm localredis
-          docker run --name localredis -d redis
+          # docker stop localredis
+          # docker rm localredis
+          # docker run --name localredis -d redis
 
            
 
