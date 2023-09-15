@@ -55,7 +55,6 @@ jobs:
 
           sleep 20
 
-          
           docker stop green 
           docker rm green 
           docker rmi ${{ secrets.DOCKER_USERNAME }}/green:1.0
