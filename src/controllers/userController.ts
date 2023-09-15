@@ -14,8 +14,13 @@ import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 
+// const redisClient = redis.createClient({
+//     url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+//     legacyMode: true
+// });
+
 const redisClient = redis.createClient({
-    url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+    url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
     legacyMode: true
 });
 

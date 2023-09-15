@@ -5,10 +5,16 @@ import { smtpTransport } from "../config/email.js";
 require('dotenv').config();
 const env = process.env;
 
+// const redisClient = redis.createClient({
+//   url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+//   legacyMode: true
+// });
+
 const redisClient = redis.createClient({
-  url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+  url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
   legacyMode: true
 });
+
 
 const generateRandom = function (min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

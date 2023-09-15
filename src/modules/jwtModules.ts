@@ -3,10 +3,16 @@ import type { JwtPayload } from "jsonwebtoken"
 import * as redis from 'redis';
 
 const secret = process.env.JSONSECRET!;
+// const redisClient = redis.createClient({
+//   url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+//   legacyMode: true
+// });
+
 const redisClient = redis.createClient({
-  url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+  url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
   legacyMode: true
 });
+
 
 
 const sign = (userId: number, userRole: string) => {
