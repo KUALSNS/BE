@@ -50,10 +50,9 @@ jobs:
           docker run -d -p 3000:3000 --name blue ${{ secrets.DOCKER_USERNAME }}/blue:1.0
 
           sleep 20
-          
+
           sudo touch /etc/nginx/blue.flag
           sudo rm /etc/nginx/green.flag
-
 
           sleep 20
 
