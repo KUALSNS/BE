@@ -41,6 +41,7 @@ export const smtpSender = async function (email: string) {
     console.log(email + "       " + auth);
     await redisClient.disconnect();
    
+    
     return {
       status: 200,
       message: '이메일이 성공적으로 전송되었습니다.',
