@@ -3,7 +3,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 import { smtpTransport } from "../config/email.js";
 require('dotenv').config();
-const env = process.env;
+
 
 // const redisClient = redis.createClient({
 //   url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
@@ -30,7 +30,7 @@ export const smtpSender = async function (email: string) {
     await redisClient.v4.set(email, verificationCode, 'EX', 60 * 3);
     //redis get email code
     const mailOptions = {
-      from: "jftj" + "@naver.com",
+      from: "teamwritoner" + "@gmail.com",
       to: email,
       subject: 'Writon 서비스 이메일 인증 코드입니다.',
       text: `인증 코드 : ${verificationCode}`
@@ -40,6 +40,7 @@ export const smtpSender = async function (email: string) {
     console.log("here is email and auth")
     console.log(email + "       " + auth);
     await redisClient.disconnect();
+   
     return {
       status: 200,
       message: '이메일이 성공적으로 전송되었습니다.',
@@ -65,7 +66,7 @@ export const randomPasswordsmtpSender = async (email: string, randomPassword: st
     console.log(randomPassword)
 
     const mailOptions = {
-      from: "jftj" + "@naver.com",
+      from: "teamwritoner" + "@gmail.com",
       to: email,
       subject: 'Writon 서비스 이메일 인증 코드입니다.',
       text: `임시비밀번호 : ${randomPassword}`

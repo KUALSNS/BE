@@ -62,8 +62,6 @@ export const sendEmail = async (req: Request<any, any, sendEmailRequestDto>, res
 
         const userIdDB = await UserService.userIdentifierData(emailToSend);
 
-        console.log(userIdDB)
-
         if (!(userIdDB[0] === undefined)) {
             return new ErrorResponse(400, "메일이 중복됩니다.").sendResponse(res);
         }
