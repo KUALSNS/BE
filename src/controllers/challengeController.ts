@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import * as ChallengeService from '../services/challengeService.js';
 import { afterMainResponseDto, beforeMainResponseDto, categorySearchRequestDto, challengeSearchResponseDto } from '../interfaces/challengeDTO.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
-
+import { stream, logger } from '../modules/loggerHandler.js';
 
 /**
  * 로그인 이전 메인 화면 함수
@@ -39,8 +39,10 @@ export const beforeMain = async (req: Request, res: Response<beforeMainResponseD
         }));
         return new SuccessResponse(200, "OK", { category, challenges }).sendResponse(res)
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -70,8 +72,10 @@ export const challengeSearch = async (req: Request<any, any, any, categorySearch
         }
         return new ErrorResponse(400, "값을 찾을 수 없습니다.").sendResponse(res);
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -134,7 +138,9 @@ export const afterMain = async (req: Request, res: Response<afterMainResponseDto
             challengesArray}).sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500,"Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };

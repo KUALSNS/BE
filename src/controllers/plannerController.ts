@@ -5,7 +5,7 @@ import *  as plannerService from '../services/plannerService.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, userChallengeDto } from '../interfaces/plannerDTO.js';
 import { getKoreanDateISOString } from '../modules/koreanTime.js';
-
+import { stream, logger } from '../modules/loggerHandler.js';
 
 
 
@@ -35,11 +35,10 @@ export async function getPlannerData(req: any, res: Response, next: NextFunction
             },
         });
     } catch (error) {
-        console.error('Error fetching completed challenges:', error);
-        return res.status(500).json({
-            "code": 500,
-            "message": "Server Error",
-        });
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 }
 
@@ -62,11 +61,10 @@ export async function getUserStatistics(req: any, res: Response, next: NextFunct
             }
         });
     } catch (error) {
-        console.error('Error fetching completed challenges:', error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 }
 
@@ -89,11 +87,10 @@ export async function getUserChallengeHistory(req: any, res: Response, next: Nex
             }
         });
     } catch (error) {
-        console.error('Error fetching completed challenges:', error);
-        return res.status(500).json({
-            "code": 500,
-            message: "Server Error"
-        });
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 }
 
@@ -146,8 +143,10 @@ export const getUserChallenge = async (req: Request, res: Response<getUserChalle
 
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 }
 
@@ -181,7 +180,9 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
         }).sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 }

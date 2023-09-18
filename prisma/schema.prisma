@@ -30,6 +30,13 @@ model challenges {
   @@index([cate_id], map: "cate_idForeignKey")
 }
 
+model error_logs {
+  errorLogId Int    @id @default(autoincrement())
+  level      String @db.VarChar(10)
+  timestamp  String @db.VarChar(45)
+  message    String @db.VarChar(500)
+}
+
 model templates {
   tem_id       Int        @default(autoincrement())
   chal_id      Int
@@ -63,7 +70,7 @@ model user_challenges {
   uchal_id                 Int                        @default(autoincrement())
   user_id                  Int
   chal_id                  Int
-  complete                 Boolean?
+  complete                 Boolean?                   @default(false)
   start_at                 DateTime                   @default(dbgenerated("(curdate())")) @db.Date
   finish_at                DateTime?                  @db.Date
   challenges               challenges                 @relation(fields: [chal_id], references: [chal_id], onDelete: Cascade, map: "chal_idForeignKey2")
@@ -74,7 +81,6 @@ model user_challenges {
   @@index([chal_id], map: "chal_idForeignKey2")
   @@index([user_id], map: "user_idForeignKey2")
 }
-
 
 model users {
   user_id         Int               @id @default(autoincrement())
@@ -90,7 +96,4 @@ model users {
   created_at      DateTime          @default(now()) @db.Timestamp(0)
   update_at       DateTime          @default(now()) @db.Timestamp(0)
   user_challenges user_challenges[]
-
-
-
 }

@@ -5,7 +5,7 @@ require('dotenv').config();
 import { NextFunction, Request, Response } from 'express';
 import *  as profileService from '../services/profileService.js';
 import * as jwt from '../modules/jwtModules.js';
-
+import { stream, logger } from '../modules/loggerHandler.js';
 /**
  * @route Method /Route
  * @desc Function Description
@@ -26,8 +26,11 @@ export const userProfile = async (req: Request, res: Response) => {
         return res.status(returnData.status).send(returnData);
     }
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error) {
+      logger.error(error.stack); 
       return res.status(500).send({ status: 500, message: "Fail Get Profile" });
+  }  
+     
   }
 
 }
@@ -42,8 +45,10 @@ export const couponActivation = async (req: Request, res: Response) => {
         const returnData: serviceReturnForm = await profileService.couponActivation( decoded!.id,parseInt(couponCode),);
         return res.status(returnData.status).send(returnData);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send({ status: 500, message: "Fail Coupon Activation" });
+        if (error instanceof Error) {
+          logger.error(error.stack); 
+          return res.status(500).send({ status: 500, message: "Fail Coupon Activation" });
+      }  
     }
 }
 
@@ -59,8 +64,10 @@ export const userChallengeStatistics = async (req: Request, res: Response) => {
         const returnData: serviceReturnForm = await profileService.getChallengeStatistics(<string>year, <string>month, <string>week,<string>period, decoded!.id);
         return res.status(returnData.status).send(returnData);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send({ status: 500, message: "Fail Get Challenge Statistics" });
+        if (error instanceof Error) {
+          logger.error(error.stack); 
+          return res.status(500).send({ status: 500, message: "Fail Get Challenge Statistics" });
+      } 
     }
 }
 
@@ -77,8 +84,10 @@ export const emailUpdate = async (req: Request, res: Response) => {
         const returnData: serviceReturnForm = await profileService.updateEmail(email, decoded!.id);
         return res.status(returnData.status).send(returnData);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send({ status: 500, message: "Fail Update Email" });
+        if (error instanceof Error) {
+          logger.error(error.stack); 
+          return res.status(500).send({ status: 500, message: "Fail Update Email" });
+      } 
     }
 }
 
@@ -94,8 +103,11 @@ export const passwordUpdate = async (req: Request, res: Response) => {
         const returnData: serviceReturnForm = await profileService.updatePassword(oldPassword, newPassword, decoded!.id);
         res.status(returnData.status).send(returnData);
     } catch (error) {
-        console.log(error);
-        res.status(500).send({ status: 500, message: "Fail Update Password" });
+        if (error instanceof Error) {
+          logger.error(error.stack); 
+          res.status(500).send({ status: 500, message: "Fail Update Password" });
+      } 
+        
     }
 }
 
@@ -109,8 +121,10 @@ export const profileUpdate = async (req: Request, res: Response) => {
     const returnData: serviceReturnForm = await profileService.updateProfile(nickname, phoneNumber, marketingAgreement,decoded!.id);
     res.status(returnData.status).send(returnData);
   } catch (error) {
-    console.log(error);
-    res.status(500).send({ status: 500, message: "Fail Update Profile" });
+    if (error instanceof Error) {
+      logger.error(error.stack); 
+      res.status(500).send({ status: 500, message: "Fail Update Profile" });
+  } 
   }
 
 }

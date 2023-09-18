@@ -13,6 +13,7 @@ import axios from 'axios';
 import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
+import { stream, logger } from '../modules/loggerHandler.js';
 
 // const redisClient = redis.createClient({
 //     url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
@@ -44,7 +45,11 @@ export const verifyEmail = async (req: Request, res: Response) => {
         }
     } catch (error) {
         await redisClient.disconnect();
-        return res.status(500).send({ status: 500, message: "Fail Verify Email" });
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return res.status(500).send({ status: 500, message: "Fail Verify Email" });
+        }
+   
     }
 
 }
@@ -83,52 +88,13 @@ export const sendEmail = async (req: Request<any, any, sendEmailRequestDto>, res
         }
 
     } catch (error) {
-        console.log(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 }
 
-
-
-// /**
-//  * @route Method /Route
-//  * @desc Function Description
-//  * @access Public
-//  */
-
-// export const userSignup = async (req: Request, res: Response) => {
-
-//     // * Validate user input
-//     if (!req.body.email || !req.body.password || !req.body.nickname || !req.body.userId) {
-//         res.status(400).send({ status: 400, message: "Fail SignUp" });
-//         return;
-//     }
-//     const { email, password, nickname, userId, phoneNumber } = req.body;
-
-//     const returnData: serviceReturnForm = await UserService.userSignup(
-//         email,
-//         password,
-//         nickname,
-//         userId,
-//         phoneNumber
-//     );
-//     if (returnData.status == 200) {
-//         // when successed
-//         const { status, message, responseData } = returnData;
-//         res.status(status).send({
-//             status,
-//             message,
-//             responseData,
-//         });
-//     } else {
-//         // when failed
-//         const { status, message } = returnData;
-//         res.status(status).send({
-//             status,
-//             message,
-//         });
-//     }
-// };
 
 /**
  * 
@@ -154,8 +120,10 @@ export const userSignup = async (req: Request<any, any, signUpRequestDto>, res: 
         return new SuccessResponse(200, "OK").sendResponse(res);
 
     } catch (error) {
-        console.log(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 
@@ -204,7 +172,10 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
     } catch (error) {
         console.error(error);
         await redisClient.disconnect();
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 /**
@@ -265,9 +236,10 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
         return new ErrorResponse(402, "헤더의 값을 알 수 없습니다.").sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
-
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 
@@ -310,10 +282,10 @@ export const userLogout = async (req: Request, res: Response) => {
         }
     } catch (error) {
         await redisClient.disconnect();
-        return res.status(500).json({
-            code: 500,
-            message: "Server Error"
-        });
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 
@@ -356,8 +328,10 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
 
     } catch (error) {
         await redisClient.disconnect();
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 
@@ -398,8 +372,10 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
 
         return new SuccessResponse(200, "OK").sendResponse(res);
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 
@@ -426,7 +402,10 @@ export const checkIdentifier = async (req: Request<any, any, any, checkIdentifie
         return new ErrorResponse(400, "아이디 중복").sendResponse(res);
 
     } catch (error) {
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 
@@ -476,7 +455,10 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
     } catch (error) {
         await redisClient.disconnect();
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }
     }
 };
 

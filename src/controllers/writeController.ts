@@ -8,6 +8,7 @@ import * as ChallengeService from '../services/challengeService.js';
 import { ChallengeCategoryDB, insertChallengeRequestDto, newChallengeRequestDto, newChallengeResponseDto, selectTemplateRequestDto, selectTemplateResponseDto, writeChallengeResponseDto } from '../interfaces/writeDTO';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 import { TemplateDTO } from '../interfaces/DTO.js';
+import { stream, logger } from '../modules/loggerHandler.js';
 
 /**
  * 새 챌린지 시작 
@@ -109,8 +110,11 @@ export const newChallenge = async (req: Request<newChallengeRequestDto>, res: Re
         }
         return new ErrorResponse(415, "현재 진행 중인 챌린지와 중복됩니다.").sendResponse(res);
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            console.log(error.stack)
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -199,8 +203,10 @@ export const writeChallenge = async (req: Request, res: Response<writeChallengeR
         }).sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -290,8 +296,10 @@ export const selectTemplate = async (req: Request<selectTemplateRequestDto>, res
         }).sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -334,8 +342,10 @@ export const insertTemporaryChallenge = async (req: Request<any, any, insertChal
         return new SuccessResponse(200, "OK").sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -381,8 +391,10 @@ export const insertChallengeComplete = async (req: Request<any, any, insertChall
         return new SuccessResponse(200, "OK").sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
@@ -411,8 +423,10 @@ export const plannerTemporaryChallenge = async (req: Request<any, any, insertCha
         return new SuccessResponse(200, "OK").sendResponse(res);
 
     } catch (error) {
-        console.error(error);
-        return new ErrorResponse(500, "Server Error").sendResponse(res);
+        if (error instanceof Error) {
+            logger.error(error.stack); 
+            return new ErrorResponse(500, "Server Error").sendResponse(res);
+        }  
     }
 };
 
