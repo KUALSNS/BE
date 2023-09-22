@@ -67,7 +67,7 @@ const verify = (token: string) => {
 
 const refreshVerify = async (token: string, userId: number) => {
 
-  await redisClient.connect();
+  //await redisClient.connect();
 
   try {
 
@@ -80,17 +80,17 @@ const refreshVerify = async (token: string, userId: number) => {
   
       jwt.verify(data.split('Bearer ')[1], secret);
    
-      await redisClient.disconnect();
+      //await redisClient.disconnect();
      
       return { state: true };
     }
 
-    await redisClient.disconnect();
+    //await redisClient.disconnect();
     return { state: false };
 
 
   } catch (err) {
-    await redisClient.disconnect();
+   // await redisClient.disconnect();
     return { state: false };
   }
 };
