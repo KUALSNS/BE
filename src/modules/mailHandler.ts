@@ -3,17 +3,17 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 import { smtpTransport } from "../config/email.js";
 require('dotenv').config();
+import { redisClient } from '../config/redis.js'; 
 
-
-// const redisClient = redis.createClient({
+// const redisClient = redis.createClient({                                     // aws 
 //   url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
 //   legacyMode: true
 // });
 
-const redisClient = redis.createClient({
-  url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
-  legacyMode: true
-});
+// const redisClient = redis.createClient({
+//   url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+//   legacyMode: true
+// });
 
 
 const generateRandom = function (min: number, max: number) {

@@ -6,7 +6,6 @@ import { checkIdentifierRequestDto, kakaoLogInResponseDto, passwordUpdate, redis
 import *  as UserService from '../services/userService.js';
 import bcrypt from 'bcrypt';
 import * as jwt from '../modules/jwtModules.js';
-import * as redis from 'redis';
 import { serviceReturnForm } from '../modules/responseHandler.js';
 import { smtpSender, randomPasswordsmtpSender } from '../modules/mailHandler.js';
 import axios from 'axios';
@@ -14,16 +13,16 @@ import { RowDataPacket } from 'mysql2/promise';
 import { randomPasswordFunction } from '../modules/randomPassword.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
 import { stream, logger } from '../modules/loggerHandler.js';
-
-// const redisClient = redis.createClient({
+import { redisClient } from '../config/redis.js'; 
+// const redisClient = redis.createClient({            // aws 
 //     url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
 //     legacyMode: true
 // });
 
-const redisClient = redis.createClient({
-    url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
-    legacyMode: true
-});
+// const redisClient = redis.createClient({             // redislab
+//     url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+//     legacyMode: true
+// });
 
 
 /**

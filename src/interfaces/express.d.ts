@@ -22,4 +22,7 @@ declare global{
       files: IFile[];
     }
   }
+
+
+
 }

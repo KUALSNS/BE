@@ -1,8 +1,18 @@
 import express from 'express';
 import * as UserController from '../controllers/userController.js';
 
+
 const router = express.Router();
 
+// router.use((req, res, next) => {
+//     const redisClient = redis.createClient({
+//       url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
+//       legacyMode: true
+//     });
+//     (req as any).redisClient = redisClient; // 타입 캐스팅
+//     next();
+//   });
+  
 router.post('/login', UserController.userLogin);
 router.post('/login/reissue-token', UserController.userReissueToken);
 router.patch('/logout', UserController.userLogout);
