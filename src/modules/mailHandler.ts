@@ -39,7 +39,7 @@ export const smtpSender = async function (email: string) {
     smtpTransport.close();
     console.log("here is email and auth")
     console.log(email + "       " + auth);
-    await redisClient.disconnect();
+   // await redisClient.disconnect();
    
     
     return {
@@ -50,7 +50,7 @@ export const smtpSender = async function (email: string) {
       }
     };
   } catch (error) {
-    await redisClient.disconnect();
+ //   await redisClient.disconnect();
     return {
       status: 500,
       message: '이메일 전송에 실패하였습니다.',
@@ -58,7 +58,9 @@ export const smtpSender = async function (email: string) {
         error: error
       }
     }
-  }
+  }finally {
+    await redisClient.disconnect(); // 연결 종료
+}
 
 }
 
@@ -82,7 +84,6 @@ export const randomPasswordsmtpSender = async (email: string, randomPassword: st
       }
     };
   } catch (error) {
-    await redisClient.disconnect();
     return {
       status: 500,
       message: '이메일 전송에 실패하였습니다.',

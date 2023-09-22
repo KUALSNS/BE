@@ -70,8 +70,6 @@ const refreshVerify = async (token: string, userId: number) => {
   //await redisClient.connect();
 
   try {
-
-
     
     const data: string = await redisClient.v4.get(String(userId));
     console.log(data);

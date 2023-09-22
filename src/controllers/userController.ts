@@ -374,7 +374,7 @@ export const userPasswordFind = async (req: Request<any, any, userPasswordFindRe
 
         const randomPassword = randomPasswordFunction();
         const encryptedPassword = await bcrypt.hash(randomPassword, 10)
-        const passwordUpdate = await UserService.updatePasswordData(identifier, userEmail, encryptedPassword);
+        await UserService.updatePasswordData(identifier, userEmail, encryptedPassword);
 
         randomPasswordsmtpSender(
             userEmail,
@@ -455,7 +455,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
 
         await redisClient.connect();
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
-        await redisClient.disconnect();
+   //     await redisClient.disconnect();
 
 
         return new SuccessResponse(200, "OK", {
@@ -465,11 +465,13 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         }).sendResponse(res);
 
     } catch (error) {
-        await redisClient.disconnect();
+  //      await redisClient.disconnect();
         if (error instanceof Error) {
             logger.error(error.stack); 
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
+    }finally {
+        await redisClient.disconnect(); // 연결 종료
     }
 };
 
