@@ -39,7 +39,7 @@ class DatabaseTransport extends TransportStream {
       const connection = await mysql.createConnection(DATA_SOURCES.development);
       await connection.connect();
       const escapedMessage = message.replace(/'/g, "''");
-      const logInsert = `INSERT INTO error_logs (level, timestamp, message) VALUES ('${level}', '${koreaTimestamp}', '${escapedMessage}'); `;
+      const logInsert = `INSERT INTO error_logs (level, timestamp, message) VALUES ('${level}', '${koreaTimestamp.toISOString()}', '${escapedMessage}'); `;
       await connection.query(logInsert);
       await connection.end();
       console.log('로그가 데이터베이스에 저장되었습니다.');
