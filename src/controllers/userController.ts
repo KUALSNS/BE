@@ -192,7 +192,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
 
-            await redisClient.connect();
+        //    await redisClient.connect();
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
@@ -228,7 +228,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } finally {
-        await redisClient.disconnect(); // 연결 종료
+     //   await redisClient.disconnect(); // 연결 종료
     }
 };
 
