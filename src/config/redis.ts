@@ -17,11 +17,6 @@ const redisClient = redis.createClient({
     disableOfflineQueue: true,
 });
 
-const client_connect = async () => {
-	await redisClient.connect();
-    console.log('connected');
-    return;
-};
-client_connect();
+
 
 export { redisClient };
