@@ -159,7 +159,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
         const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
-        await redisClient.connect();
+    //    await redisClient.connect();
         await redisClient.v4.set(String(data.user_id), refreshToken);
  //       await redisClient.disconnect();
 
@@ -200,7 +200,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
-            await redisClient.connect();
+   //         await redisClient.connect();
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
@@ -260,7 +260,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
  */
 export const userLogout = async (req: Request, res: Response) => {
     try {
-        await redisClient.connect();
+   //     await redisClient.connect();
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
             const decode = jwt.decode(accessToken);
@@ -451,7 +451,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         const accessToken = "Bearer " + jwt.sign(userId?.user_id, userId!.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
-        await redisClient.connect();
+    //    await redisClient.connect();
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
    //     await redisClient.disconnect();
 
