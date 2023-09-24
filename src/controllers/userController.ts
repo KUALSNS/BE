@@ -192,7 +192,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
 
-
+            await redisClient.connect();
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
@@ -209,11 +209,8 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                 }
 
                 const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
-                await redisClient.connect();
-
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
 
-                //      await redisClient.disconnect();
                 return new SuccessResponse(200, "OK", {
                     accessToken: "Bearer " + newAccessToken,
                     refreshToken: userRefreshToken
@@ -232,7 +229,6 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
         }
     } finally {
         await redisClient.disconnect(); // 연결 종료
-
     }
 };
 
