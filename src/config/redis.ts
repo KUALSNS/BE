@@ -13,7 +13,8 @@ require('dotenv').config();
 // Redis 클라이언트 생성
 const redisClient = redis.createClient({
     url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
-    legacyMode: true
+    legacyMode: true,
+    disableOfflineQueue: false,
 });
 
 // 연결 이벤트 리스너 추가 (옵션)
