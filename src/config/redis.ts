@@ -14,7 +14,7 @@ require('dotenv').config();
 const redisClient = redis.createClient({
     url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
     legacyMode: true,
-    disableOfflineQueue: false,
+    disableOfflineQueue: true,
 });
 
 const client_connect = async () => {
@@ -22,6 +22,6 @@ const client_connect = async () => {
     console.log('connected');
     return;
 };
-//client_connect();
+client_connect();
 
 export { redisClient };
