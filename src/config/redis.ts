@@ -17,9 +17,11 @@ const redisClient = redis.createClient({
     disableOfflineQueue: false,
 });
 
-// 연결 이벤트 리스너 추가 (옵션)
-// redisClient.on('connect', () => {
-//     console.log('Connected to Redis');
-// });
+const client_connect = async () => {
+	await redisClient.connect();
+    console.log('connected');
+    return;
+};
+client_connect();
 
 export { redisClient };
