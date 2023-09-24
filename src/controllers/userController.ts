@@ -213,7 +213,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
                 return new SuccessResponse(200, "OK", {
                     accessToken: "Bearer " + newAccessToken,
-                    refreshToken:  requestRefreshToken
+                    refreshToken:  refreshResult.token
                 }).sendResponse(res);
             }
 
