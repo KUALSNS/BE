@@ -22,6 +22,6 @@ const client_connect = async () => {
     console.log('connected');
     return;
 };
-client_connect();
+//client_connect();
 
 export { redisClient };
