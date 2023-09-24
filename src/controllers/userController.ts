@@ -170,7 +170,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } finally {
-         redisClient.disconnect(); // 연결 종료
+        await redisClient.disconnect(); // 연결 종료
     }
 };
 /**
@@ -237,7 +237,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } finally {
-        redisClient.disconnect(); // 연결 종료
+        await redisClient.disconnect(); // 연결 종료
 
     }
 };
@@ -288,7 +288,7 @@ export const userLogout = async (req: Request, res: Response) => {
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } finally {
-        redisClient.disconnect(); // 연결 종료
+        await redisClient.disconnect(); // 연결 종료
     }
 };
 
@@ -336,7 +336,7 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } finally {
-                await redisClient.disconnect(); // 연결 종료
+        await redisClient.disconnect(); // 연결 종료
     }
 };
 
@@ -468,7 +468,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } finally {
-        redisClient.disconnect(); // 연결 종료
+        await redisClient.disconnect(); // 연결 종료
     }
 };
 
