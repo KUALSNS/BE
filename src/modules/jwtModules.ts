@@ -4,17 +4,6 @@ import * as redis from 'redis';
 import { redisClient } from '../config/redis.js'; 
 
 const secret = process.env.JSONSECRET!;
-// const redisClient = redis.createClient({         // aws 
-//   url: `redis://${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
-//   legacyMode: true
-// });
-
-// const redisClient = redis.createClient({
-//   url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
-//   legacyMode: true
-// });
-
-
 
 const sign = (userId: number, userRole: string) => {
   const payload = {
@@ -23,7 +12,7 @@ const sign = (userId: number, userRole: string) => {
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '30d',
+    expiresIn: '30s',
   });
 }
 
@@ -68,7 +57,7 @@ const verify = (token: string) => {
 const refreshVerify = async (token: string, userId: number) => {
 
   try {
-    
+    await redisClient.connect();
     const data: string = await redisClient.v4.get(String(userId));
     console.log(data);
 
@@ -86,6 +75,8 @@ const refreshVerify = async (token: string, userId: number) => {
   } catch (err) {
    // await redisClient.disconnect();
     return { state: false };
+  }finally{
+     await redisClient.disconnect(); // 연결 종료
   }
 };
 

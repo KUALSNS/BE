@@ -209,11 +209,11 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                 }
 
                 const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
-                const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
+            //    const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
 
                 return new SuccessResponse(200, "OK", {
                     accessToken: "Bearer " + newAccessToken,
-                    refreshToken: userRefreshToken
+                    refreshToken:  requestRefreshToken
                 }).sendResponse(res);
             }
 
