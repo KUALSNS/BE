@@ -186,8 +186,6 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
 export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
 
-        await redisClient.connect();
-
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
 
@@ -205,17 +203,14 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
             if (authResult.state === false) {
 
-                console.log("after2")
-
                 if (refreshResult?.state === false) {
-                    console.log("after3")
 
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
 
 
                 const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
-                //     await redisClient.connect();
+                await redisClient.connect();
 
                 const userRefreshToken = await redisClient.v4.get(String(decoded?.id));
 

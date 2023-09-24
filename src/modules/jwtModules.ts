@@ -67,7 +67,7 @@ const verify = (token: string) => {
 
 const refreshVerify = async (token: string, userId: number) => {
 
-  //await redisClient.connect();
+  await redisClient.connect();
 
   try {
     
@@ -90,6 +90,8 @@ const refreshVerify = async (token: string, userId: number) => {
   } catch (err) {
    // await redisClient.disconnect();
     return { state: false };
+  }finally{
+    await redisClient.disconnect();
   }
 };
 
