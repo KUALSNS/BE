@@ -12,7 +12,7 @@ const sign = (userId: number, userRole: string) => {
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '30s',
+    expiresIn: '30d',
   });
 }
 
@@ -58,7 +58,6 @@ const refreshVerify = async (token: string, userId: number) => {
 
   try {
     const data: string = await redisClient.v4.get(String(userId));
-    console.log(data);
 
     if (token === data.split('Bearer ')[1]) { 
 
