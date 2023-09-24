@@ -18,8 +18,8 @@ const redisClient = redis.createClient({
 });
 
 // 연결 이벤트 리스너 추가 (옵션)
-redisClient.on('connect', () => {
-    console.log('Connected to Redis');
-});
+// redisClient.on('connect', () => {
+//     console.log('Connected to Redis');
+// });
 
 export { redisClient };
