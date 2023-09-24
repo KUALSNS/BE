@@ -65,7 +65,6 @@ const refreshVerify = async (token: string, userId: number) => {
   
       jwt.verify(data.split('Bearer ')[1], secret);
    
-
       await redisClient.disconnect();
       return { state: true };
     }
