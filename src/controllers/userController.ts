@@ -208,7 +208,6 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
                     return new ErrorResponse(419, "login again!").sendResponse(res)
                 }
 
-
                 const newAccessToken = jwt.sign(decoded?.id, decoded?.role);
                 await redisClient.connect();
 
