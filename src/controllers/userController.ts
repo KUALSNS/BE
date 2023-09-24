@@ -145,6 +145,7 @@ export const userSignup = async (req: Request<any, any, signUpRequestDto>, res: 
  */
 export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response<UserLoginResponseDto>) => {
     try {
+        await redisClient.connect();
 
         const { userIdentifier, userPassword } = req.body;
         const data = await UserService.userInformationSelectData(userIdentifier);
@@ -159,7 +160,7 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
         const accessToken = "Bearer " + jwt.sign(data.user_id, data.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
-    //    await redisClient.connect();
+   
         await redisClient.v4.set(String(data.user_id), refreshToken);
  //       await redisClient.disconnect();
 
@@ -171,7 +172,6 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
         }).sendResponse(res);
 
     } catch (error) {
-        console.error(error);
    //     await redisClient.disconnect();
         if (error instanceof Error) {
             logger.error(error.stack); 
@@ -194,13 +194,13 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
 export const userReissueToken = async (req: Request, res: Response<UserReissueTokenResponseDto>) => {
     try {
 
-
+        await redisClient.connect();
         const requestAccessToken = req.headers.access;
         const requestRefreshToken = req.headers.refresh;
 
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
-   //         await redisClient.connect();
+
 
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
@@ -260,7 +260,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
  */
 export const userLogout = async (req: Request, res: Response) => {
     try {
-   //     await redisClient.connect();
+        await redisClient.connect();
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
             const decode = jwt.decode(accessToken);
@@ -428,6 +428,7 @@ export const checkIdentifier = async (req: Request<any, any, any, checkIdentifie
 export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseDto>) => {
     try {
 
+        await redisClient.connect();
         const kakaoAccessToken = req.headers.access;
 
         const userData = await axios({
@@ -451,7 +452,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
         const accessToken = "Bearer " + jwt.sign(userId?.user_id, userId!.role);
         const refreshToken = "Bearer " + jwt.refresh();
 
-    //    await redisClient.connect();
+   
         await redisClient.v4.set(String(userId?.user_id), refreshToken);
    //     await redisClient.disconnect();
 
