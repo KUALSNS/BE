@@ -77,8 +77,16 @@ export const randomPasswordsmtpSender = async (email: string, randomPassword: st
     const mailOptions = {
       from: "teamwritoner" + "@gmail.com",
       to: email,
-      subject: 'Writon 서비스 이메일 인증 코드입니다.',
-      text: `임시비밀번호 : ${randomPassword}`
+      subject: '[Writon] 임시 비밀번호 안내',
+      html: `
+      <p>안녕하세요, 라이톤 입니다. </p>
+    
+      <p>회원님의 임시 비밀번호는 다음과 같습니다.</p>
+    
+      <p>개인정보 보호를 위해 로그인 후 새로운 비밀번호로 변경해주시기 바랍니다.</p>
+
+      <strong>임시비밀번호</strong>  : ${randomPassword}
+      `
     };
     await smtpTransport.sendMail(mailOptions);
     smtpTransport.close();
