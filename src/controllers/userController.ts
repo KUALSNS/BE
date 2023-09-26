@@ -250,7 +250,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 export const userLogout = async (req: Request, res: Response) => {
     try {
      
-   //     await redisClient.connect();
+        await redisClient.connect();
      
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
@@ -283,9 +283,10 @@ export const userLogout = async (req: Request, res: Response) => {
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     }
-    //  finally {
-    //     await redisClient.disconnect(); // 연결 종료
-    // }
+     finally {
+      //  await redisClient.disconnect(); // 연결 종료
+      await redisClient.quit()
+    }
 };
 
 /**
