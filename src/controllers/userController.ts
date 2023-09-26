@@ -171,9 +171,10 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } 
-    // finally {
-    //     await redisClient.disconnect(); // 연결 종료
-    // }
+    finally {
+       // await redisClient.disconnect(); // 연결 종료
+       await redisClient.quit()
+    }
 };
 /**
  * 유저 토큰 재발급 함수
@@ -230,9 +231,10 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } 
-    // finally {
-    //     await redisClient.disconnect(); // 연결 종료
-    // }
+    finally {
+      //  await redisClient.disconnect(); // 연결 종료
+        await redisClient.quit()
+    }
 };
 
 
