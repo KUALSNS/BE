@@ -9,6 +9,7 @@ export type getUserChallengeTemplateRequestDto = {
 
 export interface getUserChallengeTemplateResponseDto {
     category : string;
+    emogi : string;
     template : getUserChallengeTemplate;
    
 }

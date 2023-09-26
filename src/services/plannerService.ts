@@ -318,7 +318,8 @@ export const getUserChallengeTemplateData = async (userId: number, challenge : s
                 },
                 category :{
                     select:{
-                        name : true
+                        name : true,
+                        emogi: true
                     }
                 }
             },

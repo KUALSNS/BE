@@ -166,7 +166,7 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
 
         const userId: number = req.decoded?.id;
         const challenge = req.params.challenge;
-        const userChallengeTemplateArray = [];
+        
 
         const userChallengeTemplateDB = await plannerService.getUserChallengeTemplateData(userId, challenge);
 
@@ -174,6 +174,7 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
             return new ErrorResponse(403, "작성 템플릿이 없습니다.").sendResponse(res);
         }
         const category = userChallengeTemplateDB[0].category.name;
+        const emogi = userChallengeTemplateDB[0].category.emogi
         const userChallengeTemplate = userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes.map((e)=>{
 
             const dateString = e.created_at; 
@@ -193,6 +194,7 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
         });
         return new SuccessResponse(200, "OK", {
             category,
+            emogi,
             userChallengeTemplate
         }).sendResponse(res);
 
