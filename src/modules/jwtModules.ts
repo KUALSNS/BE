@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import type { JwtPayload } from "jsonwebtoken"
-import * as redis from 'redis';
 import { redisClient } from '../config/redis.js'; 
 
 const secret = process.env.JSONSECRET!;
@@ -12,7 +11,7 @@ const sign = (userId: number, userRole: string) => {
   };
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
-    expiresIn: '30d',
+    expiresIn: '30s',
   });
 }
 

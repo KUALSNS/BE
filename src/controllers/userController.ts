@@ -24,7 +24,7 @@ import { redisClient } from '../config/redis.js';
 export const verifyEmail = async (req: Request, res: Response) => {
     try {
         const { email, code } = req.query;
-        await redisClient.connect();
+    //    await redisClient.connect();
         const redisCode = await redisClient.v4.get(email);
         if (redisCode == parseInt(<string>code)) {
             //       await redisClient.disconnect();
@@ -39,9 +39,10 @@ export const verifyEmail = async (req: Request, res: Response) => {
             logger.error(error.stack);
             return res.status(500).send({ status: 500, message: "Fail Verify Email" });
         }
-    } finally {
-        await redisClient.disconnect(); // 연결 종료
     }
+    //  finally {
+    //     await redisClient.disconnect(); // 연결 종료
+    // }
 
 
 }
@@ -137,7 +138,7 @@ export const userSignup = async (req: Request<any, any, signUpRequestDto>, res: 
 export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response<UserLoginResponseDto>) => {
     try {
 
-        await redisClient.connect();
+   //     await redisClient.connect();
 
         const { userIdentifier, userPassword } = req.body;
         const data = await UserService.userInformationSelectData(userIdentifier);
@@ -169,9 +170,10 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
             logger.error(error.stack);
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
-    } finally {
-        await redisClient.disconnect(); // 연결 종료
-    }
+    } 
+    // finally {
+    //     await redisClient.disconnect(); // 연결 종료
+    // }
 };
 /**
  * 유저 토큰 재발급 함수
@@ -192,7 +194,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
 
-            await redisClient.connect();
+       //     await redisClient.connect();
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
@@ -227,9 +229,10 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             logger.error(error.stack);
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
-    } finally {
-        await redisClient.disconnect(); // 연결 종료
-    }
+    } 
+    // finally {
+    //     await redisClient.disconnect(); // 연결 종료
+    // }
 };
 
 
@@ -245,7 +248,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 export const userLogout = async (req: Request, res: Response) => {
     try {
      
-        await redisClient.connect();
+   //     await redisClient.connect();
      
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
@@ -277,9 +280,10 @@ export const userLogout = async (req: Request, res: Response) => {
             logger.error(error.stack);
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
-    } finally {
-        await redisClient.disconnect(); // 연결 종료
     }
+    //  finally {
+    //     await redisClient.disconnect(); // 연결 종료
+    // }
 };
 
 /**
@@ -298,7 +302,7 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
         const email = req.query.email;
         const code = req.query.code;
 
-        await redisClient.connect();
+    //    await redisClient.connect();
         const redisCode: redisCode = await redisClient.v4.get(email);
 
         if (redisCode == parseInt(<string>code)) {
@@ -325,9 +329,10 @@ export const userIdFind = async (req: Request<any, any, any, userIdFindRequestDt
             logger.error(error.stack);
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
-    } finally {
-        await redisClient.disconnect(); // 연결 종료
-    }
+    } 
+    // finally {
+    //     await redisClient.disconnect(); // 연결 종료
+    // }
 };
 
 /**
@@ -415,7 +420,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
     try {
 
 
-        await redisClient.connect();
+   //     await redisClient.connect();
 
         const kakaoAccessToken = req.headers.access;
 
@@ -457,9 +462,10 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
             logger.error(error.stack);
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
-    } finally {
-        await redisClient.disconnect(); // 연결 종료
-    }
+    } 
+    // finally {
+    //     await redisClient.disconnect(); // 연결 종료
+    // }
 };
 
 

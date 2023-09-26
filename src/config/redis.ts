@@ -15,8 +15,20 @@ const redisClient = redis.createClient({
     url: `redis://${process.env.REDISLAB}@${process.env.AWS_REDIS_ENDPOINT}:${process.env.AWS_REDIS_PORT}`,
     legacyMode: true,
     disableOfflineQueue: true,
+    
+    
+    
 });
 
+const connectToRedis = async () => {
+    try {
+        await redisClient.connect();
+        console.log('Connected to Redis');
+    } catch (error) {
+        console.error('Error connecting to Redis:');
+    }
+};
 
+connectToRedis();
 
 export { redisClient };
