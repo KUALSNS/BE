@@ -138,7 +138,7 @@ export const userSignup = async (req: Request<any, any, signUpRequestDto>, res: 
 export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response<UserLoginResponseDto>) => {
     try {
 
-        await redisClient.connect();
+    //    await redisClient.connect();
 
         const { userIdentifier, userPassword } = req.body;
         const data = await UserService.userInformationSelectData(userIdentifier);
@@ -171,10 +171,10 @@ export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } 
-    finally {
-       // await redisClient.disconnect(); // 연결 종료
-       await redisClient.quit()
-    }
+    // finally {
+    //    // await redisClient.disconnect(); // 연결 종료
+    //    await redisClient.quit()
+    // }
 };
 /**
  * 유저 토큰 재발급 함수
@@ -195,7 +195,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
 
-            await redisClient.connect();
+       //     await redisClient.connect();
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
@@ -231,10 +231,10 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } 
-    finally {
-      //  await redisClient.disconnect(); // 연결 종료
-        await redisClient.quit()
-    }
+    // finally {
+    //   //  await redisClient.disconnect(); // 연결 종료
+    //     await redisClient.quit()
+    // }
 };
 
 
@@ -250,7 +250,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 export const userLogout = async (req: Request, res: Response) => {
     try {
      
-        await redisClient.connect();
+     //   await redisClient.connect();
      
         if (typeof req.headers.access == "string") {
             const accessToken = req.headers.access.split('Bearer ')[1];
@@ -283,10 +283,10 @@ export const userLogout = async (req: Request, res: Response) => {
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     }
-     finally {
-      //  await redisClient.disconnect(); // 연결 종료
-      await redisClient.quit()
-    }
+    //  finally {
+    //   //  await redisClient.disconnect(); // 연결 종료
+    //   await redisClient.quit()
+    // }
 };
 
 /**
@@ -423,7 +423,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
     try {
 
 
-        await redisClient.connect();
+    //    await redisClient.connect();
 
         const kakaoAccessToken = req.headers.access;
 
@@ -466,10 +466,10 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } 
-    finally {
-       // await redisClient.disconnect(); // 연결 종료
-       await redisClient.quit()
-    }
+    // finally {
+    //    // await redisClient.disconnect(); // 연결 종료
+    //    await redisClient.quit()
+    // }
 };
 
 
