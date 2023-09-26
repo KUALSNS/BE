@@ -175,6 +175,7 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
         }
         const category = userChallengeTemplateDB[0].category.name;
         const emogi = userChallengeTemplateDB[0].category.emogi
+        const achievement =  Math.round(userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes.length * 3.3);
         const userChallengeTemplate = userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes.map((e)=>{
 
             const dateString = e.created_at; 
@@ -189,12 +190,12 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
                 "title" : e.title,
                 "writing": e.writing,
                 "created_at":parsedDateStr
-
             }     
         });
         return new SuccessResponse(200, "OK", {
             category,
             emogi,
+            achievement,
             userChallengeTemplate
         }).sendResponse(res);
 
