@@ -138,7 +138,7 @@ export const userSignup = async (req: Request<any, any, signUpRequestDto>, res: 
 export const userLogin = async (req: Request<any, any, userLoginRequestDto>, res: Response<UserLoginResponseDto>) => {
     try {
 
-   //     await redisClient.connect();
+        await redisClient.connect();
 
         const { userIdentifier, userPassword } = req.body;
         const data = await UserService.userInformationSelectData(userIdentifier);
@@ -195,7 +195,7 @@ export const userReissueToken = async (req: Request, res: Response<UserReissueTo
 
         if (requestAccessToken !== undefined && requestRefreshToken !== undefined && typeof requestAccessToken == 'string' && typeof requestRefreshToken == 'string') {
 
-       //     await redisClient.connect();
+            await redisClient.connect();
             const accessToken = requestAccessToken.split('Bearer ')[1];
             const refreshToken = requestRefreshToken.split('Bearer ')[1];
 
@@ -422,7 +422,7 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
     try {
 
 
-   //     await redisClient.connect();
+        await redisClient.connect();
 
         const kakaoAccessToken = req.headers.access;
 
@@ -465,9 +465,10 @@ export const kakaoLogIn = async (req: Request, res: Response<kakaoLogInResponseD
             return new ErrorResponse(500, "Server Error").sendResponse(res);
         }
     } 
-    // finally {
-    //     await redisClient.disconnect(); // 연결 종료
-    // }
+    finally {
+       // await redisClient.disconnect(); // 연결 종료
+       await redisClient.quit()
+    }
 };
 
 

@@ -30,6 +30,6 @@ const connectToRedis = async () => {
     }
 };
 
-connectToRedis();
+//connectToRedis();
 
 export { redisClient };
