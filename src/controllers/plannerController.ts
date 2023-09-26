@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from '../modules/jwtModules';
 import *  as plannerService from '../services/plannerService.js';
 import { ErrorResponse, SuccessResponse } from '../modules/returnResponse.js';
-import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, userChallengeDto } from '../interfaces/plannerDTO.js';
+import { getUserChallengeResponseDto, getUserChallengeTemplateRequestDto, getUserChallengeTemplateResponseDto, userChallengeDto } from '../interfaces/plannerDTO.js';
 import { getKoreanDateISOString } from '../modules/koreanTime.js';
 import { stream, logger } from '../modules/loggerHandler.js';
 
@@ -160,22 +160,42 @@ export const getUserChallenge = async (req: Request, res: Response<getUserChalle
  *           2. 챌린지 템플릿 데이터
  *           3. 서버 오류
  */
-export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemplateRequestDto>, res: Response<getUserChallengeTemplateRequestDto>, next: NextFunction) => {
+export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemplateRequestDto>, res: Response<getUserChallengeTemplateResponseDto>, next: NextFunction) => {
     try {
 
 
         const userId: number = req.decoded?.id;
         const challenge = req.params.challenge;
+        const userChallengeTemplateArray = [];
 
         const userChallengeTemplateDB = await plannerService.getUserChallengeTemplateData(userId, challenge);
 
         if (userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes[0] === undefined) {
             return new ErrorResponse(403, "작성 템플릿이 없습니다.").sendResponse(res);
         }
-
+        const category = userChallengeTemplateDB[0].category.name;
         const userChallengeTemplate = userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes;
 
+        console.log(userChallengeTemplate)
+
+        for(let i = 0; i < userChallengeTemplate.length; i++){
+
+            const dateString = userChallengeTemplate[i].created_at; 
+            const date = new Date(dateString); 
+            
+            const year = date.getFullYear().toString().slice(-2); 
+            const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
+            const day = date.getDate().toString().padStart(2, '0'); 
+            const parsedDateStr = `${year}.${month}.${day}`;
+            
+
+     //       userChallengeTemplate[i].created_at = parsedDateStr;
+
+        }
+
+
         return new SuccessResponse(200, "OK", {
+            category,
             userChallengeTemplate
         }).sendResponse(res);
 

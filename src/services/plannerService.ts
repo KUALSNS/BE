@@ -304,18 +304,23 @@ export const getUserChallengeTemplateData = async (userId: number, challenge : s
                 user_challenges :{
                     select:{
                         user_challenge_templetes:{
+                            orderBy: {update_at: 'desc'},
                             select:{
                                 title:true,
                                 writing:true,
                                 created_at:true
                             }
-                        }
+                        },                   
                     },
                     where:{
                         user_id:userId
                     }
+                },
+                category :{
+                    select:{
+                        name : true
+                    }
                 }
-
             },
             where:{
                 title: challenge
