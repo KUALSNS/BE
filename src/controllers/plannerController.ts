@@ -174,26 +174,23 @@ export const getUserChallengeTemplate = async (req: Request<getUserChallengeTemp
             return new ErrorResponse(403, "작성 템플릿이 없습니다.").sendResponse(res);
         }
         const category = userChallengeTemplateDB[0].category.name;
-        const userChallengeTemplate = userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes;
+        const userChallengeTemplate = userChallengeTemplateDB[0].user_challenges[0].user_challenge_templetes.map((e)=>{
 
-        console.log(userChallengeTemplate)
-
-        for(let i = 0; i < userChallengeTemplate.length; i++){
-
-            const dateString = userChallengeTemplate[i].created_at; 
+            const dateString = e.created_at; 
             const date = new Date(dateString); 
             
             const year = date.getFullYear().toString().slice(-2); 
             const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
             const day = date.getDate().toString().padStart(2, '0'); 
             const parsedDateStr = `${year}.${month}.${day}`;
-            
 
-     //       userChallengeTemplate[i].created_at = parsedDateStr;
+            return {
+                "title" : e.title,
+                "writing": e.writing,
+                "created_at":parsedDateStr
 
-        }
-
-
+            }     
+        });
         return new SuccessResponse(200, "OK", {
             category,
             userChallengeTemplate
